@@ -1,0 +1,91 @@
+============================================================
+  RPA STOCK RECONCILIATION
+  PT Mayora Indah Tbk
+  Panduan Instalasi & Penggunaan
+============================================================
+
+KEBUTUHAN SISTEM
+────────────────
+- Windows 10 / 11 (64-bit)
+- Python 3.11 atau lebih baru
+  Download: https://www.python.org/downloads/
+  !! Centang "Add Python to PATH" saat install !!
+- SAP GUI 7.x (sudah terinstall)
+- Google Chrome (sudah terinstall)
+- Koneksi internet (untuk akses portal)
+
+
+INSTALASI (CUKUP SEKALI)
+─────────────────────────
+1. Extract folder RPA_StockRecon ke lokasi yang diinginkan
+   Contoh: C:\Users\User\RPA_StockRecon\
+
+2. Salin file konfigurasi ke folder config\ :
+   - plant_mapping.xlsx
+   - List Limit Adj. Material SAP.xlsx
+
+3. Double-klik install.bat
+   Tunggu sampai selesai (5-10 menit pertama kali)
+
+4. Double-klik run.bat untuk buka RPA
+
+5. Setting email SMTP:
+   - Klik tombol "Konfigurasi Email SMTP" di GUI
+   - Isi SMTP Host, Port, Email Pengirim, Password
+   - Klik "Test Kirim" untuk verifikasi
+   - Klik "Simpan"
+
+
+CARA PAKAI SETIAP HARI
+───────────────────────
+1. Buka SAP GUI dan login
+2. Double-klik run.bat
+3. Isi Posting Date (format: DD.MM.YYYY)
+4. Pilih Portal EOD (PGDMTX atau CMIS)
+5. Pilih plant yang ingin diproses
+6. Pilih Run Mode:
+   - "Proses dari daftar Plants" = proses plant yang dicentang
+   - "Auto-scan Not Completed"   = scan semua yang ada selisih
+7. Klik Run RPA
+8. Tunggu sampai log menampilkan "RPA selesai"
+
+!! Jangan sentuh keyboard/mouse saat SAP dikontrol robot !!
+
+
+HASIL OUTPUT
+────────────
+- Email laporan → dikirim ke Email To yang dikonfigurasi
+- File Excel    → C:\RPA_StockRecon\Report\
+- File U2C      → sesuai path yang diset di GUI
+- Log harian    → C:\RPA_StockRecon\Logs\
+- Screenshot    → C:\RPA_StockRecon\Screenshots\
+
+
+TROUBLESHOOTING
+───────────────
+RPA tidak bisa konek Chrome:
+  → Tutup Chrome, biarkan RPA yang buka otomatis
+  → Atau buka Chrome dengan perintah:
+    chrome.exe --remote-debugging-port=9222 --user-data-dir=C:\ChromeRPA
+
+SAP window tidak ditemukan:
+  → Pastikan SAP sudah terbuka dan sudah login
+  → Jangan ada popup/dialog terbuka di SAP
+
+Email gagal terkirim:
+  → Cek konfigurasi SMTP via tombol "Diagnosa" di email config
+  → Pastikan koneksi ke mail server aktif
+
+Error saat install:
+  → Pastikan ada koneksi internet
+  → Coba jalankan install.bat sebagai Administrator
+
+Update RPA ke versi baru:
+  → Salin file .py terbaru ke folder RPA
+  → Double-klik update.bat (opsional, untuk update library)
+
+
+KONTAK
+──────
+Untuk pertanyaan teknis: IT Department
+============================================================
