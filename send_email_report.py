@@ -120,7 +120,7 @@ def build_excel_report(items_per_plant: dict, filepath: str,
         total_917 = total_918 = 0
 
         # Urutkan: Gudang (sloc) dulu, lalu material
-        sorted_items = sorted(items, key=lambda x: (x.sloc, x.material))
+        sorted_items = sorted(items, key=lambda x: (x.mvt_type, x.sloc, x.material))
 
         for i, item in enumerate(sorted_items, start=1):
             row  = 3 + i
@@ -221,11 +221,13 @@ def _build_body_html_per_plant(plant: str, plant_name: str,
                                 items: list, posting_date: str) -> str:
     """
     Buat body HTML email untuk satu plant.
-    Format tabel: Posting Date | Material | Selisih2 | UOM | Gudang | Plant | Adj | Plant Name
+    Format tabel: Material | Selisih2 | UOM | Gudang | Plant | Adj | Plant Name
     Sesuai template standar dari gambar referensi.
     """
     sorted_items = sorted(items, key=lambda x: (x.sloc, x.material))
-
+    sender_name = get_sender_display_name(
+    load_credentials()["email_from"]
+    )
     th_style = (
         "padding:7px 12px;background:#1F5C99;color:white;"
         "font-family:Calibri,Arial;font-size:12px;border:1px solid #CBD5E1;"
@@ -237,7 +239,6 @@ def _build_body_html_per_plant(plant: str, plant_name: str,
 
     header_row = (
         f"<tr>"
-        f"<th style='{th_style}'>Posting Date</th>"
         f"<th style='{th_style}'>Material</th>"
         f"<th style='{th_style}'>Selisih2</th>"
         f"<th style='{th_style}'>UOM</th>"
@@ -256,7 +257,6 @@ def _build_body_html_per_plant(plant: str, plant_name: str,
         selisih_fmt = f"{abs(item.diff):,.3f}".replace(",", "X").replace(".", ",").replace("X", ".")
         data_rows += (
             f"<tr>"
-            f"<td style='{td}'>{item.posting_date}</td>"
             f"<td style='{td}'>{item.material}</td>"
             f"<td style='{td}'>{selisih_fmt}</td>"
             f"<td style='{td}'>CAR</td>"
@@ -292,14 +292,31 @@ def _build_body_html_per_plant(plant: str, plant_name: str,
 </p>
 
 <p style="margin:16px 0 0 0;font-size:13px;color:#1E293B">
-  Terima Kasih,<br>
-  <b>RPA</b>
+    Terima Kasih,<br>
+    <b>{sender_name}</b>
 </p>
 
 </body>
 </html>"""
     return body_html
 
+#BUAT SIGNATURE EMAIL DARI EMAIL PENGIRIM
+def get_sender_display_name(email_address: str) -> str:
+    """
+    Convert email menjadi nama display.
+
+    Contoh:
+    rafael.arrelano@mayora.co.id
+    -> Rafael Arrelano
+    """
+
+    username = email_address.split("@")[0]
+
+    # ganti titik & underscore jadi spasi
+    username = username.replace(".", " ").replace("_", " ")
+
+    # kapital tiap kata
+    return username.title()
 
 # ─────────────────────────────────────────────
 # KIRIM EMAIL VIA SMTP
@@ -502,7 +519,7 @@ def send_stock_diff_report(
         posting_date = items[0].posting_date
 
         # Subject sesuai template standar
-        subject = f"Req. Adj. EOD Plant {display_name} Tanggal {posting_date}"
+        subject = f"Req. Adj. EOD Plant {display_name} Tgl {posting_date}"
 
         # Body email per plant dengan tabel adjustment
         body_html = _build_body_html_per_plant(
