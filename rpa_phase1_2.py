@@ -136,32 +136,6 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
         _log(f"Execute F8 plant {plant}...")
         pyautogui.press("f8")
 
-        # Tunggu popup SAP GUI Security dengan polling (max 30 detik)
-        _log("Menunggu popup Allow SAP GUI Security...")
-        popup_deadline = time.time() + 30
-        popup_found    = False
-        while time.time() < popup_deadline:
-            popups = []
-            def _pcb(h, _):
-                if win32gui.IsWindowVisible(h):
-                    t = win32gui.GetWindowText(h)
-                    if "Security" in t or "Allow" in t:
-                        popups.append(h)
-            win32gui.EnumWindows(_pcb, None)
-            if popups:
-                win32gui.SetForegroundWindow(popups[0])
-                time.sleep(0.3)
-                pyautogui.press("left")   # pilih Allow
-                time.sleep(0.2)
-                pyautogui.press("enter")
-                popup_found = True
-                _log("Popup Allow diklik", "OK")
-                break
-            time.sleep(0.5)
-
-        if not popup_found:
-            _log("Popup Allow tidak terdeteksi — lanjut polling file", "WARN")
-
         # Tunggu file SAPSTK muncul di folder download (polling, max 120 detik)
         _log(f"Menunggu file SAPSTK plant {plant} di {Config.SAP_DOWNLOAD_DIR}...")
         pattern = os.path.join(Config.SAP_DOWNLOAD_DIR, f"{plant}_*_SAPSTK_*.TXT")

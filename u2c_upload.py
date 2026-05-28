@@ -302,8 +302,7 @@ def upload_u2c_to_sap(filepath: str, plant: str,
     1. Navigasi ke T-code U2C yang sesuai portal
     2. Isi field lokasi file dengan filepath
     3. Execute (Enter / Transfer)
-    4. Handle popup Allow jika muncul
-    5. Tunggu selesai
+    4. Tunggu selesai
 
     Return: True jika berhasil, False jika gagal
     """
@@ -340,10 +339,6 @@ def upload_u2c_to_sap(filepath: str, plant: str,
 
         # 3. Klik Transfer (Enter)
         pyautogui.press("enter")
-        time.sleep(1.0)
-
-        # 4. Handle popup SAP GUI Security → Allow
-        _handle_allow_popup()
         time.sleep(5)
 
         _log(f"Upload selesai [/{tcode}] plant {plant}", "OK")
@@ -368,38 +363,6 @@ def _type_path(filepath: str):
         # Ganti backslash dengan double backslash untuk pyautogui
         safe_path = filepath.replace("\\", "\\\\")
         pyautogui.typewrite(safe_path, interval=0.05)
-
-
-def _handle_allow_popup():
-    """
-    Handle popup 'SAP GUI Security' yang muncul saat akses file lokal.
-    Klik Allow (tombol kiri dari Deny).
-    """
-    try:
-        time.sleep(1)
-        # Cek apakah ada popup
-        popup_hwnd = None
-        def cb(hwnd, _):
-            nonlocal popup_hwnd
-            if win32gui.IsWindowVisible(hwnd):
-                title = win32gui.GetWindowText(hwnd)
-                if "Security" in title or "Allow" in title or "SAP GUI" in title:
-                    popup_hwnd = hwnd
-        win32gui.EnumWindows(cb, None)
-
-        if popup_hwnd:
-            win32gui.SetForegroundWindow(popup_hwnd)
-            time.sleep(0.3)
-            pyautogui.press("left")   # pindah ke tombol Allow
-            time.sleep(0.2)
-            pyautogui.press("enter")  # klik Allow
-            time.sleep(1)
-            log.info("[U2C] Popup Allow diklik")
-        else:
-            # Coba tekan Enter/Space saja kalau tidak ada popup terdeteksi
-            log.info("[U2C] Tidak ada popup terdeteksi — lanjut")
-    except Exception as e:
-        log.warning(f"[U2C] Handle popup gagal: {e}")
 
 
 # ─────────────────────────────────────────────

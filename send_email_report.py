@@ -300,7 +300,7 @@ def _build_body_html_per_plant(plant: str, plant_name: str,
 </html>"""
     return body_html
 
-#BUAT SIGNATURE EMAIL DARI EMAIL PENGIRIM
+#BUAT SIGNATURE EMAIL DARI EMAIL PENGIRIMMaa
 def get_sender_display_name(email_address: str) -> str:
     """
     Convert email menjadi nama display.
