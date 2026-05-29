@@ -205,11 +205,11 @@ def run_robot(plants, posting_date, email_to, email_cc, mode):
                 log_queue.put(("DONE", ""))
                 return
 
-            subprocess.run(["taskkill", "/F", "/IM", "chrome.exe"],
-                           capture_output=True, timeout=5)
             import time
-            time.sleep(2)
 
+            # Chrome lama TIDAK ditutup — buka instance baru dengan profil
+            # terpisah (--user-data-dir=C:\ChromeRPA) supaya bisa jalan
+            # bersamaan tanpa konflik dengan Chrome yang sudah aktif.
             subprocess.Popen([
                 chrome,
                 "--remote-debugging-port=9222",
@@ -500,16 +500,20 @@ class RpaGui:
         body = tk.Frame(self.root, bg=C("bg"))
         body.pack(fill="both", expand=True, padx=0, pady=0)
 
-        # LEFT panel (scrollable)
-        left_outer = tk.Frame(body, bg=C("bg"), width=340)
-        left_outer.pack(side="left", fill="y")
-        left_outer.pack_propagate(False)
+        # PanedWindow — panel kiri bisa digeser kanan-kiri dengan sash
+        self._paned = tk.PanedWindow(
+            body, orient="horizontal",
+            bg=C("sep"), sashwidth=6, sashrelief="flat",
+            handlesize=0, opaqueresize=True,
+        )
+        self._paned.pack(fill="both", expand=True)
 
-        # Subtle left border
-        tk.Frame(body, bg=C("sep"), width=1).pack(side="left", fill="y")
+        # LEFT panel (scrollable) — di dalam paned
+        left_outer = tk.Frame(self._paned, bg=C("bg"))
+        self._paned.add(left_outer, minsize=240, width=340, stretch="never")
 
         self._left_canvas = tk.Canvas(
-            left_outer, bg=C("bg"), highlightthickness=0, width=324
+            left_outer, bg=C("bg"), highlightthickness=0
         )
         left_sb = tk.Scrollbar(left_outer, orient="vertical",
                                command=self._left_canvas.yview,
@@ -533,9 +537,9 @@ class RpaGui:
         inner_pad.pack(fill="both", padx=14)
         self._build_left(inner_pad, Config)
 
-        # RIGHT panel
-        right = tk.Frame(body, bg=C("bg"))
-        right.pack(side="left", fill="both", expand=True, padx=0)
+        # RIGHT panel — di dalam paned
+        right = tk.Frame(self._paned, bg=C("bg"))
+        self._paned.add(right, minsize=400, stretch="always")
         self._build_right(right)
 
     def _on_left_configure(self, event):
@@ -821,6 +825,26 @@ class RpaGui:
                 lc.yview_scroll(int(-1 * (event.delta / 120)), "units")
             list_canvas.bind("<MouseWheel>", _mw_scroll)
             list_frame.bind("<MouseWheel>", _mw_scroll)
+
+            # ── Resize handle — geser vertikal untuk atur tinggi email box ──
+            _rh = tk.Frame(c1, bg=C("border"), height=5,
+                           cursor="sb_v_double_arrow")
+            _rh.pack(fill="x", pady=(0, 0))
+            _drag = {"y": 0, "h": 82}
+
+            def _rh_press(event, _d=_drag, lc=list_canvas):
+                _d["y"] = event.y_root
+                _d["h"] = lc.winfo_height() or 82
+
+            def _rh_drag(event, _d=_drag, lc=list_canvas):
+                delta = event.y_root - _d["y"]
+                new_h = max(27, min(_d["h"] + delta, 320))
+                lc.configure(height=int(new_h))
+
+            _rh.bind("<ButtonPress-1>", _rh_press)
+            _rh.bind("<B1-Motion>",     _rh_drag)
+            _rh.bind("<Enter>",  lambda e, f=_rh: f.config(bg=C("accent")))
+            _rh.bind("<Leave>",  lambda e, f=_rh: f.config(bg=C("border")))
 
             def _refresh_list(el=email_list, lf=list_frame,
                               lc=list_canvas, ca=chip_attr, ev=email_var,

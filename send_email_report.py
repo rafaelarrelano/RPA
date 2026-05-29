@@ -224,7 +224,7 @@ def _build_body_html_per_plant(plant: str, plant_name: str,
     Format tabel: Material | Selisih2 | UOM | Gudang | Plant | Adj | Plant Name
     Sesuai template standar dari gambar referensi.
     """
-    sorted_items = sorted(items, key=lambda x: (x.sloc, x.material))
+    sorted_items = sorted(items, key=lambda x: (x.mvt_type, x.sloc, x.material))
     sender_name = get_sender_display_name(
     load_credentials()["email_from"]
     )
