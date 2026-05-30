@@ -22,10 +22,37 @@ from main import (
     tab_to, type_field, focus_sap, sap_tcode, get_sap_hwnd
 )
 
+
+def _interruptible_sleep(duration: float):
+    """Sleep yang bisa di-interrupt dengan check stop_event tiap 0.1s."""
+    if _is_stopped():
+        return
+    end_time = time.time() + duration
+    while time.time() < end_time:
+        if _is_stopped():
+            return
+        remaining = end_time - time.time()
+        sleep_chunk = min(0.1, remaining)
+        if sleep_chunk > 0:
+            time.sleep(sleep_chunk)
+
 log = setup_logger()
 
 pyautogui.FAILSAFE = True
 pyautogui.PAUSE    = 0.6
+
+
+# ─────────────────────────────────────────────
+# CHECK STOP EVENT
+# ─────────────────────────────────────────────
+
+def _is_stopped() -> bool:
+    """Cek apakah user klik Stop di GUI."""
+    try:
+        from rpa_gui import stop_event
+        return stop_event.is_set()
+    except Exception:
+        return False
 
 
 # ─────────────────────────────────────────────
@@ -59,6 +86,10 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
         """
         deadline = time.time() + timeout
         while time.time() < deadline:
+            # Cek apakah user menekan Stop
+            if _is_stopped():
+                raise Exception("Robot dihentikan oleh user")
+            
             found = []
             def _cb(h, _):
                 if win32gui.IsWindowVisible(h):
@@ -68,7 +99,7 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
             win32gui.EnumWindows(_cb, None)
             if found:
                 return found[0]
-            time.sleep(0.5)
+            _interruptible_sleep(0.5)
         raise Exception(
             f"Window SAP dengan keyword {keywords} tidak muncul dalam {timeout} detik!"
         )
@@ -83,6 +114,10 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
         """
         deadline = time.time() + timeout
         while time.time() < deadline:
+            # Cek apakah user menekan Stop
+            if _is_stopped():
+                raise Exception("Robot dihentikan oleh user")
+            
             files = [f for f in glob.glob(pattern)
                      if os.path.getmtime(f) > after_ts]
             if files:
@@ -91,6 +126,10 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
                 prev_size = -1
                 stable    = 0
                 for _ in range(20):          # max 10 detik stabilitas
+                    # Cek stop dalam inner loop juga
+                    if _is_stopped():
+                        raise Exception("Robot dihentikan oleh user")
+                    
                     size = os.path.getsize(latest)
                     if size > 0 and size == prev_size:
                         stable += 1
@@ -99,9 +138,9 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
                     else:
                         stable = 0
                     prev_size = size
-                    time.sleep(0.5)
+                    _interruptible_sleep(0.5)
                 return latest               # kembalikan meskipun belum stabil
-            time.sleep(1.0)
+            _interruptible_sleep(1.0)
         raise FileNotFoundError(
             f"File SAPSTK tidak muncul dalam {timeout} detik di {Config.SAP_DOWNLOAD_DIR}"
         )
@@ -120,10 +159,10 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
 
         win32gui.ShowWindow(hwnd, win32con.SW_MAXIMIZE)
         win32gui.SetForegroundWindow(hwnd)
-        time.sleep(0.8)
+        _interruptible_sleep(0.8)
 
         pyautogui.hotkey("ctrl", "Home")
-        time.sleep(0.4)
+        _interruptible_sleep(0.4)
 
         # Tab 0: Pilihan = 1 (ALL)
         type_field("1")

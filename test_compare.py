@@ -23,6 +23,21 @@ from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
 
 from main import parse_decimal, StockDiff, convert_date
 
+
+def _interruptible_sleep(duration: float):
+    """Sleep yang bisa di-interrupt dengan check stop_event tiap 0.1s."""
+    if _is_stopped():
+        return
+    end_time = time.time() + duration
+    while time.time() < end_time:
+        if _is_stopped():
+            return
+        remaining = end_time - time.time()
+        sleep_chunk = min(0.1, remaining)
+        if sleep_chunk > 0:
+            time.sleep(sleep_chunk)
+
+
 # ─────────────────────────────────────────────
 # KONFIGURASI
 # ─────────────────────────────────────────────
@@ -93,7 +108,7 @@ def _kill_chrome():
             ["taskkill", "/F", "/IM", "chrome.exe"],
             capture_output=True, timeout=8
         )
-        time.sleep(2)
+        _interruptible_sleep(2)
     except Exception:
         pass
 
@@ -135,9 +150,9 @@ def _launch_chrome_with_cdp(send_log=None):
     if send_log:
         send_log(f"Chrome dibuka dengan CDP port {CDP_PORT}...", "INFO")
 
-    # Tunggu Chrome siap — cek tiap 0.5 detik, max 20 detik
-    for _ in range(40):
-        time.sleep(0.5)
+    # Tunggu Chrome siap — cek tiap 0.1 detik, max 10 detik
+    for _ in range(100):
+        _interruptible_sleep(0.1)
         if _is_cdp_active():
             if send_log:
                 send_log("Chrome siap!", "OK")
@@ -161,12 +176,12 @@ def connect_browser(playwright, send_log=None):
         browser = None
         for attempt in range(3):
             try:
-                browser = playwright.chromium.connect_over_cdp(cdp_url, timeout=30000)
+                browser = playwright.chromium.connect_over_cdp(cdp_url, timeout=8000)
                 break
             except Exception as e:
                 if attempt < 2:
                     _log(send_log, f"Retry konek CDP ({attempt+1}/3)...", "WARN")
-                    time.sleep(2)
+                    _interruptible_sleep(2)
                 else:
                     raise
 
@@ -200,7 +215,7 @@ def connect_browser(playwright, send_log=None):
              "Chrome terbuka tanpa CDP — menutup dan buka ulang dengan CDP...", "WARN")
         _log(send_log,
              "CATATAN: Tutup tab portal yang penting sebelum ini!", "WARN")
-        time.sleep(2)
+        _interruptible_sleep(2)
         _kill_chrome()
 
     # Buka Chrome ke halaman LOGIN dulu
@@ -215,23 +230,23 @@ def connect_browser(playwright, send_log=None):
     ]
     subprocess.Popen(cmd)
 
-    # Tunggu Chrome siap — cek tiap 0.5 detik, max 30 detik
-    for _ in range(60):
-        time.sleep(0.5)
+    # Tunggu Chrome siap — cek tiap 0.1 detik, max 10 detik
+    for _ in range(100):
+        _interruptible_sleep(0.1)
         if _is_cdp_active():
             break
     else:
         raise TimeoutError("Chrome tidak siap dalam 30 detik!")
 
     # Tambah delay agar Chrome benar-benar siap terima koneksi
-    time.sleep(2)
+    _interruptible_sleep(2)
     _log(send_log, "Chrome siap — silakan LOGIN di browser yang terbuka", "OK")
 
-    browser = playwright.chromium.connect_over_cdp(cdp_url, timeout=30000)
+    browser = playwright.chromium.connect_over_cdp(cdp_url, timeout=8000)
     ctx     = browser.contexts[0] if browser.contexts else browser.new_context()
 
     # Tunggu halaman aktif
-    time.sleep(2)
+    _interruptible_sleep(2)
     page = ctx.pages[0] if ctx.pages else ctx.new_page()
 
     return browser, page, True
@@ -255,7 +270,7 @@ def ensure_logged_in(page, send_log=None):
             page.fill("input[name='username'], input[name='UserName'], #username", Config.PORTAL_USER)
             page.fill("input[name='password'], input[name='Password'], #password", Config.PORTAL_PASSWORD)
             page.click("button[type='submit'], input[type='submit']")
-            page.wait_for_load_state("networkidle", timeout=20000)
+            page.wait_for_load_state("domcontentloaded", timeout=8000)
             _log(send_log, f"Login berhasil | user: {Config.PORTAL_USER}")
         except Exception as e:
             _log(send_log, f"Login gagal: {e}", "ERROR")
@@ -292,7 +307,7 @@ def search_by_date(page, posting_date: str, send_log=None):
         _log(send_log, f"Filter tanggal: {posting_date} → {portal_date}")
 
         # ── Isi field dateFilter ──────────────────────────────
-        page.wait_for_selector("#dateFilter", timeout=10000)
+        page.wait_for_selector("#dateFilter", timeout=5000)
         date_field = page.query_selector("#dateFilter")
 
         if not date_field:
@@ -307,13 +322,13 @@ def search_by_date(page, posting_date: str, send_log=None):
             el.dispatchEvent(new Event('change', { bubbles: true }));
         }""", portal_date)
 
-        time.sleep(0.3)
+        _interruptible_sleep(0.3)
         _log(send_log, f"dateFilter diisi: {portal_date}", "OK")
 
         # ── Klik tombol btnSearch ─────────────────────────────
         page.wait_for_selector("#btnSearch", timeout=5000)
         page.click("#btnSearch")
-        page.wait_for_load_state("networkidle", timeout=20000)
+        page.wait_for_load_state("domcontentloaded", timeout=8000)
         _log(send_log, "Search diklik — tabel diperbarui", "OK")
 
     except Exception as e:
@@ -333,7 +348,7 @@ def get_not_completed_rows(page, posting_date: str = None, send_log=None) -> lis
     # Navigasi ke ListEod jika belum di sana
     if PORTAL_LIST_EOD not in page.url:
         _log(send_log, "Buka halaman List Upload EOD...")
-        page.goto(PORTAL_LIST_EOD, wait_until="networkidle", timeout=30000)
+        page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=10000)
         ensure_logged_in(page, send_log)
         if posting_date:
             search_by_date(page, posting_date, send_log)
@@ -344,6 +359,11 @@ def get_not_completed_rows(page, posting_date: str = None, send_log=None) -> lis
     page_num = 1
 
     while True:
+        # Cek apakah user menekan Stop
+        if _is_stopped():
+            _log(send_log, f"Scan halaman dihentikan oleh user di halaman {page_num}", "WARN")
+            break
+        
         _log(send_log, f"Scan halaman {page_num} List EOD...", "INFO")
 
         # Cek total halaman dari Kendo pager
@@ -355,14 +375,14 @@ def get_not_completed_rows(page, posting_date: str = None, send_log=None) -> lis
             _log(send_log, f"  {total_pages}", "INFO")
 
         try:
-            page.wait_for_selector("table tbody tr", timeout=10000)
+            page.wait_for_selector("table tbody tr", timeout=5000)
         except PWTimeout:
             _log(send_log, "Tabel tidak ditemukan", "WARN")
             break
 
         # Tunggu tabel k-selectable muncul
         try:
-            page.wait_for_selector("table.k-selectable tbody tr", timeout=10000)
+            page.wait_for_selector("table.k-selectable tbody tr", timeout=5000)
         except PWTimeout:
             _log(send_log, "Tabel tidak ditemukan", "WARN")
             break
@@ -418,7 +438,7 @@ def get_not_completed_rows(page, posting_date: str = None, send_log=None) -> lis
             return false;
         }""")
         if has_next:
-            page.wait_for_load_state("networkidle", timeout=10000)
+            page.wait_for_load_state("domcontentloaded", timeout=5000)
             page_num += 1
         else:
             break
@@ -440,7 +460,7 @@ def get_fstkgd_from_view_detail(page, detail_url: str,
     Return: { (material, sloc): {'qty', 'sloc', 'tgl'} }
     """
     _log(send_log, f"Buka ViewDetail plant {plant}: {detail_url}")
-    page.goto(detail_url, wait_until="networkidle", timeout=30000)
+    page.goto(detail_url, wait_until="domcontentloaded", timeout=10000)
 
     # Klik tab INPUT jika belum aktif
     try:
@@ -449,8 +469,8 @@ def get_fstkgd_from_view_detail(page, detail_url: str,
         )
         if input_tab:
             input_tab.click()
-            page.wait_for_load_state("networkidle", timeout=5000)
-            time.sleep(0.5)
+            page.wait_for_load_state("domcontentloaded", timeout=5000)
+            _interruptible_sleep(0.5)
     except Exception:
         pass  # Tab mungkin sudah aktif
 
@@ -646,7 +666,9 @@ def get_matrix_from_portal(plant: str, send_log=None) -> dict:
             # Belum ada tab yang tepat → cari dari ListEod
             list_page = work_page
             ensure_logged_in(list_page, send_log)
-            list_page.goto(PORTAL_LIST_EOD, wait_until="networkidle", timeout=30000)
+            if _is_stopped():
+                raise Exception("Robot dihentikan oleh user")
+            list_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=8000)
             ensure_logged_in(list_page, send_log)
 
             detail_url = _find_detail_url_for_plant(list_page, plant, send_log)
@@ -713,6 +735,10 @@ def _wait_grid_data_loaded(page, timeout: float = 20.0):
     prev_count = -1
 
     while _t.time() < deadline:
+        # Cek apakah user menekan Stop
+        if _is_stopped():
+            return False
+        
         result = page.evaluate("""() => {
             // Cek loading mask / overlay Kendo masih tampil
             const masks = document.querySelectorAll(
@@ -762,6 +788,10 @@ def _wait_pager_page(page, target_page: int = None, timeout: float = 15.0):
     if target_page is not None:
         # Poll sampai halaman aktif di pager = target_page
         while _t.time() < deadline:
+            # Cek apakah user menekan Stop
+            if _is_stopped():
+                return
+            
             current = page.evaluate("""() => {
                 // Cara 1: Kendo API
                 try {
@@ -787,6 +817,10 @@ def _wait_pager_page(page, target_page: int = None, timeout: float = 15.0):
         _t.sleep(0.3)
         deadline2 = _t.time() + timeout
         while _t.time() < deadline2:
+            # Cek apakah user menekan Stop
+            if _is_stopped():
+                return
+            
             loading = page.evaluate("""() => {
                 const masks = document.querySelectorAll(
                     '.k-loading-mask, .k-loading-image, .k-loading-color'
@@ -810,6 +844,10 @@ def _click_next_page(page) -> bool:
     Coba Kendo dataSource API dulu, lalu fallback berbagai selector DOM.
     Return True jika berhasil pindah, False jika sudah halaman terakhir.
     """
+    # Cek stop sebelum klik
+    if _is_stopped():
+        return False
+    
     try:
         result = page.evaluate("""() => {
             // Selector confirmed dari debug: a[aria-label="Go to the next page"]
@@ -858,8 +896,13 @@ def _find_detail_url_for_plant(page, plant: str, send_log=None,
     page_num = 1
 
     while True:
+        # Cek apakah user menekan Stop
+        if _is_stopped():
+            _log(send_log, f"  Scan halaman dihentikan oleh user di halaman {page_num}", "WARN")
+            break
+        
         try:
-            page.wait_for_selector("table.k-selectable tbody tr", timeout=10000)
+            page.wait_for_selector("table.k-selectable tbody tr", timeout=5000)
         except PWTimeout:
             _log(send_log, f"  Tabel tidak muncul di halaman {page_num}", "WARN")
             break
@@ -942,7 +985,7 @@ def _scroll_table_to_render(page):
             const h = scrollable.scrollHeight;
             scrollable.scrollTop = Math.floor(h * 0.33);
         }""")
-        time.sleep(0.2)
+        _interruptible_sleep(0.2)
         page.evaluate("""() => {
             const tbl = document.querySelector('table.k-selectable');
             if (!tbl) return;
@@ -952,7 +995,7 @@ def _scroll_table_to_render(page):
             if (!scrollable) return;
             scrollable.scrollTop = scrollable.scrollHeight;
         }""")
-        time.sleep(0.2)
+        _interruptible_sleep(0.2)
         # Scroll kembali ke atas sebelum scan DOM
         page.evaluate("""() => {
             const tbl = document.querySelector('table.k-selectable');
@@ -967,9 +1010,9 @@ def _scroll_table_to_render(page):
         page.evaluate("""() => {
             window.scrollTo(0, document.body.scrollHeight);
         }""")
-        time.sleep(0.2)
+        _interruptible_sleep(0.2)
         page.evaluate("() => { window.scrollTo(0, 0); }")
-        time.sleep(0.1)
+        _interruptible_sleep(0.1)
     except Exception:
         pass
 
@@ -1027,10 +1070,14 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
                 work_page = ctx.pages[0] if ctx.pages else ctx.new_page()
 
             # Navigasi ke ListEod & pastikan sudah login
-            work_page.goto(PORTAL_LIST_EOD, wait_until="networkidle", timeout=30000)
+            if _is_stopped():
+                raise Exception("Robot dihentikan oleh user")
+            work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=8000)
             ensure_logged_in(work_page, send_log)
             if work_page.url != PORTAL_LIST_EOD:
-                work_page.goto(PORTAL_LIST_EOD, wait_until="networkidle", timeout=30000)
+                if _is_stopped():
+                    raise Exception("Robot dihentikan oleh user")
+                work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=8000)
 
             search_by_date(work_page, posting_date, send_log)
 
@@ -1163,7 +1210,9 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
                 # Kembali ke ListEod untuk plant berikutnya
                 # Goto + filter ulang + reset ke halaman 1
                 if len(plant_rows) > 1:
-                    work_page.goto(PORTAL_LIST_EOD, wait_until="networkidle", timeout=20000)
+                    if _is_stopped():
+                        raise Exception("Robot dihentikan oleh user")
+                    work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=10000)
                     search_by_date(work_page, posting_date, send_log)
                     _goto_first_page(work_page)   # pastikan mulai dari hal 1
 
@@ -1228,17 +1277,15 @@ def _process_plant_with_sap(page, plant: str, detail_url: str, posting_date: str
             _log(send_log, f"Plant {plant}: tidak ada data Matrix FSTKGD", "WARN")
             return
 
-        # Simpan Matrix mentah untuk U2C — SELALU, tidak peduli hasil compare
-        # U2C harus dibuat selama ada data di tab INPUT portal
-        if matrix_per_plant is not None:
-            matrix_per_plant[plant] = matrix
-            _log(send_log,
-                 f"Plant {plant}: {len(matrix)} item Matrix disimpan untuk U2C", "OK")
-
         # Compare
         items = compare(plant, matrix, stok_sap, posting_date, send_log)
         if not items:
             _log(send_log, f"Plant {plant}: tidak ada selisih — U2C tetap dibuat", "OK")
+            # Simpan Matrix untuk U2C jika tidak ada selisih
+            if matrix_per_plant is not None:
+                matrix_per_plant[plant] = matrix
+                _log(send_log,
+                     f"Plant {plant}: {len(matrix)} item Matrix disimpan untuk U2C", "OK")
             return
 
         # Load limit adjustment dari file Excel
@@ -1272,10 +1319,8 @@ def _process_plant_with_sap(page, plant: str, detail_url: str, posting_date: str
                     batas = f"limit- = {lim_m}"
                     jarak = f"selisih {item.diff:+.3f} < {lim_m}"
                 _log(send_log,
-                     f"  \u26a0 {item.material} | SLoc={item.sloc} | "
+                     f"  ⚠ {item.material} | SLoc={item.sloc} | "
                      f"diff={item.diff:+.6f} | {batas} | {jarak}", "WARN")
-            _log(send_log,
-                 f"Plant {plant}: item lewat limit \u2192 SKIP dari U2C & laporan", "WARN")
 
             # Kirim ke panel Limit Alert di GUI
             import json
@@ -1287,16 +1332,24 @@ def _process_plant_with_sap(page, plant: str, detail_url: str, posting_date: str
             _log(send_log,
                  f"{plant}|||{json.dumps(items_data)}|||{json.dumps(limits_data)}",
                  "LIMIT_ALERT")
-
-        # ── Simpan hasil ke laporan ───────────────────────
-        if items_ok:
-            items_per_plant[plant] = items_ok
-        else:
-            # Semua item lewat limit → tidak masuk email laporan
-            # tapi U2C tetap sudah disimpan di matrix_per_plant (di atas)
             _log(send_log,
-                 f"Plant {plant}: semua item lewat limit → skip laporan email",
+                 f"Plant {plant} tidak diproses - selisih melewati limit",
+                 "LIMIT_ALERT")
+
+        # ── Simpan hasil ke laporan & U2C ─────────────────
+        # Hanya simpan jika TIDAK ada items yang lewat limit
+        if items_skip:
+            # Ada item yang lewat limit → SKIP plant ini dari email & U2C
+            _log(send_log,
+                 f"Plant {plant}: ada item lewat limit → SKIP dari email & U2C sepenuhnya",
                  "WARN")
+        elif items_ok:
+            # Semua items lolos limit → simpan untuk email & U2C
+            items_per_plant[plant] = items_ok
+            if matrix_per_plant is not None:
+                matrix_per_plant[plant] = matrix
+                _log(send_log,
+                     f"Plant {plant}: {len(matrix)} item Matrix disimpan untuk U2C", "OK")
 
     except Exception as e:
         _log(send_log, f"Plant {plant} GAGAL: {e}", "ERROR")
