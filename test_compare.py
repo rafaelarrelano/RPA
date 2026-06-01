@@ -363,7 +363,7 @@ def get_not_completed_rows(page, posting_date: str = None, send_log=None) -> lis
         if _is_stopped():
             _log(send_log, f"Scan halaman dihentikan oleh user di halaman {page_num}", "WARN")
             break
-        
+
         _log(send_log, f"Scan halaman {page_num} List EOD...", "INFO")
 
         # Cek total halaman dari Kendo pager
@@ -457,7 +457,7 @@ def get_fstkgd_from_view_detail(page, detail_url: str,
                                 plant: str, send_log=None) -> dict:
     """
     Buka halaman ViewDetail, klik tab INPUT, ambil semua baris FSTKGD.
-    Return: { (material, sloc): {'qty', 'sloc', 'tgl'} }
+    Return: { (material, sloc): {'qty', 'sloc', 'tgl', 'param'} }
     """
     _log(send_log, f"Buka ViewDetail plant {plant}: {detail_url}")
     page.goto(detail_url, wait_until="domcontentloaded", timeout=10000)
@@ -598,7 +598,17 @@ def get_sap_from_file(plant: str, send_log=None) -> dict:
 
 def compare(plant: str, matrix: dict, stok_sap: dict,
             posting_date: str, send_log=None) -> list:
+    """
+    Bandingkan Matrix vs SAP per material+sloc+param.
+
+    Dua kondisi yang ditangani:
+    1. Material ada di Matrix  → bandingkan qty_matrix vs qty_sap (qty_sap bisa 0)
+    2. Material ada di SAP tapi TIDAK ADA di Matrix (stok matrix = 0, tidak ditampilkan
+       portal) → diff = 0 - qty_sap (negatif) → mvt 917
+    """
     items = []
+
+    # ── Loop 1: semua material yang ada di Matrix portal ─────
     for (material, sloc, param), data in matrix.items():
         qty_matrix = data["qty"]
         qty_sap    = stok_sap.get((material, sloc, param), 0.0)
@@ -624,6 +634,42 @@ def compare(plant: str, matrix: dict, stok_sap: dict,
         else:
             item.mvt_type   = "918"
             item.qty_adjust = diff
+        items.append(item)
+
+    # ── Loop 2: material ada di SAP tapi TIDAK ADA di Matrix ─
+    # Kondisi: portal tidak menampilkan material yang stoknya 0.
+    # Jika SAP masih punya stok untuk material tsb → selisih negatif → mvt 917.
+    for (material, sloc, param), qty_sap in stok_sap.items():
+        # Skip jika material ini sudah diproses di loop pertama (ada di Matrix)
+        if (material, sloc, param) in matrix:
+            continue
+
+        # Skip material kepala 2 dan 7 (konsisten dengan filter baca SAP)
+        if material.startswith("7") or material.startswith("2"):
+            continue
+
+        # qty_sap harus > 0 agar ada selisih yang perlu di-adjust
+        if qty_sap <= TOLERANCE:
+            continue
+
+        # Matrix = 0 (tidak ada), SAP = qty_sap → diff negatif → mvt 917
+        diff = round(0.0 - qty_sap, 6)
+
+        _log(send_log,
+             f"  [SAP-only] {material} SLoc={sloc} param={param} "
+             f"qty_sap={qty_sap} → diff={diff:.6f} mvt=917")
+
+        item = StockDiff(
+            param=param, plant=plant, sloc=sloc,
+            posting_date=posting_date,   # fallback: tanggal hari ini
+            material=material,
+            qty_matrix=0.0,              # tidak ada di Matrix portal
+            qty_sap=qty_sap,
+            diff=diff,
+            status=0,
+        )
+        item.mvt_type   = "917"
+        item.qty_adjust = abs(diff)      # = qty_sap
         items.append(item)
 
     fstkgd_c = sum(1 for i in items if i.param == "FSTKGD")
@@ -738,7 +784,7 @@ def _wait_grid_data_loaded(page, timeout: float = 20.0):
         # Cek apakah user menekan Stop
         if _is_stopped():
             return False
-        
+
         result = page.evaluate("""() => {
             // Cek loading mask / overlay Kendo masih tampil
             const masks = document.querySelectorAll(
@@ -791,7 +837,7 @@ def _wait_pager_page(page, target_page: int = None, timeout: float = 15.0):
             # Cek apakah user menekan Stop
             if _is_stopped():
                 return
-            
+
             current = page.evaluate("""() => {
                 // Cara 1: Kendo API
                 try {
@@ -820,7 +866,7 @@ def _wait_pager_page(page, target_page: int = None, timeout: float = 15.0):
             # Cek apakah user menekan Stop
             if _is_stopped():
                 return
-            
+
             loading = page.evaluate("""() => {
                 const masks = document.querySelectorAll(
                     '.k-loading-mask, .k-loading-image, .k-loading-color'
@@ -847,7 +893,7 @@ def _click_next_page(page) -> bool:
     # Cek stop sebelum klik
     if _is_stopped():
         return False
-    
+
     try:
         result = page.evaluate("""() => {
             // Selector confirmed dari debug: a[aria-label="Go to the next page"]
@@ -900,7 +946,7 @@ def _find_detail_url_for_plant(page, plant: str, send_log=None,
         if _is_stopped():
             _log(send_log, f"  Scan halaman dihentikan oleh user di halaman {page_num}", "WARN")
             break
-        
+
         try:
             page.wait_for_selector("table.k-selectable tbody tr", timeout=5000)
         except PWTimeout:
@@ -1019,13 +1065,6 @@ def _scroll_table_to_render(page):
 
 # ─────────────────────────────────────────────
 # PIPELINE LENGKAP: dipanggil dari rpa_gui.py
-# run_robot() di rpa_gui.py sudah memanggil:
-#   get_matrix_from_portal(plant)
-#   get_sap_from_file(plant)
-#   compare(plant, matrix, stok_sap, posting_date)
-# Fungsi di atas sudah kompatibel.
-#
-# ATAU pakai fungsi all-in-one di bawah ini:
 # ─────────────────────────────────────────────
 
 def _is_stopped() -> bool:
@@ -1083,9 +1122,6 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
 
             # ── STEP 1: Kumpulkan semua plant yang ada selisih ───
             if plants:
-                # Mode list: cari detail_url untuk tiap plant
-                # Setiap pencarian selalu mulai dari halaman 1 (_goto_first_page
-                # dipanggil di dalam _find_detail_url_for_plant).
                 plant_rows = []
                 _log(send_log,
                      f"Mencari {len(plants)} plant di ListEod "
@@ -1102,7 +1138,6 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
                              f"(mungkin belum ada data untuk tanggal ini)",
                              "WARN")
             else:
-                # Mode auto-scan: ambil semua yang ada difference
                 plant_rows = get_not_completed_rows(work_page, posting_date, send_log)
 
             if not plant_rows:
@@ -1134,14 +1169,10 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
 
             if not sap_open:
                 _log(send_log, "SAP belum terbuka!", "WARN")
-                # Kirim signal ke GUI via send_log dengan level SAP_WAIT
-                # GUI akan set sap_ready_event setelah user klik OK
                 if hasattr(send_log, '__self__') or callable(send_log):
-                    # Buat event lokal untuk tunggu konfirmasi
                     import threading as _threading
                     _wait_event = _threading.Event()
 
-                    # Wrap send_log untuk intercept SAP_WAIT_DONE
                     _original_log = send_log
                     def _patched_log(msg, level="INFO"):
                         if level == "SAP_WAIT_DONE":
@@ -1149,12 +1180,9 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
                             return
                         _original_log(msg, level)
 
-                    # Kirim signal SAP_WAIT ke GUI
                     send_log("SAP belum terbuka — popup akan muncul", "SAP_WAIT")
-                    # Tunggu konfirmasi dari GUI (blocking)
-                    _wait_event.wait(timeout=300)  # max 5 menit
+                    _wait_event.wait(timeout=300)
                 else:
-                    # Mode CLI: tanya langsung
                     input("SAP belum terbuka! Buka SAP lalu tekan Enter...")
 
                 _log(send_log, "SAP dikonfirmasi terbuka — mulai download...", "OK")
@@ -1187,7 +1215,6 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
                 plant      = row["plant"]
                 detail_url = row["url"]
 
-                # Ambil stok SAP dari hasil download (atau fallback file lokal)
                 if plant in sap_data:
                     stok_sap = sap_data[plant]
                 else:
@@ -1197,7 +1224,6 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
                         _log(send_log, str(e), "ERROR")
                         continue
 
-                # Cek stop sebelum proses tiap plant
                 if _is_stopped():
                     _log(send_log, "Robot dihentikan oleh user.", "WARN")
                     break
@@ -1207,22 +1233,18 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
                     stok_sap, items_per_plant, matrix_per_plant, send_log
                 )
 
-                # Kembali ke ListEod untuk plant berikutnya
-                # Goto + filter ulang + reset ke halaman 1
                 if len(plant_rows) > 1:
                     if _is_stopped():
                         raise Exception("Robot dihentikan oleh user")
                     work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=10000)
                     search_by_date(work_page, posting_date, send_log)
-                    _goto_first_page(work_page)   # pastikan mulai dari hal 1
+                    _goto_first_page(work_page)
 
         finally:
             if is_new:
                 browser.close()
 
-    # ── STEP 4: U2C — buat file dari Matrix portal & upload ke SAP ──
-    # U2C dibuat dari SEMUA data tab INPUT portal (matrix_per_plant),
-    # bukan hanya yang selisih — supaya semua qty Matrix terupdate ke SAP.
+    # ── STEP 4: U2C ─────────────────────────────────────────
     u2c_source = matrix_per_plant if matrix_per_plant else {}
     if u2c_source:
         _log(send_log, "=" * 40, "INFO")
@@ -1238,7 +1260,7 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
         except Exception as e:
             _log(send_log, f"U2C gagal: {e}", "ERROR")
 
-    # ── STEP 5: Kirim email laporan jika ada selisih ────────────
+    # ── STEP 5: Kirim email ──────────────────────────────────
     if items_per_plant:
         total_item = sum(len(v) for v in items_per_plant.values())
         _log(send_log,
@@ -1277,37 +1299,46 @@ def _process_plant_with_sap(page, plant: str, detail_url: str, posting_date: str
             _log(send_log, f"Plant {plant}: tidak ada data Matrix FSTKGD", "WARN")
             return
 
-        # Compare
+        # Compare — termasuk material di SAP yang tidak ada di Matrix
         items = compare(plant, matrix, stok_sap, posting_date, send_log)
         if not items:
             _log(send_log, f"Plant {plant}: tidak ada selisih — U2C tetap dibuat", "OK")
-            # Simpan Matrix untuk U2C jika tidak ada selisih
             if matrix_per_plant is not None:
                 matrix_per_plant[plant] = matrix
                 _log(send_log,
                      f"Plant {plant}: {len(matrix)} item Matrix disimpan untuk U2C", "OK")
             return
 
-        # Load limit adjustment dari file Excel
+        # Load limit adjustment
         try:
             from limit_adjustment import load_limit_adjustment, filter_by_limit
             limits = load_limit_adjustment()
+            _log(send_log, f"✓ File limit adjustment berhasil dibaca | {len(limits)} material", "OK")
         except Exception as e:
-            _log(send_log, f"Gagal baca file limit adjustment: {e} — semua item lolos", "WARN")
+            _log(send_log, f"⚠ Gagal baca file limit adjustment: {e} — semua item lolos filter", "WARN")
             from limit_adjustment import filter_by_limit
             limits = {}
 
         items_ok, items_skip = filter_by_limit(items, limits)
+        if items_skip:
+            _log(send_log, f"→ Filter: {len(items_ok)} lolos, {len(items_skip)} lewat batas", "WARN")
 
-        # ── Log detail item yang LOLOS ────────────────────
         if items_ok:
             _log(send_log,
                  f"Plant {plant}: {len(items_ok)} item lolos limit → masuk laporan", "OK")
 
-        # ── Log detail item yang LEWAT BATAS ──────────────
         if items_skip:
             _log(send_log,
-                 f"Plant {plant}: {len(items_skip)} item LEWAT LIMIT ADJUSTMENT ↓", "WARN")
+                 f"Plant {plant}: {len(items_skip)} item lewat limit (lihat LIMIT ALERT)", "WARN")
+            
+            # Kirim detail ke LIMIT ALERT section
+            _log(send_log, f"", "LIMIT_ALERT")  # baris kosong
+            _log(send_log, f"{'='*60}", "LIMIT_ALERT")
+            _log(send_log, 
+                 f"Plant {plant} - {len(items_skip)} ITEM LEWAT LIMIT ADJUSTMENT", 
+                 "LIMIT_ALERT")
+            _log(send_log, f"{'='*60}", "LIMIT_ALERT")
+            
             for item in items_skip:
                 lim   = limits.get(item.material, {})
                 lim_p = lim.get('limit_plus',  'N/A')
@@ -1320,31 +1351,18 @@ def _process_plant_with_sap(page, plant: str, detail_url: str, posting_date: str
                     jarak = f"selisih {item.diff:+.3f} < {lim_m}"
                 _log(send_log,
                      f"  ⚠ {item.material} | SLoc={item.sloc} | "
-                     f"diff={item.diff:+.6f} | {batas} | {jarak}", "WARN")
-
-            # Kirim ke panel Limit Alert di GUI
-            import json
-            items_data  = [{"material": i.material, "sloc": i.sloc,
-                             "diff": i.diff} for i in items_skip]
-            limits_data = {k: {"limit_plus": v["limit_plus"],
-                                "limit_minus": v["limit_minus"]}
-                           for k, v in limits.items()}
-            _log(send_log,
-                 f"{plant}|||{json.dumps(items_data)}|||{json.dumps(limits_data)}",
-                 "LIMIT_ALERT")
-            _log(send_log,
-                 f"Plant {plant} tidak diproses - selisih melewati limit",
+                     f"diff={item.diff:+.6f} | {batas} | {jarak}", 
+                     "LIMIT_ALERT")
+            
+            _log(send_log, f"{'='*60}", "LIMIT_ALERT")
+            _log(send_log, f"Plant {plant} tidak diproses - selisih melewati limit", 
                  "LIMIT_ALERT")
 
-        # ── Simpan hasil ke laporan & U2C ─────────────────
-        # Hanya simpan jika TIDAK ada items yang lewat limit
         if items_skip:
-            # Ada item yang lewat limit → SKIP plant ini dari email & U2C
             _log(send_log,
                  f"Plant {plant}: ada item lewat limit → SKIP dari email & U2C sepenuhnya",
                  "WARN")
         elif items_ok:
-            # Semua items lolos limit → simpan untuk email & U2C
             items_per_plant[plant] = items_ok
             if matrix_per_plant is not None:
                 matrix_per_plant[plant] = matrix
@@ -1380,9 +1398,8 @@ if __name__ == "__main__":
     print("Test pipeline otomatis — scan ListEod Not Completed")
     print("=" * 60)
 
-    # Jalankan pipeline: auto-scan semua Not Completed
     results = run_full_pipeline(
-        plants       = Config.PLANTS,   # atau kosongkan [] untuk auto-scan
+        plants       = Config.PLANTS,
         posting_date = datetime.now().strftime("%d.%m.%Y"),
     )
 

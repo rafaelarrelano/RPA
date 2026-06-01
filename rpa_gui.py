@@ -1290,11 +1290,11 @@ class RpaGui:
         # Top padding
         tk.Frame(p, bg=C("bg"), height=14).pack()
 
-        # ACTIVITY LOG
-        top = tk.Frame(p, bg=C("bg"))
-        top.pack(fill="both", expand=True, padx=16)
-
-        hdr = tk.Frame(top, bg=C("bg"))
+        # Activity Log Header + Progress Bar (Fixed, outside paned)
+        top_header = tk.Frame(p, bg=C("bg"))
+        top_header.pack(fill="x", padx=16, pady=(0, 6))
+        
+        hdr = tk.Frame(top_header, bg=C("bg"))
         hdr.pack(fill="x", pady=(0, 6))
         tk.Label(hdr, text="ACTIVITY LOG", fg=C("text3"), bg=C("bg"),
                  font=(FONT, FS["xs"], "bold")).pack(side="left")
@@ -1302,6 +1302,28 @@ class RpaGui:
              text="Bersihkan", font=(FONT, FS["sm"]), fg=C("text3"),
              relief="flat", bd=0, padx=10, pady=3, cursor="hand2",
              command=self._clear_log).pack(side="right")
+
+        # Progress bar (always visible)
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure("RPA.Horizontal.TProgressbar",
+                        troughcolor=C("surface2"),
+                        background=C("accent"),
+                        bordercolor=C("surface2"),
+                        lightcolor=C("accent"),
+                        darkcolor=C("accent2"),
+                        thickness=4)
+        self.prog = ttk.Progressbar(top_header, mode="indeterminate",
+                                    style="RPA.Horizontal.TProgressbar")
+        self.prog.pack(fill="x", pady=(0, 0))
+
+        # PanedWindow untuk 70-30 split dengan drag
+        paned = tk.PanedWindow(p, orient="vertical", bg=C("bg"), bd=0,
+                               sashwidth=4, sashrelief="flat")
+        paned.pack(fill="both", expand=True, padx=16)
+
+        # ===== ACTIVITY LOG (Pane 1 - hanya text widget) =====
+        top = tk.Frame(p, bg=C("bg"))
 
         log_outer = tk.Frame(top, bg=C("border"), bd=0)
         log_outer.pack(fill="both", expand=True)
@@ -1320,27 +1342,12 @@ class RpaGui:
         self.log.tag_config("OK",    foreground=C("success"))
         self.log.tag_config("WARN",  foreground=C("warning"))
         self.log.tag_config("ERROR", foreground=C("danger"))
+        self.log.tag_config("LIMIT_ALERT", foreground=C("warning"))
 
-        # Progress bar
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("RPA.Horizontal.TProgressbar",
-                        troughcolor=C("surface2"),
-                        background=C("accent"),
-                        bordercolor=C("surface2"),
-                        lightcolor=C("accent"),
-                        darkcolor=C("accent2"),
-                        thickness=4)
-        self.prog = ttk.Progressbar(top, mode="indeterminate",
-                                    style="RPA.Horizontal.TProgressbar")
-        self.prog.pack(fill="x", pady=(6, 0))
+        paned.add(top, height=280)
 
-        # Separator
-        tk.Frame(p, bg=C("sep"), height=1).pack(fill="x", padx=16, pady=(10, 0))
-
-        # LIMIT ALERT
+        # ===== LIMIT ALERT (Pane 2) =====
         bot = tk.Frame(p, bg=C("bg"))
-        bot.pack(fill="x", padx=16, pady=(8, 0))
 
         lhdr = tk.Frame(bot, bg=C("bg"))
         lhdr.pack(fill="x", pady=(0, 6))
@@ -1358,7 +1365,7 @@ class RpaGui:
              command=self._clear_alert_log).pack(side="right")
 
         alert_outer = tk.Frame(bot, bg=C("border"))
-        alert_outer.pack(fill="x")
+        alert_outer.pack(fill="both", expand=True)
         alert_inner = tk.Frame(alert_outer, bg=C("surface"))
         alert_inner.pack(fill="both", padx=1, pady=1)
 
@@ -1366,15 +1373,18 @@ class RpaGui:
             alert_inner, bg=C("surface"), fg=C("text2"),
             font=(FONT, FS["base"]), relief="flat", bd=0,
             state="disabled", wrap="word",
-            padx=16, pady=10, height=7,
+            padx=16, pady=10,
         )
-        self.alert_log.pack(fill="x")
+        self.alert_log.pack(fill="both", expand=True)
         self.alert_log.tag_config("HEAD",  foreground=C("warning"),
                                    font=(FONT, FS["base"], "bold"))
         self.alert_log.tag_config("ITEM",  foreground=C("text2"))
         self.alert_log.tag_config("OVER",  foreground=C("danger"))
         self.alert_log.tag_config("PLANT", foreground=C("accent"),
                                    font=(FONT, FS["sm"], "bold"))
+        self.alert_log.tag_config("LIMIT_ALERT", foreground=C("warning"))
+
+        paned.add(bot, height=120)
 
         tk.Frame(p, bg=C("bg"), height=14).pack()
 
@@ -1739,6 +1749,14 @@ class RpaGui:
                     self.root.after(0, self._show_sap_warning)
                 elif level == "SAP_WAIT":
                     self.root.after(0, self._ask_sap_confirm)
+                elif level == "LIMIT_ALERT":
+                    # Kirim ke ALERT LOG section (bawah), bukan Activity Log
+                    self.alert_log.config(state="normal")
+                    self.alert_log.insert("end", msg + "\n", level)
+                    self.alert_log.see("end")
+                    self.alert_log.config(state="disabled")
+                    # Update alert indicator
+                    self._alert_dot.config(fg=C("danger"))
                 else:
                     self._write_log(msg, level)
         except queue.Empty:
