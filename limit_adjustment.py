@@ -38,19 +38,31 @@ def load_limit_adjustment(filepath: str = None) -> dict:
             if not data_started:
                 continue
 
-            # Skip baris kosong
+            # Skip baris kosong atau invalid
             if not row[1]:
                 continue
+            
+            # Skip jika row[1] hanya whitespace
+            try:
+                if isinstance(row[1], str) and not row[1].strip():
+                    continue
+            except:
+                pass
 
-            # Ambil data
-            material    = str(int(row[1])).strip()
-            limit_plus  = float(row[3]) if row[3] is not None else 0.0
-            limit_minus = float(row[4]) if row[4] is not None else 0.0
+            # Ambil data — dengan error handling
+            try:
+                material    = str(int(row[1])).strip()
+                limit_plus  = float(row[3]) if row[3] is not None else 0.0
+                limit_minus = float(row[4]) if row[4] is not None else 0.0
 
-            limits[material] = {
-                'limit_plus':  limit_plus,
-                'limit_minus': limit_minus,
-            }
+                limits[material] = {
+                    'limit_plus':  limit_plus,
+                    'limit_minus': limit_minus,
+                }
+            except (ValueError, TypeError) as e:
+                # Skip baris dengan data tidak valid
+                log.debug(f"[LIMIT] Skip invalid row: {row} | Error: {e}")
+                continue
 
         log.info(f"[LIMIT] {len(limits)} material limit adjustment dibaca")
         return limits
