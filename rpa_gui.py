@@ -327,12 +327,24 @@ def _make_card(parent, padx=12, pady=10):
 # ─────────────────────────────────────────────
 
 class RpaGui:
-    def __init__(self, root):
-        self.root   = root
-        self.root.title("RPA Stock Reconciliation")
-        self.root.geometry("1120x800")
-        self.root.minsize(900, 660)
+    def __init__(self, root, back_callback=None):
+        """
+        root          : tk.Tk (standalone) OR tk.Frame (launched from launcher.py)
+        back_callback : callable — if provided, a Back button is shown;
+                        called when user wants to return to the main menu.
+        """
+        self.back_callback = back_callback
+        self._launched_from_menu = back_callback is not None
+
+        # When launched from the launcher, root is a Frame not a Tk window
+        # so we skip window-level config (title, geometry, etc.)
+        self.root = root
+        if not self._launched_from_menu:
+            self.root.title("RPA Stock Reconciliation")
+            self.root.geometry("1120x800")
+            self.root.minsize(900, 660)
         self.root.configure(bg=C("bg"))
+
         self._running = False
         self._tooltip = None
         self._plant_popup_visible = False
@@ -1852,10 +1864,23 @@ class RpaGui:
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    # When run directly, launch via the menu launcher
+    # so the user always starts from the module menu.
     try:
-        root.iconbitmap("icon.ico")
-    except Exception:
-        pass
-    RpaGui(root)
-    root.mainloop()
+        import launcher
+        root = tk.Tk()
+        try:
+            root.iconbitmap("icon.ico")
+        except Exception:
+            pass
+        launcher.Launcher(root)
+        root.mainloop()
+    except ImportError:
+        # Fallback: open Compare Stock directly if launcher.py not found
+        root = tk.Tk()
+        try:
+            root.iconbitmap("icon.ico")
+        except Exception:
+            pass
+        RpaGui(root)
+        root.mainloop()
