@@ -30,25 +30,32 @@ import win32con
 import openpyxl
 from datetime import datetime
 
+# ─────────────────────────────────────────────
+# ENABLE DPI AWARENESS - MUST BE FIRST
+# ─────────────────────────────────────────────
+
+try:
+    from ctypes import windll
+    windll.shcore.SetProcessDpiAwareness(2)
+except Exception:
+    pass
+
+try:
+    from theme_manager import get_theme_manager
+    theme = get_theme_manager()
+except ImportError:
+    theme = None
 
 # ─────────────────────────────────────────────
-# COLORS — matches launcher black/white theme
+# CONSTANTS - CRISP FONTS
 # ─────────────────────────────────────────────
 
-BG        = "#F5F5F5"
-BG_CARD   = "#FFFFFF"
-BG_DARK   = "#1A1A1A"
-BG_INPUT  = "#FFFFFF"
-TEXT      = "#1A1A1A"
-TEXT2     = "#555555"
-TEXT3     = "#999999"
-BORDER    = "#E0E0E0"
-SUCCESS   = "#2E7D32"
-WARNING   = "#E65100"
-DANGER    = "#C62828"
-
-FONT      = "Courier"
-FONT_DISP = "Georgia"
+# Use Segoe UI for crisp, clear rendering on Windows
+FONT       = "Segoe UI"
+FONT_DISP  = "Segoe UI"
+FONT_TITLE = ("Segoe UI", 12, "bold")
+FONT_SUB   = ("Segoe UI", 10)
+FONT_SMALL = ("Segoe UI", 9)
 
 
 # ─────────────────────────────────────────────
@@ -444,52 +451,122 @@ def _mm01_one(session, material: str, plant_info: dict,
 class MaintainMaterialGui:
     """
     Maintain Material module — launched from launcher.py.
-    parent        : tk.Frame provided by launcher
-    back_callback : callable to return to main menu
+    parent         : tk.Frame provided by launcher
+    back_callback  : callable to return to main menu
+    theme_manager  : ThemeManager instance for dark/light mode (optional)
     """
 
-    def __init__(self, parent: tk.Frame, back_callback=None):
+    def __init__(self, parent: tk.Frame, back_callback=None, theme_manager=None):
         self.parent        = parent
         self.back_callback = back_callback
+        self.theme         = theme_manager or get_theme_manager() if theme else None
         self._log_queue    = queue.Queue()
         self._running      = False
         self._stop_flag    = threading.Event()
         self._plant_vars   = {}      # { plant_code: BooleanVar }
         self._plant_data   = {}      # loaded plant metadata
 
+        # Configure for sharp rendering
+        self.parent.tk.call('tk', 'scaling', 2.0)
+
+        self._refresh_colors()
         self._build_ui()
         self._poll_log()
+
+    def _refresh_colors(self):
+        """Update all colors from current theme"""
+        if self.theme:
+            self.BG        = self.theme.get_color("bg")
+            self.BG_CARD   = self.theme.get_color("bg_card")
+            self.BG_INPUT  = self.theme.get_color("input_bg")
+            self.TEXT      = self.theme.get_color("text_dark")
+            self.TEXT2     = self.theme.get_color("text_mid")
+            self.TEXT3     = self.theme.get_color("text_light")
+            self.BORDER    = self.theme.get_color("border")
+            self.SUCCESS   = self.theme.get_color("success")
+            self.WARNING   = self.theme.get_color("warning")
+            self.DANGER    = self.theme.get_color("danger")
+            self.BG_DARK   = self.theme.get_color("bg_active")
+        else:
+            # Fallback to light theme if theme_manager not available
+            self.BG        = "#F5F5F5"
+            self.BG_CARD   = "#FFFFFF"
+            self.BG_INPUT  = "#FFFFFF"
+            self.TEXT      = "#1A1A1A"
+            self.TEXT2     = "#555555"
+            self.TEXT3     = "#999999"
+            self.BORDER    = "#E0E0E0"
+            self.SUCCESS   = "#2E7D32"
+            self.WARNING   = "#E65100"
+            self.DANGER    = "#C62828"
+            self.BG_DARK   = "#1A1A1A"
 
     # ── BUILD UI ─────────────────────────────────────────────
 
     def _build_ui(self):
-        self.parent.configure(bg=BG)
+        self.parent.configure(bg=self.BG)
 
-        main = tk.Frame(self.parent, bg=BG)
+        main = tk.Frame(self.parent, bg=self.BG)
         main.pack(fill="both", expand=True)
 
-        # ── LEFT PANEL ────────────────────────────────────────
-        left = tk.Frame(main, bg=BG, width=340)
-        left.pack(side="left", fill="y", padx=(32, 0), pady=24)
-        left.pack_propagate(False)
+        # ── LEFT PANEL (Scrollable) ───────────────────────────
+        left_outer = tk.Frame(main, bg=self.BG, width=340)
+        left_outer.pack(side="left", fill="both", padx=(32, 0), pady=24)
+        left_outer.pack_propagate(False)
 
-        # ── BACK BUTTON ───────────────────────────────────────
-        if self.back_callback:
-            back_row = tk.Frame(left, bg=BG)
-            back_row.pack(anchor="w", pady=(0, 8))
-            tk.Button(
-                back_row, text="← Back",
-                font=(FONT, 8), fg=TEXT3, bg=BG,
-                relief="flat", bd=0, cursor="hand2",
-                activebackground=BG, activeforeground=TEXT,
-                command=self.back_callback,
-            ).pack(side="left")
+        # Create canvas for scrollable content
+        left_canvas = tk.Canvas(left_outer, bg=self.BG,
+                                highlightthickness=0, width=320)
+        left_vsb = tk.Scrollbar(left_outer, orient="vertical",
+                                command=left_canvas.yview)
+        left_canvas.configure(yscrollcommand=left_vsb.set)
+
+        left_vsb.pack(side="right", fill="y")
+        left_canvas.pack(side="left", fill="both", expand=True)
+
+        left = tk.Frame(left_canvas, bg=self.BG)
+        _left_win = left_canvas.create_window((0, 0), window=left, anchor="nw")
+
+        def _on_left_cfg(e):
+            left_canvas.configure(scrollregion=left_canvas.bbox("all"))
+
+        def _on_canvas_cfg(e):
+            left_canvas.itemconfig(_left_win, width=e.width)
+
+        left.bind("<Configure>", _on_left_cfg)
+        left_canvas.bind("<Configure>", _on_canvas_cfg)
+
+        def _scroll_left(e):
+            left_canvas.yview_scroll(int(-1*(e.delta/120)), "units")
+
+        def _on_mousewheel_global(event):
+            """Global mouse wheel handler that checks if mouse is over left panel."""
+            # Get mouse position
+            try:
+                x = event.x_root
+                y = event.y_root
+                # Get left canvas bounding box
+                x1 = left_outer.winfo_rootx()
+                y1 = left_outer.winfo_rooty()
+                x2 = x1 + left_outer.winfo_width()
+                y2 = y1 + left_outer.winfo_height()
+
+                # If mouse is over left panel, scroll
+                if x1 <= x <= x2 and y1 <= y <= y2:
+                    _scroll_left(event)
+            except:
+                pass
+
+        # Bind scroll directly to the canvas - this will work for canvas area
+        left_canvas.bind("<MouseWheel>", _scroll_left)
+        # Bind global mouse wheel to check if over left panel
+        self.parent.bind_all("<MouseWheel>", _on_mousewheel_global)
 
         tk.Label(left, text="Maintain Material",
-                 font=(FONT_DISP, 15, "bold"), fg=TEXT, bg=BG,
+                 font=(FONT_DISP, 15, "bold"), fg=self.TEXT, bg=self.BG,
                  ).pack(anchor="w", pady=(0, 2))
         tk.Label(left, text="SAP MM01 — Create Material per Plant",
-                 font=(FONT, 8), fg=TEXT3, bg=BG,
+                 font=(FONT, 8), fg=self.TEXT3, bg=self.BG,
                  ).pack(anchor="w", pady=(0, 16))
 
         # ── SECTION: Files ────────────────────────────────────
@@ -498,44 +575,44 @@ class MaintainMaterialGui:
 
         # Material codes file
         self._field_row(f_card, "Material Codes File")
-        mf_row = tk.Frame(f_card, bg=BG_CARD)
+        mf_row = tk.Frame(f_card, bg=self.BG_CARD)
         mf_row.pack(fill="x", pady=(2, 6))
         self.mat_file_var = tk.StringVar()
         tk.Entry(mf_row, textvariable=self.mat_file_var,
-                 font=(FONT, 8), bg=BG_INPUT, fg=TEXT,
-                 insertbackground=TEXT, relief="flat", bd=0,
-                 highlightthickness=1, highlightbackground=BORDER,
-                 highlightcolor=BG_DARK, width=24,
+                 font=(FONT, 8), bg=self.BG_INPUT, fg=self.TEXT,
+                 insertbackground=self.TEXT, relief="flat", bd=0,
+                 highlightthickness=1, highlightbackground=self.BORDER,
+                 highlightcolor=self.BG_DARK, width=24,
                  ).pack(side="left", ipady=4)
         tk.Button(mf_row, text="📁", font=(FONT, 9),
-                  bg=BG_CARD, fg=TEXT2, relief="flat", bd=0,
+                  bg=self.BG_CARD, fg=self.TEXT2, relief="flat", bd=0,
                   cursor="hand2", padx=6,
                   command=self._browse_material_file,
                   ).pack(side="left", padx=(4, 0))
         self._mat_file_lbl = tk.Label(
             f_card, text="  No file selected",
-            font=(FONT, 7), fg=TEXT3, bg=BG_CARD, anchor="w")
+            font=(FONT, 7), fg=self.TEXT3, bg=self.BG_CARD, anchor="w")
         self._mat_file_lbl.pack(anchor="w", pady=(0, 4))
 
         # Plant list file
         self._field_row(f_card, "Plant List  (List_Plant.xlsx)")
-        pl_row = tk.Frame(f_card, bg=BG_CARD)
+        pl_row = tk.Frame(f_card, bg=self.BG_CARD)
         pl_row.pack(fill="x", pady=(2, 6))
         self.plant_file_var = tk.StringVar()
         tk.Entry(pl_row, textvariable=self.plant_file_var,
-                 font=(FONT, 8), bg=BG_INPUT, fg=TEXT,
-                 insertbackground=TEXT, relief="flat", bd=0,
-                 highlightthickness=1, highlightbackground=BORDER,
-                 highlightcolor=BG_DARK, width=24,
+                 font=(FONT, 8), bg=self.BG_INPUT, fg=self.TEXT,
+                 insertbackground=self.TEXT, relief="flat", bd=0,
+                 highlightthickness=1, highlightbackground=self.BORDER,
+                 highlightcolor=self.BG_DARK, width=24,
                  ).pack(side="left", ipady=4)
         tk.Button(pl_row, text="📁", font=(FONT, 9),
-                  bg=BG_CARD, fg=TEXT2, relief="flat", bd=0,
+                  bg=self.BG_CARD, fg=self.TEXT2, relief="flat", bd=0,
                   cursor="hand2", padx=6,
                   command=self._browse_plant_file,
                   ).pack(side="left", padx=(4, 0))
         self._plant_file_lbl = tk.Label(
             f_card, text="  No file selected",
-            font=(FONT, 7), fg=TEXT3, bg=BG_CARD, anchor="w")
+            font=(FONT, 7), fg=self.TEXT3, bg=self.BG_CARD, anchor="w")
         self._plant_file_lbl.pack(anchor="w", pady=(0, 4))
 
         # ── SECTION: Plants ───────────────────────────────────
@@ -543,25 +620,25 @@ class MaintainMaterialGui:
         p_card = self._card(left)
 
         # Header row: count + All / Clear
-        ph = tk.Frame(p_card, bg=BG_CARD)
+        ph = tk.Frame(p_card, bg=self.BG_CARD)
         ph.pack(fill="x", pady=(0, 4))
         self._plant_count_lbl = tk.Label(
             ph, text="Load plant list file first",
-            font=(FONT, 7), fg=TEXT3, bg=BG_CARD)
+            font=(FONT, 7), fg=self.TEXT3, bg=self.BG_CARD)
         self._plant_count_lbl.pack(side="left")
         tk.Button(ph, text="All", font=(FONT, 7),
-                  fg=TEXT2, bg=BG_CARD, relief="flat", bd=0,
+                  fg=self.TEXT2, bg=self.BG_CARD, relief="flat", bd=0,
                   cursor="hand2", command=self._plant_select_all,
                   ).pack(side="right", padx=(4, 0))
         tk.Button(ph, text="Clear", font=(FONT, 7),
-                  fg=TEXT3, bg=BG_CARD, relief="flat", bd=0,
+                  fg=self.TEXT3, bg=self.BG_CARD, relief="flat", bd=0,
                   cursor="hand2", command=self._plant_clear_all,
                   ).pack(side="right")
 
-        tk.Frame(p_card, bg=BORDER, height=1).pack(fill="x", pady=(0, 4))
+        tk.Frame(p_card, bg=self.BORDER, height=1).pack(fill="x", pady=(0, 4))
 
         # Scrollable checklist
-        grid_canvas = tk.Canvas(p_card, bg=BG_CARD,
+        grid_canvas = tk.Canvas(p_card, bg=self.BG_CARD,
                                 highlightthickness=0, height=160)
         grid_vsb = tk.Scrollbar(p_card, orient="vertical",
                                 command=grid_canvas.yview)
@@ -569,7 +646,7 @@ class MaintainMaterialGui:
         grid_vsb.pack(side="right", fill="y")
         grid_canvas.pack(fill="both", expand=True)
 
-        self._plant_grid = tk.Frame(grid_canvas, bg=BG_CARD)
+        self._plant_grid = tk.Frame(grid_canvas, bg=self.BG_CARD)
         _win = grid_canvas.create_window(
             (0, 0), window=self._plant_grid, anchor="nw")
 
@@ -592,30 +669,30 @@ class MaintainMaterialGui:
         self._section_label(left, "Info")
         i_card = self._card(left)
         for dot_c, msg in [
-            (SUCCESS, "GT → DC=41, Copy from B100"),
-            (WARNING, "MT → DC=21, Copy from B242"),
-            (TEXT2,   "Outer loop = plants"),
-            (TEXT2,   "Inner loop = material codes"),
-            (WARNING, "SAP must be open before Run"),
+            (self.SUCCESS, "GT → DC=41, Copy from B100"),
+            (self.WARNING, "MT → DC=21, Copy from B242"),
+            (self.TEXT2,   "Outer loop = plants"),
+            (self.TEXT2,   "Inner loop = material codes"),
+            (self.WARNING, "SAP must be open before Run"),
         ]:
-            rf = tk.Frame(i_card, bg=BG_CARD)
+            rf = tk.Frame(i_card, bg=self.BG_CARD)
             rf.pack(fill="x", pady=1)
-            tk.Label(rf, text="●", fg=dot_c, bg=BG_CARD,
+            tk.Label(rf, text="●", fg=dot_c, bg=self.BG_CARD,
                      font=(FONT, 8)).pack(side="left", padx=(0, 6))
-            tk.Label(rf, text=msg, fg=TEXT2, bg=BG_CARD,
+            tk.Label(rf, text=msg, fg=self.TEXT2, bg=self.BG_CARD,
                      font=(FONT, 8)).pack(side="left")
 
         # ── RUN / STOP buttons ────────────────────────────────
-        btn_frame = tk.Frame(left, bg=BG)
+        btn_frame = tk.Frame(left, bg=self.BG)
         btn_frame.pack(fill="x", pady=(16, 0))
 
         self.stop_btn = tk.Button(
             btn_frame,
             text="■  Stop",
             font=(FONT_DISP, 10, "bold"),
-            fg=BG_CARD, bg="#8B0000",
+            fg=self.BG_CARD, bg="#8B0000",
             activebackground="#C62828",
-            activeforeground=BG_CARD,
+            activeforeground=self.BG_CARD,
             relief="flat", bd=0,
             padx=14, pady=10,
             cursor="hand2", state="disabled",
@@ -633,9 +710,9 @@ class MaintainMaterialGui:
             btn_frame,
             text="▶   Run MM01",
             font=(FONT_DISP, 11, "bold"),
-            fg=BG_CARD, bg=BG_DARK,
+            fg=self.BG_CARD, bg=self.BG_DARK,
             activebackground="#333333",
-            activeforeground=BG_CARD,
+            activeforeground=self.BG_CARD,
             relief="flat", bd=0,
             padx=20, pady=10,
             cursor="hand2",
@@ -646,42 +723,42 @@ class MaintainMaterialGui:
             lambda e: self.run_btn.configure(bg="#333333")
             if self.run_btn["state"] != "disabled" else None)
         self.run_btn.bind("<Leave>",
-            lambda e: self.run_btn.configure(bg=BG_DARK)
+            lambda e: self.run_btn.configure(bg=self.BG_DARK)
             if self.run_btn["state"] != "disabled" else None)
 
         # ── RIGHT PANEL: log ──────────────────────────────────
-        right = tk.Frame(main, bg=BG)
+        right = tk.Frame(main, bg=self.BG)
         right.pack(side="left", fill="both", expand=True,
                    padx=24, pady=24)
 
-        log_hdr = tk.Frame(right, bg=BG)
+        log_hdr = tk.Frame(right, bg=self.BG)
         log_hdr.pack(fill="x", pady=(0, 6))
         tk.Label(log_hdr, text="ACTIVITY LOG",
-                 font=(FONT, 8, "bold"), fg=TEXT3, bg=BG,
+                 font=(FONT, 8, "bold"), fg=self.TEXT3, bg=self.BG,
                  ).pack(side="left")
         tk.Button(log_hdr, text="Clear", font=(FONT, 7),
-                  fg=TEXT3, bg=BG, relief="flat", bd=0,
+                  fg=self.TEXT3, bg=self.BG, relief="flat", bd=0,
                   cursor="hand2", command=self._clear_log,
                   ).pack(side="right")
 
-        log_outer = tk.Frame(right, bg=BORDER, bd=0)
+        log_outer = tk.Frame(right, bg=self.BORDER, bd=0)
         log_outer.pack(fill="both", expand=True)
-        log_inner = tk.Frame(log_outer, bg=BG_CARD)
+        log_inner = tk.Frame(log_outer, bg=self.BG_CARD)
         log_inner.pack(fill="both", padx=1, pady=1)
 
         self.log_box = scrolledtext.ScrolledText(
             log_inner,
-            bg=BG_CARD, fg=TEXT2,
+            bg=self.BG_CARD, fg=self.TEXT2,
             font=(FONT, 9),
             relief="flat", bd=0,
             state="disabled", wrap="word",
             padx=12, pady=10,
         )
         self.log_box.pack(fill="both", expand=True)
-        self.log_box.tag_config("OK",    foreground=SUCCESS)
-        self.log_box.tag_config("ERROR", foreground=DANGER)
-        self.log_box.tag_config("WARN",  foreground=WARNING)
-        self.log_box.tag_config("INFO",  foreground=TEXT2)
+        self.log_box.tag_config("OK",    foreground=self.SUCCESS)
+        self.log_box.tag_config("ERROR", foreground=self.DANGER)
+        self.log_box.tag_config("WARN",  foreground=self.WARNING)
+        self.log_box.tag_config("INFO",  foreground=self.TEXT2)
 
         self._write_log("Maintain Material ready.", "INFO")
         self._write_log("1. Browse material codes file", "INFO")
@@ -691,48 +768,48 @@ class MaintainMaterialGui:
     # ── UI HELPERS ───────────────────────────────────────────
 
     def _section_label(self, parent, text):
-        f = tk.Frame(parent, bg=BG)
+        f = tk.Frame(parent, bg=self.BG)
         f.pack(fill="x", pady=(12, 4))
-        tk.Frame(f, bg=BG_DARK, width=3, height=14).pack(
+        tk.Frame(f, bg=self.BG_DARK, width=3, height=14).pack(
             side="left", padx=(0, 6))
         tk.Label(f, text=text.upper(),
-                 font=(FONT, 8, "bold"), fg=TEXT, bg=BG,
+                 font=(FONT, 8, "bold"), fg=self.TEXT, bg=self.BG,
                  ).pack(side="left")
 
     def _card(self, parent):
-        outer = tk.Frame(parent, bg=BORDER)
+        outer = tk.Frame(parent, bg=self.BORDER)
         outer.pack(fill="x", pady=(0, 4))
-        inner = tk.Frame(outer, bg=BG_CARD, padx=14, pady=10)
+        inner = tk.Frame(outer, bg=self.BG_CARD, padx=14, pady=10)
         inner.pack(fill="x", padx=1, pady=1)
         return inner
 
     def _field_row(self, parent, label, width=None):
         tk.Label(parent, text=label,
-                 font=(FONT, 9), fg=TEXT2, bg=BG_CARD, anchor="w",
+                 font=(FONT, 9), fg=self.TEXT2, bg=self.BG_CARD, anchor="w",
                  ).pack(anchor="w", pady=(6, 0))
 
     def _entry(self, parent, var, width=28, placeholder=""):
         e = tk.Entry(
             parent, textvariable=var, width=width,
-            bg=BG_INPUT, fg=TEXT, insertbackground=TEXT,
+            bg=self.BG_INPUT, fg=self.TEXT, insertbackground=self.TEXT,
             font=(FONT, 10), relief="flat", bd=0,
             highlightthickness=1,
-            highlightbackground=BORDER, highlightcolor=BG_DARK,
+            highlightbackground=self.BORDER, highlightcolor=self.BG_DARK,
         )
         e.pack(anchor="w", ipady=5, pady=(2, 4))
         if placeholder and not var.get():
             e.insert(0, placeholder)
-            e.config(fg=TEXT3)
+            e.config(fg=self.TEXT3)
 
             def _fi(event, entry=e, ph=placeholder):
                 if entry.get() == ph:
                     entry.delete(0, "end")
-                    entry.config(fg=TEXT)
+                    entry.config(fg=self.TEXT)
 
             def _fo(event, entry=e, ph=placeholder):
                 if not entry.get():
                     entry.insert(0, ph)
-                    entry.config(fg=TEXT3)
+                    entry.config(fg=self.TEXT3)
 
             e.bind("<FocusIn>",  _fi)
             e.bind("<FocusOut>", _fo)
@@ -753,12 +830,12 @@ class MaintainMaterialGui:
             codes = load_material_codes(path)
             self._mat_file_lbl.config(
                 text=f"  ✔ {len(codes)} codes — {os.path.basename(path)}",
-                fg=SUCCESS)
+                fg=self.SUCCESS)
             self._write_log(
                 f"Material file: {os.path.basename(path)} "
                 f"→ {len(codes)} codes", "OK")
         except Exception as e:
-            self._mat_file_lbl.config(text=f"  ⚠ {e}", fg=WARNING)
+            self._mat_file_lbl.config(text=f"  ⚠ {e}", fg=self.WARNING)
             self._write_log(f"Material file error: {e}", "ERROR")
 
     def _browse_plant_file(self):
@@ -775,13 +852,13 @@ class MaintainMaterialGui:
             self._plant_file_lbl.config(
                 text=f"  ✔ {len(self._plant_data)} plants — "
                      f"{os.path.basename(path)}",
-                fg=SUCCESS)
+                fg=self.SUCCESS)
             self._write_log(
                 f"Plant list: {os.path.basename(path)} "
                 f"→ {len(self._plant_data)} plants", "OK")
             self._rebuild_plant_checklist()
         except Exception as e:
-            self._plant_file_lbl.config(text=f"  ⚠ {e}", fg=WARNING)
+            self._plant_file_lbl.config(text=f"  ⚠ {e}", fg=self.WARNING)
             self._write_log(f"Plant file error: {e}", "ERROR")
 
     # ── PLANT CHECKLIST ───────────────────────────────────────
@@ -799,7 +876,7 @@ class MaintainMaterialGui:
             info  = self._plant_data[plant]
             is_mt = info["type"] == "MT"
             label = f"{plant}  [{info['type']}]"
-            color = WARNING if is_mt else TEXT2
+            color = self.WARNING if is_mt else self.TEXT2
 
             var = tk.BooleanVar(value=old_states.get(plant, True))
             self._plant_vars[plant] = var
@@ -808,9 +885,9 @@ class MaintainMaterialGui:
                 self._plant_grid, text=label,
                 variable=var,
                 font=(FONT, 8),
-                fg=color, bg=BG_CARD,
-                selectcolor=BG_CARD,
-                activebackground=BG_CARD,
+                fg=color, bg=self.BG_CARD,
+                selectcolor=self.BG_CARD,
+                activebackground=self.BG_CARD,
                 activeforeground=color,
                 relief="flat", bd=0,
             )
@@ -822,7 +899,7 @@ class MaintainMaterialGui:
         mt  = sum(1 for p in self._plant_data.values() if p["type"] == "MT")
         self._plant_count_lbl.config(
             text=f"{n} plants  (GT:{gt}  MT:{mt})",
-            fg=TEXT2)
+            fg=self.TEXT2)
 
     def _plant_select_all(self):
         for v in self._plant_vars.values():
@@ -894,7 +971,7 @@ class MaintainMaterialGui:
         """Re-enable Run button (called on main thread after run ends)."""
         self._running = False
         self.run_btn.configure(
-            state="normal", text="▶   Run MM01", bg=BG_DARK)
+            state="normal", text="▶   Run MM01", bg=self.BG_DARK)
         self.stop_btn.configure(state="disabled")
 
     # ── SAP EXECUTION ─────────────────────────────────────────
