@@ -610,6 +610,10 @@ def compare(plant: str, matrix: dict, stok_sap: dict,
 
     # ── Loop 1: semua material yang ada di Matrix portal ─────
     for (material, sloc, param), data in matrix.items():
+        # Hanya pertimbangkan FSTKGD untuk compare/email.
+        # FSTKVN akan dipertahankan di matrix mentah untuk U2C bila diperlukan.
+        if param != "FSTKGD":
+            continue
         qty_matrix = data["qty"]
         qty_sap    = stok_sap.get((material, sloc, param), 0.0)
         diff       = round(qty_matrix - qty_sap, 6)
@@ -640,6 +644,9 @@ def compare(plant: str, matrix: dict, stok_sap: dict,
     # Kondisi: portal tidak menampilkan material yang stoknya 0.
     # Jika SAP masih punya stok untuk material tsb → selisih negatif → mvt 917.
     for (material, sloc, param), qty_sap in stok_sap.items():
+        # Don't include SAP-only FSTKVN in compare/email flow.
+        if param == "FSTKVN":
+            continue
         # Skip jika material ini sudah diproses di loop pertama (ada di Matrix)
         if (material, sloc, param) in matrix:
             continue
@@ -1309,65 +1316,13 @@ def _process_plant_with_sap(page, plant: str, detail_url: str, posting_date: str
                      f"Plant {plant}: {len(matrix)} item Matrix disimpan untuk U2C", "OK")
             return
 
-        # Load limit adjustment
-        try:
-            from limit_adjustment import load_limit_adjustment, filter_by_limit
-            limits = load_limit_adjustment()
-            _log(send_log, f"✓ File limit adjustment berhasil dibaca | {len(limits)} material", "OK")
-        except Exception as e:
-            _log(send_log, f"⚠ Gagal baca file limit adjustment: {e} — semua item lolos filter", "WARN")
-            from limit_adjustment import filter_by_limit
-            limits = {}
-
-        items_ok, items_skip = filter_by_limit(items, limits)
-        if items_skip:
-            _log(send_log, f"→ Filter: {len(items_ok)} lolos, {len(items_skip)} lewat batas", "WARN")
-
-        if items_ok:
+        # Semua item langsung masuk — tidak ada filter limit adjustment
+        _log(send_log, f"Plant {plant}: {len(items)} item → masuk laporan", "OK")
+        items_per_plant[plant] = items
+        if matrix_per_plant is not None:
+            matrix_per_plant[plant] = matrix
             _log(send_log,
-                 f"Plant {plant}: {len(items_ok)} item lolos limit → masuk laporan", "OK")
-
-        if items_skip:
-            _log(send_log,
-                 f"Plant {plant}: {len(items_skip)} item lewat limit (lihat LIMIT ALERT)", "WARN")
-            
-            # Kirim detail ke LIMIT ALERT section
-            _log(send_log, f"", "LIMIT_ALERT")  # baris kosong
-            _log(send_log, f"{'='*60}", "LIMIT_ALERT")
-            _log(send_log, 
-                 f"Plant {plant} - {len(items_skip)} ITEM LEWAT LIMIT ADJUSTMENT", 
-                 "LIMIT_ALERT")
-            _log(send_log, f"{'='*60}", "LIMIT_ALERT")
-            
-            for item in items_skip:
-                lim   = limits.get(item.material, {})
-                lim_p = lim.get('limit_plus',  'N/A')
-                lim_m = lim.get('limit_minus', 'N/A')
-                if item.diff > 0:
-                    batas = f"limit+ = {lim_p}"
-                    jarak = f"selisih {item.diff:+.3f} > {lim_p}"
-                else:
-                    batas = f"limit- = {lim_m}"
-                    jarak = f"selisih {item.diff:+.3f} < {lim_m}"
-                _log(send_log,
-                     f"  ⚠ {item.material} | SLoc={item.sloc} | "
-                     f"diff={item.diff:+.6f} | {batas} | {jarak}", 
-                     "LIMIT_ALERT")
-            
-            _log(send_log, f"{'='*60}", "LIMIT_ALERT")
-            _log(send_log, f"Plant {plant} tidak diproses - selisih melewati limit", 
-                 "LIMIT_ALERT")
-
-        if items_skip:
-            _log(send_log,
-                 f"Plant {plant}: ada item lewat limit → SKIP dari email & U2C sepenuhnya",
-                 "WARN")
-        elif items_ok:
-            items_per_plant[plant] = items_ok
-            if matrix_per_plant is not None:
-                matrix_per_plant[plant] = matrix
-                _log(send_log,
-                     f"Plant {plant}: {len(matrix)} item Matrix disimpan untuk U2C", "OK")
+                 f"Plant {plant}: {len(matrix)} item Matrix disimpan untuk U2C", "OK")
 
     except Exception as e:
         _log(send_log, f"Plant {plant} GAGAL: {e}", "ERROR")

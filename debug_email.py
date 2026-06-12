@@ -1,21 +1,20 @@
 from email_config_ui import load_credentials
-from send_email_report import _smtp_send
+from send_email_report import _create_thunderbird_draft
 
 cred = load_credentials()
 print("Konfigurasi:")
-print(f"  Host : {cred['smtp_host']}")
-print(f"  Port : {cred['smtp_port']}")
 print(f"  From : {cred['email_from']}")
 print(f"  To   : {cred['email_to']}")
 print(f"  CC   : {cred.get('email_cc', '')}")
 print()
-print("Mengirim email test...")
+print("Membuat draft email test...")
 
-_smtp_send(
+draft_path = _create_thunderbird_draft(
     cred      = cred,
     subject   = "[RPA] DEBUG Test Email",
-    body_html = "<p>Debug test dari RPA.</p>",
+    body_html = "<p>Debug test dari RPA — ini adalah email draft untuk Thunderbird.</p>",
     to        = cred["email_to"],
     cc        = cred.get("email_cc", ""),
 )
-print("Selesai — tidak ada error!")
+print(f"✓ Draft email dibuat: {draft_path}")
+print("Buka file .eml di Thunderbird untuk melihat draft email.")

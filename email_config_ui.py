@@ -85,7 +85,7 @@ def load_credentials() -> dict:
 class EmailConfigUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("Konfigurasi Email — RPA Stock Recon")
+        self.root.title("Konfigurasi Email — Thunderbird Draft (RPA Stock Recon)")
         self.root.geometry("600x620")
         self.root.resizable(False, True)
         self.root.configure(bg=BG)
@@ -97,12 +97,12 @@ class EmailConfigUI:
         hdr = tk.Frame(self.root, bg="#111827", pady=14)
         hdr.pack(fill="x")
         tk.Label(
-            hdr, text="⚙  Konfigurasi Email SMTP",
+            hdr, text="⚙  Konfigurasi Email — Thunderbird Draft",
             font=("Consolas", 13, "bold"), fg=ACCENT, bg="#111827"
         ).pack(padx=20, anchor="w")
         tk.Label(
             hdr,
-            text="Kredensial disimpan terenkripsi di lokal — tidak dikirim ke mana pun",
+            text="Email disimpan sebagai draft di folder report — buka di Thunderbird sebelum mengirim",
             font=("Consolas", 8), fg=TEXT_HNT, bg="#111827"
         ).pack(padx=20, anchor="w")
 
@@ -166,7 +166,7 @@ class EmailConfigUI:
 
         tk.Label(
             form,
-            text="* Kosongkan password jika server pakai relay tanpa auth (port 25 internal)",
+            text="* Opsional — disimpan untuk referensi (tidak lagi digunakan untuk SMTP)",
             fg=TEXT_HNT, bg=BG, font=("Consolas", 8)
         ).grid(row=4, column=0, columnspan=2, sticky="w", pady=(2, 4))
 
@@ -215,7 +215,7 @@ class EmailConfigUI:
         ).pack(side="left", padx=(0, 8))
 
         tk.Button(
-            btn_frame, text="✉  Test Kirim",
+            btn_frame, text="✉  Test Draft",
             font=("Consolas", 11), fg="#0F172A", bg="#10B981",
             activebackground="#059669", relief="flat",
             padx=14, pady=7, cursor="hand2",
@@ -223,7 +223,7 @@ class EmailConfigUI:
         ).pack(side="left", padx=(0, 8))
 
         tk.Button(
-            btn_frame, text="🔍  Diagnosa",
+            btn_frame, text="ℹ  Info",
             font=("Consolas", 11), fg="#0F172A", bg="#F59E0B",
             activebackground="#D97706", relief="flat",
             padx=14, pady=7, cursor="hand2",
@@ -342,72 +342,44 @@ class EmailConfigUI:
                 messagebox.showwarning("Peringatan", "Email To tidak boleh kosong!")
                 return
 
-            from send_email_report import _smtp_send
-            _smtp_send(
+            from send_email_report import _create_thunderbird_draft
+            draft_path = _create_thunderbird_draft(
                 cred      = cred,
-                subject   = "[RPA] Test Email — Konfigurasi SMTP",
+                subject   = "[RPA] Test Email — Konfigurasi Thunderbird Draft",
                 body_html = (
-                    "<p>Test email dari <b>RPA Stock Reconciliation</b> berhasil.</p>"
+                    "<p>Test email draft dari <b>RPA Stock Reconciliation</b> berhasil dibuat.</p>"
                     "<p style='color:#64748B;font-size:12px'>"
-                    f"Dikirim dari: {cred['email_from']}<br>"
-                    f"Dikirim ke  : {email_to}"
+                    f"Dari    : {cred['email_from']}<br>"
+                    f"Tujuan  : {email_to}"
                     + (f"<br>CC: {email_cc}" if email_cc else "")
+                    + "<br><br>File draft dapat dibuka di Thunderbird atau email client lainnya."
                     + "</p>"
                 ),
                 to        = email_to,
                 cc        = email_cc,
             )
             self.status_lbl.config(
-                text=f"✔ Test email terkirim ke {email_to}!", fg="#34D399"
+                text=f"✔ Draft email test dibuat untuk {email_to}", fg="#34D399"
             )
             messagebox.showinfo(
                 "Berhasil",
-                f"Test email terkirim ke:\n{email_to}"
-                + (f"\nCC: {email_cc}" if email_cc else "")
+                f"Draft email test berhasil dibuat!\n\n"
+                f"Path: {draft_path}\n\n"
+                f"Double-click file .eml untuk membuka di Thunderbird"
             )
         except Exception as e:
             self.status_lbl.config(text=f"✗ Gagal: {e}", fg="#F87171")
-            messagebox.showerror("Gagal", f"Test email gagal:\n\n{e}")
+            messagebox.showerror("Gagal", f"Gagal buat draft email:\n\n{e}")
 
     def _on_diagnose(self):
-        host = self.vars["smtp_host"].get().strip()
-        if not host:
-            messagebox.showwarning("Peringatan", "Isi SMTP Host dulu!")
-            return
-
-        self.status_lbl.config(
-            text=f"🔍 Mendiagnosa {host} di port 25, 465, 587 ...", fg="#FBBF24"
+        messagebox.showinfo(
+            "Info",
+            "Sistem email telah diubah ke mode Thunderbird Draft.\n\n"
+            "Email tidak lagi dikirim via SMTP, tetapi disimpan sebagai file .eml "
+            "yang dapat dibuka di Mozilla Thunderbird.\n\n"
+            "Kredensial email dan SMTP masih disimpan untuk referensi.\n"
+            "Anda dapat mengubah atau menghapusnya jika sudah tidak diperlukan."
         )
-        self.root.update()
-
-        try:
-            from send_email_report import diagnose_smtp
-            results = diagnose_smtp(host, ports=[25, 465, 587])
-        except Exception as e:
-            messagebox.showerror("Error", f"Diagnosa gagal:\n{e}")
-            return
-
-        lines = [f"Hasil diagnosa SMTP untuk: {host}\n"]
-        recommended = None
-        for port, status in results.items():
-            lines.append(f"Port {port:>3} : {status}")
-            if "✓" in status and recommended is None:
-                recommended = port
-
-        if recommended:
-            lines.append(f"\n→ Rekomendasi: gunakan Port {recommended}")
-            self.vars["smtp_port"].set(str(recommended))
-            self.status_lbl.config(
-                text=f"✔ Diagnosa selesai — port {recommended} dipilih otomatis",
-                fg="#34D399"
-            )
-        else:
-            lines.append("\n→ Semua port gagal — cek koneksi jaringan atau hubungi IT")
-            self.status_lbl.config(
-                text="✗ Semua port gagal — cek jaringan", fg="#F87171"
-            )
-
-        messagebox.showinfo("Hasil Diagnosa SMTP", "\n".join(lines))
 
 
 # ─────────────────────────────────────────────

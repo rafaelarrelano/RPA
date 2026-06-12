@@ -327,24 +327,12 @@ def _make_card(parent, padx=12, pady=10):
 # ─────────────────────────────────────────────
 
 class RpaGui:
-    def __init__(self, root, back_callback=None):
-        """
-        root          : tk.Tk (standalone) OR tk.Frame (launched from launcher.py)
-        back_callback : callable — if provided, a Back button is shown;
-                        called when user wants to return to the main menu.
-        """
-        self.back_callback = back_callback
-        self._launched_from_menu = back_callback is not None
-
-        # When launched from the launcher, root is a Frame not a Tk window
-        # so we skip window-level config (title, geometry, etc.)
-        self.root = root
-        if not self._launched_from_menu:
-            self.root.title("RPA Stock Reconciliation")
-            self.root.geometry("1120x800")
-            self.root.minsize(900, 660)
+    def __init__(self, root):
+        self.root   = root
+        self.root.title("RPA Stock Reconciliation")
+        self.root.geometry("1120x800")
+        self.root.minsize(900, 660)
         self.root.configure(bg=C("bg"))
-
         self._running = False
         self._tooltip = None
         self._plant_popup_visible = False
@@ -352,6 +340,17 @@ class RpaGui:
         self._email_to_tags: list = []
         self._email_cc_tags: list = []
         self._plant_vars: dict = {}
+        # Alert handling: only these SLocs are considered real alerts
+        self._allowed_slocs = {"WH01", "WH02", "WT01"}
+        # Buffer for LIMIT_ALERT blocks (so we can decide to show header+items only
+        # when the block contains allowed SLocs)
+        self._current_limit_block = None
+        self._current_limit_block_has_allowed = False
+        self._current_limit_block_allowed_count = 0
+        self._current_limit_block_plant = None
+        # Totals for display
+        self._alert_total_allowed = 0
+        self._alert_per_plant = {}
         # Email lists live here (NOT in _build_left) so theme rebuild never resets them
         self._email_to_list: list = []
         self._email_cc_list: list = []
@@ -1762,18 +1761,158 @@ class RpaGui:
                 elif level == "SAP_WAIT":
                     self.root.after(0, self._ask_sap_confirm)
                 elif level == "LIMIT_ALERT":
-                    # Kirim ke ALERT LOG section (bawah), bukan Activity Log
-                    self.alert_log.config(state="normal")
-                    self.alert_log.insert("end", msg + "\n", level)
-                    self.alert_log.see("end")
-                    self.alert_log.config(state="disabled")
-                    # Update alert indicator
-                    self._alert_dot.config(fg=C("danger"))
+                    # Buffer and filter LIMIT_ALERT blocks so only allowed SLocs are shown
+                    txt = msg or ""
+                    # Detect start of a block: header like 'Plant B380 - X ITEM LEWAT LIMIT ADJUSTMENT'
+                    # (messages include timestamp prefix, so don't rely on startswith)
+                    if "ITEM LEWAT LIMIT ADJUSTMENT" in txt and "Plant " in txt:
+                        # start new buffer
+                        self._current_limit_block = [txt]
+                        self._current_limit_block_has_allowed = False
+                        self._current_limit_block_allowed_count = 0
+                        # extract plant code robustly (msg may include timestamp)
+                        try:
+                            import re
+                            m = re.search(r"Plant\s+(\S+)", txt)
+                            self._current_limit_block_plant = m.group(1) if m else None
+                        except Exception:
+                            self._current_limit_block_plant = None
+                    elif self._current_limit_block is not None:
+                        # Append into current block
+                        self._current_limit_block.append(txt)
+                        # Check for item lines containing SLoc=
+                        if "SLoc=" in txt:
+                            # extract SLoc token
+                            try:
+                                after = txt.split("SLoc=", 1)[1]
+                                sl = after.split()[0].strip().strip('|').strip()
+                            except Exception:
+                                sl = ""
+                            if sl in self._allowed_slocs:
+                                self._current_limit_block_has_allowed = True
+                                self._current_limit_block_allowed_count += 1
+                        # Detect end of block (final summary line or long ===== separator)
+                        stripped = txt.strip()
+                        is_sep = (set(stripped) <= set("=") and len(stripped) >= 10)
+                        if "tidak diproses" in txt or is_sep:
+                            # flush if we saw allowed items
+                            if self._current_limit_block_has_allowed:
+                                # Insert buffered lines but only include allowed SLoc item lines
+                                self.alert_log.config(state="normal")
+                                for line in self._current_limit_block:
+                                    if "SLoc=" in line:
+                                        try:
+                                            after = line.split("SLoc=", 1)[1]
+                                            sl = after.split()[0].strip().strip('|').strip()
+                                        except Exception:
+                                            sl = ""
+                                        if sl in self._allowed_slocs:
+                                            self.alert_log.insert("end", line + "\n", "LIMIT_ALERT")
+                                    else:
+                                        # header / separators / final note — include
+                                        self.alert_log.insert("end", line + "\n", "LIMIT_ALERT")
+                                self.alert_log.insert("end", "\n", "ITEM")
+                                self.alert_log.see("end")
+                                self.alert_log.config(state="disabled")
+                                # Update totals & indicators
+                                plant = self._current_limit_block_plant
+                                k = self._current_limit_block_allowed_count
+                                self._alert_total_allowed += k
+                                if plant:
+                                    self._alert_per_plant[plant] = self._alert_per_plant.get(plant, 0) + k
+                                self._alert_dot.config(fg=C("danger"))
+                                self._alert_count.config(text=f"{self._alert_total_allowed} alert")
+                                # Update activity: replace plant 'lewat limit' line if present
+                                if plant:
+                                    try:
+                                        self._update_activity_plant_lewat(plant, self._alert_per_plant.get(plant, 0))
+                                    except Exception:
+                                        pass
+                                # Also update global Filter line if present
+                                try:
+                                    self._update_filter_counts(self._alert_total_allowed)
+                                except Exception:
+                                    pass
+                            # reset buffer
+                            self._current_limit_block = None
+                            self._current_limit_block_has_allowed = False
+                            self._current_limit_block_allowed_count = 0
+                            self._current_limit_block_plant = None
+                    else:
+                        # Standalone LIMIT_ALERT line (item details without header)
+                        if "SLoc=" in txt:
+                            try:
+                                after = txt.split("SLoc=", 1)[1]
+                                sl = after.split()[0].strip().strip('|').strip()
+                            except Exception:
+                                sl = ""
+                            if sl in self._allowed_slocs:
+                                self.alert_log.config(state="normal")
+                                self.alert_log.insert("end", txt + "\n", "LIMIT_ALERT")
+                                self.alert_log.see("end")
+                                self.alert_log.config(state="disabled")
+                                self._alert_dot.config(fg=C("danger"))
+                                self._alert_total_allowed += 1
+                                self._alert_count.config(text=f"{self._alert_total_allowed} alert")
+                        else:
+                            # non-item standalone — show it (safe fallback)
+                            self.alert_log.config(state="normal")
+                            self.alert_log.insert("end", txt + "\n", "LIMIT_ALERT")
+                            self.alert_log.see("end")
+                            self.alert_log.config(state="disabled")
                 else:
                     self._write_log(msg, level)
         except queue.Empty:
             pass
         self.root.after(80, self._poll)
+
+    def _update_activity_plant_lewat(self, plant: str, new_count: int):
+        try:
+            # find the last occurrence of the plant line (search backwards)
+            start = self.log.search(f"Plant {plant}:", "1.0", tk.END, backwards=True)
+            if not start:
+                return
+            line_no = start.split('.')[0]
+            line_start = f"{line_no}.0"
+            line_end = f"{line_no}.end"
+            # Replace the whole line
+            self.log.config(state="normal")
+            self.log.delete(line_start, f"{line_end}+1c")
+            new_line = f"Plant {plant}: {new_count} item lewat limit (lihat LIMIT ALERT)\n"
+            self.log.insert(line_start, new_line, "WARN")
+            self.log.config(state="disabled")
+        except Exception:
+            pass
+
+    def _update_filter_counts(self, total_allowed: int):
+        try:
+            # find last Filter: line
+            start = self.log.search("→ Filter:", "1.0", tk.END, backwards=True)
+            if not start:
+                return
+            line_no = start.split('.')[0]
+            line_start = f"{line_no}.0"
+            line_end = f"{line_no}.end"
+            line_text = self.log.get(line_start, line_end).strip()
+            # Expect format: '→ Filter: {ok} lolos, {skip} lewat batas'
+            import re
+            m = re.search(r"→ Filter:\s*(\d+)\s*lolos,\s*(\d+)\s*lewat batas", line_text)
+            if not m:
+                return
+            ok = int(m.group(1))
+            skip = int(m.group(2))
+            allowed = int(total_allowed)
+            if allowed > skip:
+                allowed = skip
+            new_ok = ok + (skip - allowed)
+            new_skip = allowed
+            new_line = f"→ Filter: {new_ok} lolos, {new_skip} lewat batas\n"
+            self.log.config(state="normal")
+            self.log.delete(line_start, f"{line_end}+1c")
+            self.log.insert(line_start, new_line, "WARN")
+            self.log.config(state="disabled")
+        except Exception:
+            pass
 
     # ── DIALOGS ──────────────────────────────────────────────
 
@@ -1864,23 +2003,10 @@ class RpaGui:
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # When run directly, launch via the menu launcher
-    # so the user always starts from the module menu.
+    root = tk.Tk()
     try:
-        import launcher
-        root = tk.Tk()
-        try:
-            root.iconbitmap("icon.ico")
-        except Exception:
-            pass
-        launcher.Launcher(root)
-        root.mainloop()
-    except ImportError:
-        # Fallback: open Compare Stock directly if launcher.py not found
-        root = tk.Tk()
-        try:
-            root.iconbitmap("icon.ico")
-        except Exception:
-            pass
-        RpaGui(root)
-        root.mainloop()
+        root.iconbitmap("icon.ico")
+    except Exception:
+        pass
+    RpaGui(root)
+    root.mainloop()

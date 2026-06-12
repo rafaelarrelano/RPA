@@ -1,21 +1,21 @@
 """
 send_email_report.py
-Buat laporan Excel selisih stok per plant, lalu kirim otomatis via SMTP.
-Kredensial dibaca dari file terenkripsi (diatur via email_config_ui.py).
+Buat laporan Excel selisih stok per plant dan buat draft email di Mozilla Thunderbird.
+Alih-alih mengirim via SMTP, email disimpan sebagai file .eml yang bisa dibuka di Thunderbird.
 
 Perubahan:
 - Subject per plant: "Req. Adj. EOD Plant {code} {name} Tanggal {tanggal}"
 - Body email per plant: format standar sesuai template (Posting Date, Material,
   Selisih2, UOM, Gudang, Plant, Adj, Plant Name)
-- Kirim SATU EMAIL PER PLANT (bukan satu email untuk semua plant)
+- Buat SATU EMAIL DRAFT PER PLANT (bukan satu email untuk semua plant)
 - Load Plant Name dari Excel plant_mapping (kolom B=Plant Code, C=Plant Name)
-- Auto-detect apakah server support SMTP AUTH atau tidak
-- Support semua port: 587, 465, 25, dan port custom lainnya
+- Draft email disimpan sebagai file .eml di folder report
+- Bisa dibuka/diimpor ke Thunderbird untuk review sebelum mengirim
 """
 
 import os
-import smtplib
-import ssl
+import base64
+import mimetypes
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -103,7 +103,7 @@ def build_excel_report(items_per_plant: dict, filepath: str,
         ws = wb.create_sheet(title=f"Plant {plant}")
         ws.merge_cells("A1:I1")
         display_name = f"{plant} {plant_name}".strip()
-        ws["A1"] = f"Req. Adj. EOD Plant {display_name} — {tanggal}"
+        ws["A1"] = f"Req.Adj.EOD Plant {display_name} — {tanggal}"
         ws["A1"].font      = ttl_font
         ws["A1"].alignment = center
         ws.row_dimensions[1].height = 22
@@ -318,142 +318,242 @@ def get_sender_display_name(email_address: str) -> str:
     # kapital tiap kata
     return username.title()
 
+
 # ─────────────────────────────────────────────
-# KIRIM EMAIL VIA SMTP
+# HELPER: FIND THUNDERBIRD DRAFTS FOLDER
 # ─────────────────────────────────────────────
 
-def _smtp_send(cred: dict, subject: str, body_html: str,
-               to: str, cc: str, attachment_path: str = None):
+def _find_thunderbird_profile_dir() -> str:
     """
-    Kirim email via SMTP.
-    Auto-detect apakah server support AUTH atau tidak.
-    - Port 465 : SSL langsung
-    - Port 587 : STARTTLS, lalu coba login jika password ada & AUTH supported
-    - Port lain : Plain/STARTTLS, skip login jika AUTH tidak didukung (Zimbra relay)
+    Cari folder profil Thunderbird aktif via profiles.ini.
+
+    Prioritas:
+    1. Block [Install...] → key Default= (satu baris, tanpa DOTALL)
+    2. Profil bernama "default-release"  ← Thunderbird modern
+    3. [Profile...] dengan IsDefault=1
+    4. Profil pertama yang ditemukan (fallback)
     """
-    msg            = MIMEMultipart("mixed")
+    import re as _re
+    appdata = os.environ.get("APPDATA", "")
+    if not appdata:
+        return ""
+    tb_base      = os.path.join(appdata, "Thunderbird")
+    profiles_ini = os.path.join(tb_base, "profiles.ini")
+    if not os.path.exists(profiles_ini):
+        return ""
+    with open(profiles_ini, "r", encoding="utf-8", errors="ignore") as f:
+        ini_content = f.read()
+
+    # ── Prioritas 1: block [Install...] → Default= ──────────
+    # MULTILINE tanpa DOTALL: [^\n\r]+ hanya ambil satu baris
+    install_m = _re.search(
+        r'^\[Install[^\]]+\][^\[]*?^Default=([^\n\r]+)',
+        ini_content, _re.MULTILINE
+    )
+    if install_m:
+        raw  = install_m.group(1).strip()
+        path = os.path.join(tb_base, raw.replace("/", os.sep)) \
+               if not os.path.isabs(raw) else raw
+        if os.path.isdir(path):
+            log.debug(f"[THUNDERBIRD] Profil dari Install block: {path}")
+            return path
+
+    # ── Kumpulkan semua profil yang valid ─────────────────────
+    all_profiles = []   # list of (path, is_default, name, raw_path)
+    blocks = _re.split(r'\[Profile\d+\]', ini_content)
+    for block in blocks:
+        path_m = _re.search(r'^Path=([^\n\r]+)',  block, _re.MULTILINE)
+        def_m  = _re.search(r'^IsDefault=1',       block, _re.MULTILINE)
+        rel_m  = _re.search(r'^IsRelative=1',      block, _re.MULTILINE)
+        name_m = _re.search(r'^Name=([^\n\r]+)',  block, _re.MULTILINE)
+        if not path_m:
+            continue
+        raw   = path_m.group(1).strip()
+        name  = name_m.group(1).strip() if name_m else ""
+        path  = os.path.join(tb_base, raw.replace("/", os.sep)) if rel_m else raw
+        if not os.path.isdir(path):
+            continue
+        all_profiles.append((path, bool(def_m), name, raw))
+
+    # ── Prioritas 2: profil "default-release" ────────────────
+    for path, _, name, raw in all_profiles:
+        if "default-release" in raw or "default-release" in name:
+            log.debug(f"[THUNDERBIRD] Profil default-release: {path}")
+            return path
+
+    # ── Prioritas 3: IsDefault=1 ──────────────────────────────
+    for path, is_default, _, _ in all_profiles:
+        if is_default:
+            log.debug(f"[THUNDERBIRD] Profil IsDefault=1: {path}")
+            return path
+
+    # ── Prioritas 4: profil pertama yang ada ──────────────────
+    if all_profiles:
+        log.debug(f"[THUNDERBIRD] Profil fallback: {all_profiles[0][0]}")
+        return all_profiles[0][0]
+
+    return ""
+def _find_thunderbird_drafts_mbox(profile_dir: str, email_from: str = "") -> str:
+    """
+    Cari path file mbox 'Drafts' Thunderbird.
+
+    Thunderbird menyimpan draft sebagai file mbox bernama 'Drafts'
+    (tanpa ekstensi). Untuk POP3, lokasinya bisa di direktori custom
+    yang di-set user, bukan di dalam folder profil Thunderbird.
+
+    Strategi pencarian:
+      1. Baca prefs.js → ambil semua nilai mail.server.serverN.directory
+         Ini menangani POP3 dengan direktori custom (misal D:\\Email Rafael)
+      2. Cek subfolder Mail/ dan ImapMail/ di dalam profile_dir (default)
+
+    Jika direktori ditemukan tapi file Drafts belum ada, path-nya tetap
+    dikembalikan agar bisa dibuat otomatis (mode append akan create file baru).
+
+    Return: path file mbox Drafts (ada atau akan dibuat), atau "" jika tidak ada.
+    """
+    import re as _re
+
+    domain     = email_from.split("@")[-1] if "@" in email_from else ""
+    username   = email_from.split("@")[0].lower() if "@" in email_from else ""
+
+    # Kumpulkan semua direktori kandidat yang akan dicek
+    dir_candidates = []
+
+    # ── Sumber 1: baca prefs.js ───────────────────────────────
+    if profile_dir and os.path.isdir(profile_dir):
+        prefs_file = os.path.join(profile_dir, "prefs.js")
+        if os.path.exists(prefs_file):
+            try:
+                with open(prefs_file, "r", encoding="utf-8", errors="ignore") as f:
+                    prefs_content = f.read()
+
+                # Cari: user_pref("mail.server.server4.directory", "D:\\Email Rafael");
+                # Thunderbird tulis backslash sebagai \\  di prefs.js
+                # Saat Python baca file teks, \\ tetap \\ (dua karakter)
+                # → perlu decode: ganti \\ → \  dan / → \  untuk Windows path
+                matches = _re.findall(
+                    r'user_pref\("mail\.server\.server\d+\.directory",\s*"([^"]+)"\)',
+                    prefs_content
+                )
+                for raw in matches:
+                    # Decode escape: \\ → \  (Thunderbird escape style)
+                    decoded = raw.replace("\\\\", "\\").replace("/", os.sep)
+                    log.debug(f"[THUNDERBIRD] prefs.js directory: {raw!r} → {decoded!r}")
+                    if os.path.isdir(decoded):
+                        # Prioritaskan direktori yang namanya mengandung email/domain
+                        if domain and domain.lower() in decoded.lower():
+                            dir_candidates.insert(0, decoded)
+                        elif username and username in decoded.lower():
+                            dir_candidates.insert(0, decoded)
+                        else:
+                            dir_candidates.append(decoded)
+            except Exception as e:
+                log.debug(f"[THUNDERBIRD] Gagal baca prefs.js: {e}")
+
+    # ── Sumber 2: subfolder Mail/ImapMail di dalam profil ────
+    if profile_dir and os.path.isdir(profile_dir):
+        for subfolder in ("Mail", "ImapMail"):
+            base = os.path.join(profile_dir, subfolder)
+            if not os.path.isdir(base):
+                continue
+            for acct in os.listdir(base):
+                acct_path = os.path.join(base, acct)
+                if not os.path.isdir(acct_path):
+                    continue
+                if domain and domain in acct:
+                    dir_candidates.insert(0, acct_path)
+                else:
+                    dir_candidates.append(acct_path)
+
+    # ── Cari / siapkan file Drafts dari semua direktori kandidat ─
+    fallback_create = ""   # direktori ada tapi Drafts belum ada
+
+    for d in dir_candidates:
+        drafts_path = os.path.join(d, "Drafts")
+        if os.path.isfile(drafts_path):
+            log.debug(f"[THUNDERBIRD] Drafts ditemukan: {drafts_path}")
+            return drafts_path
+        elif not fallback_create:
+            # Simpan sebagai fallback: direktori valid, Drafts belum ada
+            fallback_create = drafts_path
+
+    # File Drafts belum ada, tapi direktori valid → kembalikan path untuk dibuat
+    if fallback_create:
+        log.info(
+            f"[THUNDERBIRD] Drafts belum ada, akan dibuat: {fallback_create}"
+        )
+        return fallback_create
+
+    return ""
+
+
+# ─────────────────────────────────────────────
+# BUAT DRAFT EMAIL DI THUNDERBIRD (.eml)
+# ─────────────────────────────────────────────
+
+def _create_thunderbird_draft(cred: dict, subject: str, body_html: str,
+                              to: str, cc: str, attachment_path: str = None,
+                              draft_folder: str = None) -> str:
+    """
+    Simpan draft email sebagai file .eml di folder report.
+    User membuka sendiri file .eml di Thunderbird.
+
+    Return: path file .eml yang dibuat.
+    """
+    import email.utils
+
+    # ── Buat objek email ──────────────────────────────────────
+    msg = MIMEMultipart("mixed")
     msg["Subject"] = subject
     msg["From"]    = cred["email_from"]
     msg["To"]      = to
     if cc:
-        msg["Cc"] = cc
+        msg["Cc"]  = cc
+    msg["Date"]    = email.utils.formatdate(localtime=True)
+    msg["X-Mozilla-Draft-Info"] = (
+        "internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0"
+    )
+    msg["X-Mailer"] = "RPA Stock Recon"
     msg.attach(MIMEText(body_html, "html", "utf-8"))
 
+    # ── Attachment ────────────────────────────────────────────
     if attachment_path and os.path.exists(attachment_path):
-        with open(attachment_path, "rb") as f:
-            part = MIMEBase(
-                "application",
-                "vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-            part.set_payload(f.read())
-        encoders.encode_base64(part)
-        part.add_header(
-            "Content-Disposition",
-            f'attachment; filename="{os.path.basename(attachment_path)}"'
-        )
-        msg.attach(part)
-
-    recipients = [e.strip() for e in to.split(",") if e.strip()]
-    if cc:
-        recipients += [e.strip() for e in cc.split(",") if e.strip()]
-
-    host     = cred["smtp_host"]
-    port     = int(cred["smtp_port"])
-    password = cred.get("password", "").strip()
-    sender   = cred["email_from"]
-
-    log.info(f"[EMAIL] Konek ke {host}:{port} ...")
-
-    try:
-        if port == 465:
-            ctx = ssl.create_default_context()
-            with smtplib.SMTP_SSL(host, port, context=ctx, timeout=15) as server:
-                server.ehlo()
-                if password:
-                    server.login(sender, password)
-                server.sendmail(sender, recipients, msg.as_string())
-
-        elif port == 587:
-            with smtplib.SMTP(host, port, timeout=15) as server:
-                server.ehlo()
-                server.starttls()
-                server.ehlo()
-                auth_supported = "auth" in server.esmtp_features
-                if password and auth_supported:
-                    server.login(sender, password)
-                elif password and not auth_supported:
-                    log.warning("[EMAIL] Server tidak support AUTH di port 587 — kirim tanpa login")
-                server.sendmail(sender, recipients, msg.as_string())
-
-        else:
-            with smtplib.SMTP(host, port, timeout=15) as server:
-                server.ehlo()
-                try:
-                    server.starttls()
-                    server.ehlo()
-                    log.info("[EMAIL] STARTTLS berhasil")
-                except (smtplib.SMTPNotSupportedError, smtplib.SMTPException):
-                    log.info("[EMAIL] STARTTLS tidak didukung — lanjut plain")
-
-                auth_supported = "auth" in server.esmtp_features
-                if password and auth_supported:
-                    server.login(sender, password)
-                    log.info("[EMAIL] Login berhasil")
-                else:
-                    log.info("[EMAIL] Relay tanpa auth (internal Zimbra/Exchange)")
-
-                server.sendmail(sender, recipients, msg.as_string())
-
-        log.info(f"[EMAIL] ✓ Terkirim ke: {to}" + (f" | CC: {cc}" if cc else ""))
-
-    except smtplib.SMTPAuthenticationError as e:
-        log.error(f"[EMAIL] Autentikasi gagal: {e}")
-        raise
-    except smtplib.SMTPConnectError as e:
-        log.error(f"[EMAIL] Gagal konek ke {host}:{port}: {e}")
-        raise
-    except smtplib.SMTPRecipientsRefused as e:
-        log.error(f"[EMAIL] Penerima ditolak: {e}")
-        raise
-    except Exception as e:
-        log.error(f"[EMAIL] Gagal kirim: {e}")
-        raise
-
-
-def diagnose_smtp(host: str, ports: list = None) -> dict:
-    """
-    Cek port mana yang bisa konek ke SMTP server.
-    Return: { port: status_string }
-    """
-    if ports is None:
-        ports = [25, 465, 587]
-
-    results = {}
-    for port in ports:
         try:
-            if port == 465:
-                ctx = ssl.create_default_context()
-                with smtplib.SMTP_SSL(host, port, context=ctx, timeout=8) as s:
-                    banner = s.ehlo()[1].decode(errors="ignore")
-                    auth   = "auth" in s.esmtp_features
-                    results[port] = f"✓ SSL OK | AUTH={'Ya' if auth else 'Tidak'} | {banner[:50]}"
-            else:
-                with smtplib.SMTP(host, port, timeout=8) as s:
-                    s.ehlo()
-                    tls_ok = False
-                    try:
-                        s.starttls(); s.ehlo(); tls_ok = True
-                    except Exception:
-                        pass
-                    auth = "auth" in s.esmtp_features
-                    results[port] = (
-                        f"✓ OK | TLS={'Ya' if tls_ok else 'Tidak'} | "
-                        f"AUTH={'Ya' if auth else 'Tidak (relay mode)'}"
-                    )
+            with open(attachment_path, "rb") as f:
+                file_data = f.read()
+            filename  = os.path.basename(attachment_path)
+            mime_type, _ = mimetypes.guess_type(attachment_path)
+            if mime_type is None:
+                mime_type = "application/octet-stream"
+            maintype, subtype = mime_type.split("/", 1)
+            part = MIMEBase(maintype, subtype)
+            part.set_payload(file_data)
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition",
+                            f'attachment; filename="{filename}"')
+            msg.attach(part)
+            log.info(f"[DRAFT] Attachment: {filename}")
         except Exception as e:
-            results[port] = f"✗ Gagal: {e}"
+            log.warning(f"[DRAFT] Gagal attach: {e}")
 
-    return results
+    # ── Simpan sebagai .eml di folder report ─────────────────
+    if draft_folder is None:
+        draft_folder = Config.FOLDER_REPORT
+    os.makedirs(draft_folder, exist_ok=True)
+
+    ts        = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
+    clean_sub = "".join(
+        c for c in subject if c.isalnum() or c in ("-", "_", " ")
+    ).strip()[:50]
+    eml_path  = os.path.join(draft_folder, f"Draft_{ts}_{clean_sub}.eml")
+
+    with open(eml_path, "w", encoding="utf-8") as f:
+        f.write(msg.as_string())
+
+    log.info(f"[DRAFT] ✓ Draft dibuat: {os.path.basename(eml_path)}")
+    log.info(f"[DRAFT] Path: {eml_path}")
+    return eml_path
+
 
 
 # ─────────────────────────────────────────────
@@ -466,14 +566,17 @@ def send_stock_diff_report(
     override_cc: str = None,
 ) -> str:
     """
-    Buat laporan Excel (semua plant dalam satu file) dan kirim
-    SATU EMAIL PER PLANT via SMTP.
+    Buat laporan Excel (semua plant dalam satu file) dan buat
+    SATU DRAFT EMAIL PER PLANT di Mozilla Thunderbird (.eml files).
 
-    Hanya item FSTKGD yang dikirim via email.
+    Hanya item FSTKGD yang masuk draft email.
     FSTKVN tetap diproses untuk compare & U2C, tapi tidak masuk laporan email.
 
     Subject per plant:
         Req. Adj. EOD Plant {code} {name} Tanggal {tanggal posting}
+
+    Draft email disimpan sebagai file .eml di folder report.
+    File bisa dibuka langsung dengan Thunderbird atau aplikasi email lainnya.
 
     override_to / override_cc: override nilai dari kredensial tersimpan
     Return: path file Excel yang dibuat (atau "" jika tidak ada selisih FSTKGD)
@@ -486,7 +589,7 @@ def send_stock_diff_report(
     items_email = {p: v for p, v in items_email.items() if v}   # hapus plant kosong
 
     if not items_email:
-        log.info("[REPORT] Tidak ada selisih FSTKGD — email tidak dikirim")
+        log.info("[REPORT] Tidak ada selisih FSTKGD — draft email tidak dibuat")
         return ""
 
     cred      = load_credentials()
@@ -506,8 +609,10 @@ def send_stock_diff_report(
     log.info("[REPORT] Membuat file Excel laporan...")
     build_excel_report(items_email, excel_path, plant_name_map)
 
-    # ── Kirim satu email per plant ───────────────────────────
-    sent_count = 0
+    # ── Buat satu draft email per plant ──────────────────────
+    draft_count = 0
+    drafts_created = []
+    
     for plant, items in sorted(items_email.items()):
         if not items:
             continue
@@ -529,11 +634,11 @@ def send_stock_diff_report(
             posting_date = posting_date,
         )
 
-        log.info(f"[EMAIL] Kirim plant {display_name} → {cred['email_to']}")
-        log.info(f"[EMAIL] Subject: {subject}")
+        log.info(f"[DRAFT] Buat draft plant {display_name} → {cred['email_to']}")
+        log.info(f"[DRAFT] Subject: {subject}")
 
         try:
-            _smtp_send(
+            draft_path = _create_thunderbird_draft(
                 cred            = cred,
                 subject         = subject,
                 body_html       = body_html,
@@ -541,10 +646,11 @@ def send_stock_diff_report(
                 cc              = cred.get("email_cc", ""),
                 attachment_path = excel_path,
             )
-            sent_count += 1
-            log.info(f"[EMAIL] ✓ Plant {plant} terkirim")
+            draft_count += 1
+            drafts_created.append(draft_path)
+            log.info(f"[DRAFT] ✓ Plant {plant} draft dibuat")
         except Exception as e:
-            log.error(f"[EMAIL] ✗ Plant {plant} gagal: {e}")
+            log.error(f"[DRAFT] ✗ Plant {plant} gagal: {e}")
             continue  # Lanjut ke plant berikutnya meski ada error
 
     total_plant = len(items_email)
@@ -553,8 +659,15 @@ def send_stock_diff_report(
         len([i for i in v if i.param == "FSTKVN"])
         for v in items_per_plant.values()
     )
+    
     log.info(
-        f"[REPORT] Selesai | {sent_count}/{total_plant} plant email terkirim | "
-        f"{total_item} item FSTKGD | {fstkvn_skip} item FSTKVN dilewati (tidak dikirim email)"
+        f"[REPORT] Selesai | {draft_count}/{total_plant} plant draft dibuat | "
+        f"{total_item} item FSTKGD | {fstkvn_skip} item FSTKVN dilewati (tidak ada draft email)"
     )
+    
+    # Log informasi draft folder
+    if drafts_created:
+        log.info(f"[REPORT] Draft email tersimpan di: {Config.FOLDER_REPORT}")
+        log.info(f"[REPORT] Buka folder dan double-click file .eml untuk membuka di Thunderbird")
+        
     return excel_path

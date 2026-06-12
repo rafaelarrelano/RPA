@@ -388,11 +388,8 @@ def run_phase1_2_3(plants: list) -> dict:
     Jalankan Fase 1, 2, 3 untuk semua plant.
     Return: { plant: [StockDiff] } siap untuk Fase 4 (MIGO)
     """
-    from limit_adjustment import load_limit_adjustment, filter_by_limit
-
-    posting_date     = datetime.now().strftime("%d.%m.%Y")
-    items_per_plant  = {}
-    limits           = load_limit_adjustment()
+    posting_date    = datetime.now().strftime("%d.%m.%Y")
+    items_per_plant = {}
 
     for plant in plants:
         log.info(f"[RUN] Proses plant {plant}")
@@ -416,15 +413,9 @@ def run_phase1_2_3(plants: list) -> dict:
                 log.info(f"[RUN] Plant {plant}: tidak ada selisih")
                 continue
 
-            # Apply limit adjustment
-            items_ok, items_exceeded = filter_by_limit(items, limits)
-
-            if items_exceeded:
-                log.warning(f"[RUN] Plant {plant}: {len(items_exceeded)} item lewat batas limit")
-
-            if items_ok:
-                items_per_plant[plant] = items_ok
-                log.info(f"[RUN] Plant {plant}: {len(items_ok)} item siap ke MIGO")
+            # Semua item langsung masuk — tidak ada filter limit adjustment
+            items_per_plant[plant] = items
+            log.info(f"[RUN] Plant {plant}: {len(items)} item siap ke MIGO")
 
         except Exception as e:
             log.error(f"[RUN] Plant {plant} gagal: {e}")
