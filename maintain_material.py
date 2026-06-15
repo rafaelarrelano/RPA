@@ -1596,10 +1596,6 @@ class MaintainMaterialGui:
             "  2. You are on the SAP Easy Access main screen\n"
             "  3. You will NOT touch the mouse or keyboard\n\n"
             "Is SAP ready to go?\n\n"
-            "─────────────────────────────────────\n"
-            "Note: Saya (Matthew) tidak bertanggung jawab atas\n"
-            "segala kelalaian yang terjadi saat penggunaan\n"
-            "RPA Maintain Material ini :)"
         ):
             return
 
