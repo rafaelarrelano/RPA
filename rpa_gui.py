@@ -1119,10 +1119,23 @@ class RpaGui:
         grid_canvas.bind("<Configure>", _on_grid_canvas_configure)
 
         # Mousewheel scroll on plant list
+        # bind_all saat Enter area grid agar scroll jalan di semua child (Checkbutton dll)
         def _grid_scroll(event):
             grid_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        def _grid_enter(event):
+            self.root.bind_all("<MouseWheel>", _grid_scroll)
+
+        def _grid_leave(event):
+            # Kembalikan ke handler scroll panel kiri jika kursor masih di dalam panel kiri
+            self.root.unbind_all("<MouseWheel>")
+
         grid_canvas.bind("<MouseWheel>", _grid_scroll)
+        grid_canvas.bind("<Enter>", _grid_enter)
+        grid_canvas.bind("<Leave>", _grid_leave)
         self._plant_grid.bind("<MouseWheel>", _grid_scroll)
+        self._plant_grid.bind("<Enter>", _grid_enter)
+        self._plant_grid.bind("<Leave>", _grid_leave)
 
         def _rebuild_plant_grid(filter_text=""):
             """Rebuild checkboxes filtered by search text."""
@@ -1144,6 +1157,10 @@ class RpaGui:
                     command=self._update_plant_summary,
                 )
                 cb.grid(row=i // 3, column=i % 3, sticky="w", padx=6, pady=2)
+                # Tiap checkbox juga forward scroll & enter/leave ke grid
+                cb.bind("<MouseWheel>", _grid_scroll)
+                cb.bind("<Enter>", _grid_enter)
+                cb.bind("<Leave>", _grid_leave)
             # Update count label
             sel = sum(1 for v in self._plant_vars.values() if v.get())
             total = len(self._plant_vars)
@@ -1156,6 +1173,10 @@ class RpaGui:
                 self._plant_count_lbl.config(
                     text=f"{total} plant tersedia  ({sel} dipilih)"
                 )
+            # Scroll ke atas setelah widget selesai render (pakai after agar scrollregion sudah terupdate)
+            self._plant_grid.update_idletasks()
+            grid_canvas.configure(scrollregion=grid_canvas.bbox("all"))
+            grid_canvas.after(10, lambda: grid_canvas.yview_moveto(0))
 
         # Store rebuild fn for external use (e.g. after loading new plant map)
         self._rebuild_plant_grid = _rebuild_plant_grid

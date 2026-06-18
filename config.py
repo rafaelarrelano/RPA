@@ -46,7 +46,7 @@ class Config:
     FOLDER_LOGS        = os.path.join(BASE_DIR, "Logs")
 
     # ── Mapping plant → cost center ──────────────────────────
-    PLANT_MAPPING_FILE = r"C:\RPA_Compare\config\plant_mapping.xlsx"
+    PLANT_MAPPING_FILE = r"C:\Users\user\source\repos\RPA\config\plant_mapping.xlsx"
 
     # ── File limit adjustment decimal ────────────────────────
     LIMIT_ADJ_FILE = r"C:\Users\user\source\repos\RPA\config\List Limit Adj. Material SAP.xlsx"

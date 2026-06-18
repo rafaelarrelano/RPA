@@ -78,7 +78,7 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
     # Baca T-code aktif dari Config (sudah di-set GUI berdasarkan pilihan portal)
     tcode = getattr(Config, "ACTIVE_TCODE_SAPSTK", "ZPGD_SAPSTK")
 
-    def _wait_sap_window(keywords: list, timeout: int = 60) -> int:
+    def _wait_sap_window(keywords: list, timeout: int = 90) -> int:
         """
         Tunggu sampai window SAP dengan salah satu keyword judul muncul.
         Poll tiap 0.5 detik, max `timeout` detik.
@@ -105,19 +105,27 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
         )
 
     def _wait_sapstk_file(pattern: str, after_ts: float,
-                          timeout: int = 120) -> str:
+                          timeout: int = 300) -> str:
         """
         Poll folder download sampai file SAPSTK baru muncul.
         `after_ts` = timestamp sebelum F8 ditekan.
-        Timeout default 120 detik (file besar bisa lama).
+        Timeout default 300 detik — tunggu sampai file benar-benar terdownload.
+        Tiap 30 detik cetak log progress agar tidak terlihat hang.
         Return path file terbaru.
         """
-        deadline = time.time() + timeout
+        deadline      = time.time() + timeout
+        last_log_time = time.time()
         while time.time() < deadline:
             # Cek apakah user menekan Stop
             if _is_stopped():
                 raise Exception("Robot dihentikan oleh user")
-            
+
+            # Log progress tiap 30 detik agar tidak terlihat hang
+            if time.time() - last_log_time >= 30:
+                elapsed = int(time.time() - after_ts)
+                _log(f"Masih menunggu file SAPSTK... ({elapsed}s)", "INFO")
+                last_log_time = time.time()
+
             files = [f for f in glob.glob(pattern)
                      if os.path.getmtime(f) > after_ts]
             if files:
@@ -149,12 +157,12 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
         _log(f"Export /{tcode} plant {plant}...")
         before = time.time()
 
-        # Navigasi ke T-code — tunggu window muncul (adaptif, max 60 detik)
+        # Navigasi ke T-code — tunggu window muncul (max 90 detik)
         sap_tcode(f"n{tcode}")
         _log(f"Menunggu window /{tcode} muncul...")
         hwnd = _wait_sap_window(
             ["Program transfer", "Report Flow Transfer", tcode],
-            timeout=60
+            timeout=90
         )
 
         win32gui.ShowWindow(hwnd, win32con.SW_MAXIMIZE)
@@ -175,10 +183,10 @@ def run_zpgd_sapstk(plant: str, send_log=None) -> str:
         _log(f"Execute F8 plant {plant}...")
         pyautogui.press("f8")
 
-        # Tunggu file SAPSTK muncul di folder download (polling, max 120 detik)
+        # Tunggu file SAPSTK muncul di folder download (polling, max 300 detik)
         _log(f"Menunggu file SAPSTK plant {plant} di {Config.SAP_DOWNLOAD_DIR}...")
         pattern = os.path.join(Config.SAP_DOWNLOAD_DIR, f"{plant}_*_SAPSTK_*.TXT")
-        latest  = _wait_sapstk_file(pattern, before, timeout=120)
+        latest  = _wait_sapstk_file(pattern, before, timeout=300)
 
         _log(f"[/{tcode}] File berhasil: {os.path.basename(latest)}", "OK")
         return latest

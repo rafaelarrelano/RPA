@@ -173,7 +173,7 @@ def build_excel_report(items_per_plant: dict, filepath: str,
     # ── Sheet Summary ────────────────────────────────────────
     ws_s = wb.create_sheet(title="Summary", index=0)
     ws_s.merge_cells("A1:G1")
-    ws_s["A1"]           = f"Summary Req. Adj. EOD — {tanggal}"
+    ws_s["A1"]           = f"Summary Req.Adj.EOD — {tanggal}"
     ws_s["A1"].font      = ttl_font
     ws_s["A1"].alignment = center
     ws_s.row_dimensions[1].height = 24

@@ -96,6 +96,8 @@ SAP_CLASS_NAMES = ["SAP_FRONTEND_SESSION", "SAP GUI"]
 pyautogui.FAILSAFE = True
 pyautogui.PAUSE    = 0.25
 
+SMART_WAIT = False   # toggled by UI checkbox — use screenshot diffing instead of fixed waits
+
 
 # ─────────────────────────────────────────────
 # HARD THREAD KILL
@@ -401,8 +403,15 @@ def _focus_sap() -> bool:
 # ─────────────────────────────────────────────
 
 def _wait(seconds: float):
-    """Fixed wait — gives SAP time to render the next screen."""
-    time.sleep(seconds)
+    """
+    Wait for SAP to render the next screen.
+    If SMART_WAIT is enabled, uses screenshot-diff detection instead
+    of the fixed `seconds` value (seconds becomes the max timeout).
+    """
+    if SMART_WAIT:
+        _wait_for_screen_change(timeout=max(seconds, 3.0))
+    else:
+        time.sleep(seconds)
 
 
 def _wait_for_sap_ready(timeout: float = 8.0, poll: float = 0.15):
@@ -446,6 +455,73 @@ def _wait_for_sap_ready(timeout: float = 8.0, poll: float = 0.15):
         except Exception:
             break
         time.sleep(poll)
+
+
+def _wait_for_screen_change(timeout: float = 8.0, poll: float = 0.15,
+                             stable_for: float = 0.3) -> bool:
+    """
+    Detect SAP screen changes WITHOUT SAP scripting/COM by comparing
+    screenshots of the SAP window region over time.
+
+    How it works:
+    1. Take a screenshot of the SAP window right now (the "before" state)
+    2. Keep taking screenshots in a loop
+    3. The screen has "changed" once a new screenshot differs from the
+       previous one — meaning SAP rendered something new (popup, error,
+       next screen, etc.)
+    4. Once the screenshot stops changing for `stable_for` seconds, the
+       screen is considered stable/settled and we return.
+
+    This catches BOTH fast SAP (returns almost instantly) and slow SAP
+    (keeps waiting as long as needed, up to timeout).
+
+    Returns True if a change was detected, False if timed out without
+    any change (SAP may be frozen, or the action had no visual effect).
+    """
+    hwnd = _get_sap_hwnd()
+    if not hwnd:
+        time.sleep(0.5)
+        return False
+
+    try:
+        rect = win32gui.GetWindowRect(hwnd)
+    except Exception:
+        time.sleep(0.5)
+        return False
+
+    deadline      = time.time() + timeout
+    prev_img      = None
+    changed_once  = False
+    stable_timer  = 0.0
+
+    while time.time() < deadline:
+        try:
+            shot = pyautogui.screenshot(region=(
+                rect[0], rect[1], rect[2]-rect[0], rect[3]-rect[1]))
+            # Downscale for fast comparison — exact pixels don't matter,
+            # just whether something visibly changed
+            shot_small = shot.resize((120, 90))
+            cur_bytes  = shot_small.tobytes()
+
+            if prev_img is not None:
+                if cur_bytes != prev_img:
+                    changed_once = True
+                    stable_timer = 0.0
+                else:
+                    stable_timer += poll
+                    if changed_once and stable_timer >= stable_for:
+                        return True
+                    elif not changed_once and stable_timer >= 1.0:
+                        # Nothing changed for 1s straight — give up waiting,
+                        # action may not have produced a visual change
+                        return False
+
+            prev_img = cur_bytes
+        except Exception:
+            break
+        time.sleep(poll)
+
+    return changed_once
 
 
 def _get_sap_hwnd():
@@ -689,7 +765,7 @@ def _mm01_one(material: str, plant_info: dict,
         # We wait a bit longer then take a screenshot pixel-check isn't available,
         # so we use a simple approach: check window titles via win32gui after Enter.
         _enter()
-        _wait(1.5)  # wait for page 1 or error popup
+        _wait(T_ENTER)  # wait for page 1 or error popup — adjustable in Timing settings
 
         # ── CHECK: "Material already maintained" error popup ──
         # If SAP shows the error, a second small window appears.
@@ -825,27 +901,27 @@ def _mm01_one(material: str, plant_info: dict,
             return ("already_maintained", _remember[0])
 
         # ── STEP 4 ─────────────────────────────────────────
-        # 2. Press Enter 3 times (navigate through page 1) — 1.5s gap each
-        _enter(); _wait(1.5)
-        _enter(); _wait(1.5)
-        _enter(); _wait(1.5)
+        # 2. Press Enter 3 times (navigate through page 1) — adjustable gap
+        _enter(); _wait(T_ENTER)
+        _enter(); _wait(T_ENTER)
+        _enter(); _wait(T_ENTER)
 
         # 3. Press Tab x3 → Purchasing Group field, then fill it
         _tab(3)
         _type(prch_grp);             _wait(T_FIELD)
 
-        # 4. Press Enter x3 (navigate to Accounting 1 tab) — 1.5s gap each
-        _enter(); _wait(1.5)
-        _enter(); _wait(1.5)
-        _enter(); _wait(1.5)
+        # 4. Press Enter x3 (navigate to Accounting 1 tab) — adjustable gap
+        _enter(); _wait(T_ENTER)
+        _enter(); _wait(T_ENTER)
+        _enter(); _wait(T_ENTER)
 
         # 5. Press Tab x8 → Moving Price field, then type 1
         _tab(8)
         _type(MOVING_PRICE);         _wait(T_FIELD)
 
-        # 6. Press Enter x3 → save — 1.5s gap each
-        _enter(); _wait(1.5)
-        _enter(); _wait(1.5)
+        # 6. Press Enter x3 → save — adjustable gap
+        _enter(); _wait(T_ENTER)
+        _enter(); _wait(T_ENTER)
         _enter(); _wait(T_SAVE)
 
         _l(f"  ✓ {material} → {plant_code}", "OK")
@@ -1184,14 +1260,40 @@ class MaintainMaterialGui:
         self._section_label(left, "Timing (seconds)")
         t_card = self._card(left)
         tk.Label(t_card,
-                 text="Increase if SAP is slow on your network.",
-                 font=(FONT, 7), fg=self.TEXT3, bg=self.BG_CARD).pack(anchor="w", pady=(0, 6))
+                 text="Increase if SAP is slow on your network.\n"
+                      "• MM01 load: wait after /nMM01 navigation\n"
+                      "• Popup: wait for Select Views / Org Levels to open\n"
+                      "• Save: wait for SAP to finish saving\n"
+                      "• Between Enters: gap after Org Levels — used for\n"
+                      "  the repeated Enter presses on the Basic Data /\n"
+                      "  Purchasing / Accounting screens (most affected by lag)",
+                 font=(FONT, 7), fg=self.TEXT3, bg=self.BG_CARD,
+                 justify="left").pack(anchor="w", pady=(0, 6))
 
         self._timing_vars = {}
+        # Smart wait toggle — uses screenshot diffing instead of fixed seconds
+        self._smart_wait_var = tk.BooleanVar(value=False)
+        smart_row = tk.Frame(t_card, bg=self.BG_CARD)
+        smart_row.pack(fill="x", pady=(2, 8))
+        tk.Checkbutton(
+            smart_row, text="Smart wait (detect screen change instead of fixed seconds)",
+            variable=self._smart_wait_var,
+            font=(FONT, 8), fg=self.TEXT2, bg=self.BG_CARD,
+            selectcolor=self.BG_CARD, activebackground=self.BG_CARD,
+            activeforeground=self.TEXT2, relief="flat", wraplength=260, justify="left",
+        ).pack(anchor="w")
+        tk.Label(t_card,
+                 text="When enabled, ignores the seconds below and instead\n"
+                      "watches SAP for visual changes — adapts automatically\n"
+                      "to fast or slow days. Slightly slower per-step overhead.",
+                 font=(FONT, 7), fg=self.TEXT3, bg=self.BG_CARD,
+                 justify="left").pack(anchor="w", pady=(0, 8))
+
         timing_rows = [
-            ("After MM01 load",  "t_tcode",  T_TCODE),
-            ("After popup",      "t_popup",  T_POPUP),
-            ("After save",       "t_save",   T_SAVE),
+            ("After MM01 load",   "t_tcode",  T_TCODE),
+            ("After popup",       "t_popup",  T_POPUP),
+            ("After save",        "t_save",   T_SAVE),
+            ("Between Enters",    "t_enter",  1.5),
         ]
         for label, key, default in timing_rows:
             row = tk.Frame(t_card, bg=self.BG_CARD)
@@ -1613,6 +1715,7 @@ class MaintainMaterialGui:
 
         # Snapshot timing values before thread starts
         timing = {k: v.get() for k, v in self._timing_vars.items()}
+        timing["smart_wait"] = self._smart_wait_var.get()
 
         def _run():
             self._execute_mm01(mat_file, plant_file, plants, timing)
@@ -1662,10 +1765,12 @@ class MaintainMaterialGui:
         Pure pyautogui — no COM whatsoever.
         """
         # Apply user timing overrides to module-level constants
-        global T_TCODE, T_POPUP, T_SAVE
-        T_TCODE = timing.get("t_tcode", T_TCODE)
-        T_POPUP = timing.get("t_popup", T_POPUP)
-        T_SAVE  = timing.get("t_save",  T_SAVE)
+        global T_TCODE, T_POPUP, T_SAVE, T_ENTER, SMART_WAIT
+        T_TCODE    = timing.get("t_tcode", T_TCODE)
+        T_POPUP    = timing.get("t_popup", T_POPUP)
+        T_SAVE     = timing.get("t_save",  T_SAVE)
+        T_ENTER    = timing.get("t_enter", T_ENTER)
+        SMART_WAIT = timing.get("smart_wait", False)
 
         def _l(msg, level="INFO"):
             self._log(msg, level)
