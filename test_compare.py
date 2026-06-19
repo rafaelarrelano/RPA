@@ -348,7 +348,7 @@ def get_not_completed_rows(page, posting_date: str = None, send_log=None) -> lis
     # Navigasi ke ListEod jika belum di sana
     if PORTAL_LIST_EOD not in page.url:
         _log(send_log, "Buka halaman List Upload EOD...")
-        page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=10000)
+        page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=30000)
         ensure_logged_in(page, send_log)
         if posting_date:
             search_by_date(page, posting_date, send_log)
@@ -457,10 +457,28 @@ def get_fstkgd_from_view_detail(page, detail_url: str,
                                 plant: str, send_log=None) -> dict:
     """
     Buka halaman ViewDetail, klik tab INPUT, ambil semua baris FSTKGD.
+    Retry otomatis 3x dengan timeout bertahap jika halaman lambat.
     Return: { (material, sloc): {'qty', 'sloc', 'tgl', 'param'} }
     """
     _log(send_log, f"Buka ViewDetail plant {plant}: {detail_url}")
-    page.goto(detail_url, wait_until="domcontentloaded", timeout=10000)
+
+    # Retry 3x dengan timeout bertahap: 20s -> 30s -> 45s
+    _goto_timeouts = [20000, 30000, 45000]
+    for _attempt, _to in enumerate(_goto_timeouts, start=1):
+        try:
+            page.goto(detail_url, wait_until="domcontentloaded", timeout=_to)
+            break
+        except Exception as _e:
+            if _attempt < len(_goto_timeouts):
+                _log(send_log,
+                     f"ViewDetail plant {plant} timeout (percobaan {_attempt}/3) "
+                     f"— coba lagi...", "WARN")
+                _interruptible_sleep(2)
+            else:
+                _log(send_log,
+                     f"ViewDetail plant {plant} gagal setelah 3 percobaan: {_e}",
+                     "ERROR")
+                raise
 
     # Klik tab INPUT jika belum aktif
     try:
@@ -469,7 +487,7 @@ def get_fstkgd_from_view_detail(page, detail_url: str,
         )
         if input_tab:
             input_tab.click()
-            page.wait_for_load_state("domcontentloaded", timeout=5000)
+            page.wait_for_load_state("domcontentloaded", timeout=15000)
             _interruptible_sleep(0.5)
     except Exception:
         pass  # Tab mungkin sudah aktif
@@ -608,11 +626,17 @@ def compare(plant: str, matrix: dict, stok_sap: dict,
     """
     items = []
 
+    # SLoc yang dikecualikan dari compare & email
+    SKIP_SLOC = {"WH03"}
+
     # ── Loop 1: semua material yang ada di Matrix portal ─────
     for (material, sloc, param), data in matrix.items():
         # Hanya pertimbangkan FSTKGD untuk compare/email.
         # FSTKVN akan dipertahankan di matrix mentah untuk U2C bila diperlukan.
         if param != "FSTKGD":
+            continue
+        # Skip SLoc yang dikecualikan (WH03)
+        if sloc in SKIP_SLOC:
             continue
         qty_matrix = data["qty"]
         qty_sap    = stok_sap.get((material, sloc, param), 0.0)
@@ -646,6 +670,9 @@ def compare(plant: str, matrix: dict, stok_sap: dict,
     for (material, sloc, param), qty_sap in stok_sap.items():
         # Don't include SAP-only FSTKVN in compare/email flow.
         if param == "FSTKVN":
+            continue
+        # Skip SLoc yang dikecualikan (WH03)
+        if sloc in SKIP_SLOC:
             continue
         # Skip jika material ini sudah diproses di loop pertama (ada di Matrix)
         if (material, sloc, param) in matrix:
@@ -721,7 +748,7 @@ def get_matrix_from_portal(plant: str, send_log=None) -> dict:
             ensure_logged_in(list_page, send_log)
             if _is_stopped():
                 raise Exception("Robot dihentikan oleh user")
-            list_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=8000)
+            list_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=30000)
             ensure_logged_in(list_page, send_log)
 
             detail_url = _find_detail_url_for_plant(list_page, plant, send_log)
@@ -1118,12 +1145,12 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
             # Navigasi ke ListEod & pastikan sudah login
             if _is_stopped():
                 raise Exception("Robot dihentikan oleh user")
-            work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=8000)
+            work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=30000)
             ensure_logged_in(work_page, send_log)
             if work_page.url != PORTAL_LIST_EOD:
                 if _is_stopped():
                     raise Exception("Robot dihentikan oleh user")
-                work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=8000)
+                work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=30000)
 
             search_by_date(work_page, posting_date, send_log)
 
@@ -1243,7 +1270,7 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
                 if len(plant_rows) > 1:
                     if _is_stopped():
                         raise Exception("Robot dihentikan oleh user")
-                    work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=10000)
+                    work_page.goto(PORTAL_LIST_EOD, wait_until="domcontentloaded", timeout=30000)
                     search_by_date(work_page, posting_date, send_log)
                     _goto_first_page(work_page)
 

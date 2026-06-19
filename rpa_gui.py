@@ -1006,30 +1006,57 @@ class RpaGui:
                  fg=C("text3"), bg=C("surface"),
                  font=(FONT, FS["xs"])).pack(anchor="w", pady=(2, 6))
 
-        # Plants
+        # Plants — header row (label + toggle arrow)
         prow2 = tk.Frame(c1, bg=C("surface"))
         prow2.pack(fill="x", pady=(4, 0))
         tk.Label(prow2, text="Plants", fg=C("text2"), bg=C("surface"),
                  font=(FONT, FS["base"]), width=14, anchor="w").pack(side="left")
+        self._plant_arrow_lbl = tk.Label(
+            prow2, text="▾", fg=C("accent"), bg=C("surface"),
+            font=(FONT, FS["sm"]), cursor="hand2"
+        )
+        self._plant_arrow_lbl.pack(side="left")
 
+        # Plants — selected display box (multi-line, wrappable, full width)
         self._plant_summary = tk.StringVar()
         self._update_plant_summary()
 
-        plant_btn = tk.Button(
-            prow2, textvariable=self._plant_summary,
-            bg=C("input_bg"), fg=C("text"),
-            font=(FONT, FS["base"]), relief="flat", bd=0,
-            highlightthickness=2,
-            highlightbackground=C("border"),
-            highlightcolor=C("input_hl"),
-            anchor="w", cursor="hand2", width=18,
-            activebackground=C("surface2"),
-            activeforeground=C("text"),
-            command=lambda: self._toggle_plant_popup(plant_btn)
+        plant_box_outer = tk.Frame(
+            c1, bg=C("border"), padx=1, pady=1, cursor="hand2"
         )
-        plant_btn.pack(side="left", padx=(0, 4), ipady=4)
-        tk.Label(prow2, text="▾", fg=C("text3"), bg=C("surface"),
-                 font=(FONT, FS["sm"])).pack(side="left")
+        plant_box_outer.pack(fill="x", pady=(2, 0))
+        plant_box_inner = tk.Frame(plant_box_outer, bg=C("input_bg"), cursor="hand2")
+        plant_box_inner.pack(fill="x")
+
+        self._plant_selected_lbl = tk.Label(
+            plant_box_inner,
+            textvariable=self._plant_summary,
+            bg=C("input_bg"), fg=C("text"),
+            font=(FONT, FS["base"]),
+            anchor="w", justify="left",
+            wraplength=220,      # wrap agar semua plant terlihat
+            padx=8, pady=6,
+            cursor="hand2",
+        )
+        self._plant_selected_lbl.pack(fill="x", expand=True)
+
+        def _toggle_plant_box(event=None):
+            self._toggle_plant_popup()
+            # Putar arrow
+            if self._plant_popup_visible:
+                self._plant_arrow_lbl.config(text="▴")
+            else:
+                self._plant_arrow_lbl.config(text="▾")
+
+        # Bind klik ke semua elemen di area plant box
+        plant_box_outer.bind("<Button-1>", _toggle_plant_box)
+        plant_box_inner.bind("<Button-1>", _toggle_plant_box)
+        self._plant_selected_lbl.bind("<Button-1>", _toggle_plant_box)
+        self._plant_arrow_lbl.bind("<Button-1>", _toggle_plant_box)
+        prow2.bind("<Button-1>", _toggle_plant_box)
+
+        # Simpan ref plant_btn agar _toggle_plant_popup tetap kompatibel
+        plant_btn = plant_box_outer
 
         # Plant popup with search
         self._plant_popup = tk.Frame(
@@ -1574,9 +1601,13 @@ class RpaGui:
         if self._plant_popup_visible:
             self._plant_popup.pack_forget()
             self._plant_popup_visible = False
+            if hasattr(self, "_plant_arrow_lbl"):
+                self._plant_arrow_lbl.config(text="▾")
         else:
             self._plant_popup.pack(fill="x", pady=(0, 4))
             self._plant_popup_visible = True
+            if hasattr(self, "_plant_arrow_lbl"):
+                self._plant_arrow_lbl.config(text="▴")
 
     def _update_plant_summary(self):
         selected = [p2 for p2, v in self._plant_vars.items() if v.get()]
@@ -1585,10 +1616,18 @@ class RpaGui:
             self._plant_summary.set("— tidak ada —")
         elif len(selected) == total:
             self._plant_summary.set(f"Semua ({total} plant)")
-        elif len(selected) <= 3:
-            self._plant_summary.set(", ".join(selected))
         else:
-            self._plant_summary.set(f"{', '.join(selected[:3])} +{len(selected) - 3} lagi")
+            # Tampilkan SEMUA plant terpilih, pisah koma — label akan wrap otomatis
+            self._plant_summary.set(", ".join(selected))
+
+        # Update wraplength agar sesuai lebar panel kiri yang mungkin berubah
+        if hasattr(self, "_plant_selected_lbl"):
+            try:
+                panel_w = self._plant_selected_lbl.winfo_width()
+                if panel_w > 40:
+                    self._plant_selected_lbl.config(wraplength=panel_w - 20)
+            except Exception:
+                pass
 
     def _plant_select_all(self):
         for v in self._plant_vars.values():

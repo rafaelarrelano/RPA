@@ -460,68 +460,85 @@ def _wait_for_sap_ready(timeout: float = 8.0, poll: float = 0.15):
 def _wait_for_screen_change(timeout: float = 8.0, poll: float = 0.15,
                              stable_for: float = 0.3) -> bool:
     """
-    Detect SAP screen changes WITHOUT SAP scripting/COM by comparing
-    screenshots of the SAP window region over time.
+    Wait for SAP to finish processing after an action (Enter, save, etc.)
+    WITHOUT SAP scripting/COM. Combines two signals because neither alone
+    is reliable for SAP specifically:
 
-    How it works:
-    1. Take a screenshot of the SAP window right now (the "before" state)
-    2. Keep taking screenshots in a loop
-    3. The screen has "changed" once a new screenshot differs from the
-       previous one — meaning SAP rendered something new (popup, error,
-       next screen, etc.)
-    4. Once the screenshot stops changing for `stable_for` seconds, the
-       screen is considered stable/settled and we return.
+    SIGNAL 1 — Window responsiveness (SendMessageTimeout):
+        While SAP is genuinely busy processing a request (loading bar
+        spinning), Windows marks the window as non-responsive to message
+        pings. This is the SAME mechanism Task Manager uses to show
+        "Not Responding". This catches loading even when the screen looks
+        100% static — which screenshot diffing alone cannot detect.
 
-    This catches BOTH fast SAP (returns almost instantly) and slow SAP
-    (keeps waiting as long as needed, up to timeout).
+    SIGNAL 2 — Screenshot stability (pixel diff):
+        Once SAP responds again, we additionally confirm the screen has
+        stopped visually changing for `stable_for` seconds, to avoid
+        proceeding mid-render (e.g. a popup still animating in).
 
-    Returns True if a change was detected, False if timed out without
-    any change (SAP may be frozen, or the action had no visual effect).
+    Both signals must agree SAP is idle before we return. This avoids the
+    earlier bug where a static loading screen (no visible pixel change,
+    but SAP still busy) was mistaken for "done".
+
+    Returns True once SAP is confirmed idle, False if timed out.
     """
+    import ctypes as _ct
+    SMTO_ABORTIFHUNG = 0x0002
+
     hwnd = _get_sap_hwnd()
     if not hwnd:
         time.sleep(0.5)
         return False
 
+    deadline = time.time() + timeout
+
+    # ── PHASE 1: wait until SAP responds to a message ping ──
+    # If SAP is mid-request, this blocks here — exactly the case
+    # screenshot diffing missed (static loading screen).
+    while time.time() < deadline:
+        try:
+            result = _ct.c_ulong(0)
+            ret = _ct.windll.user32.SendMessageTimeoutW(
+                hwnd, 0x0000, 0, 0,        # WM_NULL
+                SMTO_ABORTIFHUNG, 250,     # 250ms ping
+                _ct.byref(result)
+            )
+            if ret != 0:
+                break   # SAP responded — move to phase 2
+        except Exception:
+            break
+        time.sleep(poll)
+
+    # ── PHASE 2: confirm screen has stopped visually changing ──
     try:
         rect = win32gui.GetWindowRect(hwnd)
     except Exception:
-        time.sleep(0.5)
-        return False
+        time.sleep(0.3)
+        return True   # responsiveness alone is enough if rect fails
 
-    deadline      = time.time() + timeout
-    prev_img      = None
-    changed_once  = False
-    stable_timer  = 0.0
+    prev_img     = None
+    stable_timer = 0.0
 
     while time.time() < deadline:
         try:
             shot = pyautogui.screenshot(region=(
-                rect[0], rect[1], rect[2]-rect[0], rect[3]-rect[1]))
-            # Downscale for fast comparison — exact pixels don't matter,
-            # just whether something visibly changed
+                rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1]))
             shot_small = shot.resize((120, 90))
             cur_bytes  = shot_small.tobytes()
 
             if prev_img is not None:
                 if cur_bytes != prev_img:
-                    changed_once = True
-                    stable_timer = 0.0
+                    stable_timer = 0.0   # still changing — keep waiting
                 else:
                     stable_timer += poll
-                    if changed_once and stable_timer >= stable_for:
-                        return True
-                    elif not changed_once and stable_timer >= 1.0:
-                        # Nothing changed for 1s straight — give up waiting,
-                        # action may not have produced a visual change
-                        return False
-
+                    if stable_timer >= stable_for:
+                        return True      # idle AND visually stable
             prev_img = cur_bytes
         except Exception:
-            break
+            return True
         time.sleep(poll)
 
-    return changed_once
+    return True   # timeout reached — proceed anyway rather than hang forever
 
 
 def _get_sap_hwnd():

@@ -72,7 +72,7 @@ MODULES = [
         "Extend existing materials to new plants or storage locations",
         "extend_material",
         "ExtendMaterialGui",
-        False,   # Coming soon
+        True,
     ),
 ]
 
