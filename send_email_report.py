@@ -657,7 +657,17 @@ def send_stock_diff_report(
     total_item  = sum(len(v) for v in items_email.values())
     fstkvn_skip = sum(
         len([i for i in v if i.param == "FSTKVN"])
-        for v in items_p¢ÀÌyjdÏ:á©tö‰‘L0ÃÜÈ¡áÑ½•ìIÅ>Úè¾÷ygL–eÆ“"+îÄÏ(Bµ5H-’$†zh±sŒ$'³O÷ARSÖÌ˜dªÿ×àQüLšMå¢ˆeöp'ÜêÍ,GerÅ§€Ÿ?†–)K<Slº{ÙX†Ó±•ª
-gdjmX2SÒ¼¹‰šR9s'¨:_ŸÇ
-Œ™Y…KòÒ	&NÍÍÌÍšT::¹ñ b¦°hµ¯3¦jæEÉ–	ÚAêØp Ä<d‡È»÷ËÆb³{F#¼ª¬Y‹aÃU’¼ÈN+ä²WU‚ÖSèTæÊX¹É›fV’õ,Kšä³«£kN0§ñ™µñ©éŒ¹Â£R†é«¯G™5‰İC<* Y~ş°Ëx2&ÑŠ&+dã£å
-g!ƒDæÍ„67]ÖÍEPÚ‰áQ‚±3X<³ilË›¦µ5YÆN¸–ŸQÌ»±Ï-nNê$åäíÇæeRÇƒEÆlŠ5-¹z@wúhı÷äÚ¸®É&¡gÄĞ\á5v ç'¶…Ü½lO#h‚gg0¼‚80¸æ3³S>âÄçZ§:7ñ"¯ˆAÃÜÌBq5,ÈfVŠH~¤À1Ùš:cC¸Nä9¼ğµ¤ƒÌç1bÄ(Ò/Ğ;+Î
+        for v in items_per_plant.values()
+    )
+    
+    log.info(
+        f"[REPORT] Selesai | {draft_count}/{total_plant} plant draft dibuat | "
+        f"{total_item} item FSTKGD | {fstkvn_skip} item FSTKVN dilewati (tidak ada draft email)"
+    )
+    
+    # Log informasi draft folder
+    if drafts_created:
+        log.info(f"[REPORT] Draft email tersimpan di: {Config.FOLDER_REPORT}")
+        log.info(f"[REPORT] Buka folder dan double-click file .eml untuk membuka di Thunderbird")
+        
+    return excel_path
