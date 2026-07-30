@@ -1,0 +1,946 @@
+2026-06-30 13:57:21 | INFO     | ============================================================
+2026-06-30 13:57:21 | INFO     |   SAP RPA — Auto Extend Material MMSC
+2026-06-30 13:57:21 | INFO     |   Storage Loc : WH02 & WT01
+2026-06-30 13:57:21 | INFO     |   Input       : _selected_temp.xlsx
+2026-06-30 13:57:21 | INFO     |   Dry Run     : False
+2026-06-30 13:57:21 | INFO     | ============================================================
+2026-06-30 13:57:21 | INFO     | 
+2026-06-30 13:57:21 | INFO     |   PERSIAPAN:
+2026-06-30 13:57:21 | INFO     |   1. SAP sudah login
+2026-06-30 13:57:21 | INFO     |   2. Klik jendela SAP supaya aktif
+2026-06-30 13:57:21 | INFO     |   3. JANGAN sentuh mouse/keyboard saat robot berjalan!
+2026-06-30 13:57:21 | INFO     |   4. DARURAT: gerak mouse ke pojok KIRI ATAS = STOP
+2026-06-30 13:57:21 | INFO     | 
+2026-06-30 13:57:21 | INFO     | Total material: 225 baris
+2026-06-30 13:57:21 | INFO     |   Mulai dalam 5 detik...
+2026-06-30 13:57:22 | INFO     |   Mulai dalam 4 detik...
+2026-06-30 13:57:23 | INFO     |   Mulai dalam 3 detik...
+2026-06-30 13:57:24 | INFO     |   Mulai dalam 2 detik...
+2026-06-30 13:57:25 | INFO     |   Mulai dalam 1 detik...
+2026-06-30 13:57:26 | INFO     |   ROBOT MULAI!
+2026-06-30 13:57:26 | INFO     | 
+2026-06-30 13:57:26 | INFO     |   SAP ditemukan: 'Enter Storage Locations Collectively: Initial Screen'
+2026-06-30 13:57:27 | INFO     |   Fokus SAP berhasil ✓
+2026-06-30 13:57:28 | INFO     |   SAP → kiri layar (960x1080)
+2026-06-30 13:57:32 | INFO     |   MMSC terbuka
+2026-06-30 13:57:32 | INFO     | [   1/225]  330001  →  Plant: B200
+2026-06-30 13:57:32 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:57:34 | DEBUG    |   Isi Plant: B200
+2026-06-30 13:57:38 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:57:38 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:57:39 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:57:39 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:57:39 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:57:40 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:57:40 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:57:40 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:57:40 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:57:43 | SUCCESS  |   ✓ [B200] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:57:43 | INFO     | [   2/225]  330001  →  Plant: B201
+2026-06-30 13:57:43 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:57:44 | DEBUG    |   Isi Plant: B201
+2026-06-30 13:57:48 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:57:48 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:57:49 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:57:49 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:57:49 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:57:50 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:57:51 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:57:51 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:57:51 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:57:53 | SUCCESS  |   ✓ [B201] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:57:53 | INFO     | [   3/225]  330001  →  Plant: B202
+2026-06-30 13:57:53 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:57:54 | DEBUG    |   Isi Plant: B202
+2026-06-30 13:57:58 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:57:59 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:57:59 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:57:59 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:57:59 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:58:00 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:58:01 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:58:01 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:58:01 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:58:03 | SUCCESS  |   ✓ [B202] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:58:03 | INFO     | [   4/225]  330001  →  Plant: B203
+2026-06-30 13:58:03 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:58:05 | DEBUG    |   Isi Plant: B203
+2026-06-30 13:58:08 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:58:09 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:58:09 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:58:09 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:58:09 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:58:10 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:58:11 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:58:11 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:58:11 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:58:13 | SUCCESS  |   ✓ [B203] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:58:13 | INFO     | [   5/225]  330001  →  Plant: B204
+2026-06-30 13:58:13 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:58:15 | DEBUG    |   Isi Plant: B204
+2026-06-30 13:58:18 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:58:19 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:58:19 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:58:19 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:58:20 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:58:21 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:58:21 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:58:21 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:58:21 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:58:23 | SUCCESS  |   ✓ [B204] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:58:23 | INFO     | [   6/225]  330001  →  Plant: B205
+2026-06-30 13:58:23 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:58:25 | DEBUG    |   Isi Plant: B205
+2026-06-30 13:58:28 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:58:29 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:58:29 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:58:29 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:58:30 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:58:31 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:58:31 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:58:31 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:58:31 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:58:33 | SUCCESS  |   ✓ [B205] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:58:33 | INFO     | [   7/225]  330001  →  Plant: B351
+2026-06-30 13:58:33 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:58:35 | DEBUG    |   Isi Plant: B351
+2026-06-30 13:58:39 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:58:39 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:58:39 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:58:39 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:58:40 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:58:41 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:58:41 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:58:41 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:58:41 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:58:43 | SUCCESS  |   ✓ [B351] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:58:43 | INFO     | [   8/225]  330001  →  Plant: B352
+2026-06-30 13:58:43 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:58:45 | DEBUG    |   Isi Plant: B352
+2026-06-30 13:58:49 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:58:49 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:58:50 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:58:50 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:58:50 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:58:51 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:58:52 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:58:52 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:58:52 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:58:54 | SUCCESS  |   ✓ [B352] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:58:54 | INFO     | [   9/225]  330001  →  Plant: B353
+2026-06-30 13:58:54 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:58:55 | DEBUG    |   Isi Plant: B353
+2026-06-30 13:58:59 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:58:59 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:59:00 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:59:00 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:59:00 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:59:01 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:59:02 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:59:02 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:59:02 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:59:04 | SUCCESS  |   ✓ [B353] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:59:04 | INFO     | [  10/225]  330001  →  Plant: B354
+2026-06-30 13:59:04 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:59:05 | DEBUG    |   Isi Plant: B354
+2026-06-30 13:59:09 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:59:10 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:59:10 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:59:10 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:59:10 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:59:11 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:59:12 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:59:12 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:59:12 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:59:14 | SUCCESS  |   ✓ [B354] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:59:14 | INFO     | [  11/225]  330001  →  Plant: B356
+2026-06-30 13:59:14 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:59:16 | DEBUG    |   Isi Plant: B356
+2026-06-30 13:59:19 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:59:20 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:59:20 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:59:20 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:59:20 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:59:21 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:59:22 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:59:22 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:59:22 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:59:24 | SUCCESS  |   ✓ [B356] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:59:24 | INFO     | [  12/225]  330001  →  Plant: B357
+2026-06-30 13:59:24 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:59:26 | DEBUG    |   Isi Plant: B357
+2026-06-30 13:59:29 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:59:30 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:59:30 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:59:30 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:59:31 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:59:31 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:59:32 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:59:32 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:59:32 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:59:34 | SUCCESS  |   ✓ [B357] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:59:34 | INFO     | [  13/225]  330001  →  Plant: B358
+2026-06-30 13:59:34 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:59:36 | DEBUG    |   Isi Plant: B358
+2026-06-30 13:59:39 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:59:40 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:59:40 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:59:40 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:59:41 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:59:42 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:59:42 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:59:42 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:59:42 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:59:44 | SUCCESS  |   ✓ [B358] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:59:44 | INFO     | [  14/225]  330001  →  Plant: B360
+2026-06-30 13:59:44 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:59:46 | DEBUG    |   Isi Plant: B360
+2026-06-30 13:59:49 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 13:59:50 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 13:59:50 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 13:59:50 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 13:59:51 | DEBUG    |   SLoc baru: WH02
+2026-06-30 13:59:52 | DEBUG    |   SLoc baru: WT01
+2026-06-30 13:59:52 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 13:59:52 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 13:59:52 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 13:59:54 | SUCCESS  |   ✓ [B360] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 13:59:54 | INFO     | [  15/225]  330001  →  Plant: B361
+2026-06-30 13:59:54 | DEBUG    |   Isi Material: 330001
+2026-06-30 13:59:56 | DEBUG    |   Isi Plant: B361
+2026-06-30 13:59:59 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 14:00:00 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 14:00:00 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 14:00:00 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:00:01 | DEBUG    |   SLoc baru: WH02
+2026-06-30 14:00:02 | DEBUG    |   SLoc baru: WT01
+2026-06-30 14:00:02 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 14:00:02 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 14:00:02 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 14:00:04 | SUCCESS  |   ✓ [B361] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 14:00:04 | INFO     | [  16/225]  330001  →  Plant: B362
+2026-06-30 14:00:04 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:00:06 | DEBUG    |   Isi Plant: B362
+2026-06-30 14:00:10 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 14:00:10 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 14:00:11 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 14:00:11 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:00:11 | DEBUG    |   SLoc baru: WH02
+2026-06-30 14:00:12 | DEBUG    |   SLoc baru: WT01
+2026-06-30 14:00:12 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 14:00:12 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 14:00:12 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 14:00:14 | SUCCESS  |   ✓ [B362] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 14:00:14 | INFO     | [  17/225]  330001  →  Plant: B363
+2026-06-30 14:00:14 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:00:16 | DEBUG    |   Isi Plant: B363
+2026-06-30 14:00:20 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 14:00:20 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 14:00:21 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 14:00:21 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:00:21 | DEBUG    |   SLoc baru: WH02
+2026-06-30 14:00:22 | DEBUG    |   SLoc baru: WT01
+2026-06-30 14:00:23 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 14:00:23 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 14:00:23 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 14:00:25 | SUCCESS  |   ✓ [B363] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 14:00:25 | INFO     | [  18/225]  330001  →  Plant: B364
+2026-06-30 14:00:25 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:00:26 | DEBUG    |   Isi Plant: B364
+2026-06-30 14:00:30 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 14:00:31 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 14:00:31 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 14:00:31 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:00:31 | DEBUG    |   SLoc baru: WH02
+2026-06-30 14:00:32 | DEBUG    |   SLoc baru: WT01
+2026-06-30 14:00:33 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 14:00:33 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 14:00:33 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 14:00:35 | SUCCESS  |   ✓ [B364] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 14:00:35 | INFO     | [  19/225]  330001  →  Plant: B365
+2026-06-30 14:00:35 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:00:37 | DEBUG    |   Isi Plant: B365
+2026-06-30 14:00:40 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 14:00:41 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 14:00:41 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 14:00:41 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:00:41 | DEBUG    |   SLoc baru: WH02
+2026-06-30 14:00:42 | DEBUG    |   SLoc baru: WT01
+2026-06-30 14:00:43 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 14:00:43 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 14:00:43 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 14:00:45 | SUCCESS  |   ✓ [B365] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 14:00:45 | INFO     | [  20/225]  330001  →  Plant: B366
+2026-06-30 14:00:45 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:00:47 | DEBUG    |   Isi Plant: B366
+2026-06-30 14:00:50 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 14:00:51 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 14:00:51 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 14:00:51 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:00:52 | DEBUG    |   SLoc baru: WH02
+2026-06-30 14:00:52 | DEBUG    |   SLoc baru: WT01
+2026-06-30 14:00:53 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 14:00:53 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 14:00:53 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 14:00:55 | SUCCESS  |   ✓ [B366] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 14:00:55 | INFO     | [  21/225]  330001  →  Plant: B367
+2026-06-30 14:00:55 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:00:57 | DEBUG    |   Isi Plant: B367
+2026-06-30 14:01:00 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 14:01:01 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 14:01:01 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 14:01:01 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:01:02 | DEBUG    |   SLoc baru: WH02
+2026-06-30 14:01:02 | DEBUG    |   SLoc baru: WT01
+2026-06-30 14:01:03 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 14:01:03 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 14:01:03 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 14:01:05 | SUCCESS  |   ✓ [B367] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 14:01:05 | INFO     | [  22/225]  330001  →  Plant: B368
+2026-06-30 14:01:05 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:01:07 | DEBUG    |   Isi Plant: B368
+2026-06-30 14:01:10 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 14:01:11 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 14:01:11 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 14:01:11 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:01:12 | DEBUG    |   SLoc baru: WH02
+2026-06-30 14:01:13 | DEBUG    |   SLoc baru: WT01
+2026-06-30 14:01:13 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 14:01:13 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 14:01:13 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 14:01:15 | SUCCESS  |   ✓ [B368] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 14:01:15 | INFO     | [  23/225]  330001  →  Plant: B369
+2026-06-30 14:01:15 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:01:17 | DEBUG    |   Isi Plant: B369
+2026-06-30 14:01:20 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-30 14:01:21 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-30 14:01:21 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-30 14:01:21 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:01:22 | DEBUG    |   SLoc baru: WH02
+2026-06-30 14:01:23 | DEBUG    |   SLoc baru: WT01
+2026-06-30 14:01:23 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-30 14:01:23 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-30 14:01:23 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-30 14:01:25 | SUCCESS  |   ✓ [B369] 330001 — WH02, WT01 DITAMBAH
+2026-06-30 14:01:25 | INFO     | [  24/225]  330001  →  Plant: B373
+2026-06-30 14:01:25 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:01:27 | DEBUG    |   Isi Plant: B373
+2026-06-30 14:01:30 | WARNING  |   [SKIP] [B373] 330001 -- Error SAP (locked/not exist), lanjut plant berikutnya
+2026-06-30 14:01:30 | INFO     | [  25/225]  330001  →  Plant: B394
+2026-06-30 14:01:30 | DEBUG    |   Isi Material: 330001
+2026-06-30 14:01:32 | DEBUG    |   Isi Plant: B394
+2026-06-30 14:01:36 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-30 14:01:36 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-30 14:01:37 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-30 14:01:37 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-30 14:01:38 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-30 14:01:38 | WARNING  |   [SKIP] [B394] 330001 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-30 14:01:40 | INFO     | [  26/225]  330002  →  Plant: B200
+2026-06-30 14:01:40 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:41 | DEBUG    |   Isi Plant: B200
+2026-06-30 14:01:44 | WARNING  |   Gagal cek SLoc via clipboard: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-30 14:01:44 | ERROR    |   ERROR [B200] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  27/225]  330002  →  Plant: B201
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B201] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  28/225]  330002  →  Plant: B202
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B202] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  29/225]  330002  →  Plant: B203
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B203] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  30/225]  330002  →  Plant: B204
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B204] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  31/225]  330002  →  Plant: B205
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B205] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  32/225]  330002  →  Plant: B351
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B351] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  33/225]  330002  →  Plant: B352
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B352] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  34/225]  330002  →  Plant: B353
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B353] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  35/225]  330002  →  Plant: B354
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B354] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  36/225]  330002  →  Plant: B356
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B356] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  37/225]  330002  →  Plant: B357
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B357] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  38/225]  330002  →  Plant: B358
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B358] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  39/225]  330002  →  Plant: B360
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B360] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  40/225]  330002  →  Plant: B361
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B361] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  41/225]  330002  →  Plant: B362
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B362] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  42/225]  330002  →  Plant: B363
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B363] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  43/225]  330002  →  Plant: B364
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B364] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  44/225]  330002  →  Plant: B365
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B365] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  45/225]  330002  →  Plant: B366
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B366] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  46/225]  330002  →  Plant: B367
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B367] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  47/225]  330002  →  Plant: B368
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B368] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:44 | INFO     | [  48/225]  330002  →  Plant: B369
+2026-06-30 14:01:44 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:44 | ERROR    |   ERROR [B369] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  49/225]  330002  →  Plant: B373
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:46 | ERROR    |   ERROR [B373] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  50/225]  330002  →  Plant: B394
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330002
+2026-06-30 14:01:46 | ERROR    |   ERROR [B394] 330002: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  51/225]  330003  →  Plant: B200
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B200] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  52/225]  330003  →  Plant: B201
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B201] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  53/225]  330003  →  Plant: B202
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B202] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  54/225]  330003  →  Plant: B203
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B203] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  55/225]  330003  →  Plant: B204
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B204] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  56/225]  330003  →  Plant: B205
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B205] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  57/225]  330003  →  Plant: B351
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B351] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  58/225]  330003  →  Plant: B352
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B352] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  59/225]  330003  →  Plant: B353
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B353] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  60/225]  330003  →  Plant: B354
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B354] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  61/225]  330003  →  Plant: B356
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B356] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  62/225]  330003  →  Plant: B357
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B357] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  63/225]  330003  →  Plant: B358
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B358] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  64/225]  330003  →  Plant: B360
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B360] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  65/225]  330003  →  Plant: B361
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B361] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  66/225]  330003  →  Plant: B362
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B362] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  67/225]  330003  →  Plant: B363
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B363] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:46 | INFO     | [  68/225]  330003  →  Plant: B364
+2026-06-30 14:01:46 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:46 | ERROR    |   ERROR [B364] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  69/225]  330003  →  Plant: B365
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:47 | ERROR    |   ERROR [B365] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  70/225]  330003  →  Plant: B366
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:47 | ERROR    |   ERROR [B366] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  71/225]  330003  →  Plant: B367
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:47 | ERROR    |   ERROR [B367] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  72/225]  330003  →  Plant: B368
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:47 | ERROR    |   ERROR [B368] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  73/225]  330003  →  Plant: B369
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:47 | ERROR    |   ERROR [B369] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  74/225]  330003  →  Plant: B373
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:47 | ERROR    |   ERROR [B373] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  75/225]  330003  →  Plant: B394
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330003
+2026-06-30 14:01:47 | ERROR    |   ERROR [B394] 330003: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  76/225]  330004  →  Plant: B200
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B200] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  77/225]  330004  →  Plant: B201
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B201] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  78/225]  330004  →  Plant: B202
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B202] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  79/225]  330004  →  Plant: B203
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B203] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  80/225]  330004  →  Plant: B204
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B204] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  81/225]  330004  →  Plant: B205
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B205] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  82/225]  330004  →  Plant: B351
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B351] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  83/225]  330004  →  Plant: B352
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B352] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  84/225]  330004  →  Plant: B353
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B353] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  85/225]  330004  →  Plant: B354
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B354] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  86/225]  330004  →  Plant: B356
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B356] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  87/225]  330004  →  Plant: B357
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B357] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  88/225]  330004  →  Plant: B358
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B358] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  89/225]  330004  →  Plant: B360
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B360] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  90/225]  330004  →  Plant: B361
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B361] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  91/225]  330004  →  Plant: B362
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B362] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  92/225]  330004  →  Plant: B363
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B363] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  93/225]  330004  →  Plant: B364
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B364] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  94/225]  330004  →  Plant: B365
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B365] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  95/225]  330004  →  Plant: B366
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B366] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  96/225]  330004  →  Plant: B367
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B367] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  97/225]  330004  →  Plant: B368
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B368] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  98/225]  330004  →  Plant: B369
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B369] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [  99/225]  330004  →  Plant: B373
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B373] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [ 100/225]  330004  →  Plant: B394
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330004
+2026-06-30 14:01:47 | ERROR    |   ERROR [B394] 330004: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:47 | INFO     | [ 101/225]  330005  →  Plant: B200
+2026-06-30 14:01:47 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:47 | ERROR    |   ERROR [B200] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 102/225]  330005  →  Plant: B201
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B201] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 103/225]  330005  →  Plant: B202
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B202] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 104/225]  330005  →  Plant: B203
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B203] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 105/225]  330005  →  Plant: B204
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B204] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 106/225]  330005  →  Plant: B205
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B205] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 107/225]  330005  →  Plant: B351
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B351] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 108/225]  330005  →  Plant: B352
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B352] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 109/225]  330005  →  Plant: B353
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B353] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 110/225]  330005  →  Plant: B354
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B354] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 111/225]  330005  →  Plant: B356
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B356] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 112/225]  330005  →  Plant: B357
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B357] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 113/225]  330005  →  Plant: B358
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B358] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 114/225]  330005  →  Plant: B360
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B360] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 115/225]  330005  →  Plant: B361
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B361] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 116/225]  330005  →  Plant: B362
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B362] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 117/225]  330005  →  Plant: B363
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B363] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 118/225]  330005  →  Plant: B364
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B364] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 119/225]  330005  →  Plant: B365
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B365] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 120/225]  330005  →  Plant: B366
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B366] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 121/225]  330005  →  Plant: B367
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B367] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:49 | INFO     | [ 122/225]  330005  →  Plant: B368
+2026-06-30 14:01:49 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:49 | ERROR    |   ERROR [B368] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 123/225]  330005  →  Plant: B369
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:50 | ERROR    |   ERROR [B369] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 124/225]  330005  →  Plant: B373
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:50 | ERROR    |   ERROR [B373] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 125/225]  330005  →  Plant: B394
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 330005
+2026-06-30 14:01:50 | ERROR    |   ERROR [B394] 330005: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 126/225]  411074  →  Plant: B200
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B200] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 127/225]  411074  →  Plant: B201
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B201] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 128/225]  411074  →  Plant: B202
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B202] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 129/225]  411074  →  Plant: B203
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B203] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 130/225]  411074  →  Plant: B204
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B204] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 131/225]  411074  →  Plant: B205
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B205] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 132/225]  411074  →  Plant: B351
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B351] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 133/225]  411074  →  Plant: B352
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B352] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 134/225]  411074  →  Plant: B353
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B353] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 135/225]  411074  →  Plant: B354
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B354] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 136/225]  411074  →  Plant: B356
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B356] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 137/225]  411074  →  Plant: B357
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B357] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 138/225]  411074  →  Plant: B358
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B358] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 139/225]  411074  →  Plant: B360
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B360] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 140/225]  411074  →  Plant: B361
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B361] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 141/225]  411074  →  Plant: B362
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B362] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 142/225]  411074  →  Plant: B363
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B363] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 143/225]  411074  →  Plant: B364
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B364] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 144/225]  411074  →  Plant: B365
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B365] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 145/225]  411074  →  Plant: B366
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B366] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 146/225]  411074  →  Plant: B367
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B367] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 147/225]  411074  →  Plant: B368
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B368] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 148/225]  411074  →  Plant: B369
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B369] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 149/225]  411074  →  Plant: B373
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B373] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 150/225]  411074  →  Plant: B394
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411074
+2026-06-30 14:01:50 | ERROR    |   ERROR [B394] 411074: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 151/225]  411075  →  Plant: B200
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B200] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 152/225]  411075  →  Plant: B201
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B201] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 153/225]  411075  →  Plant: B202
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B202] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 154/225]  411075  →  Plant: B203
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B203] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 155/225]  411075  →  Plant: B204
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B204] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 156/225]  411075  →  Plant: B205
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B205] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 157/225]  411075  →  Plant: B351
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B351] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 158/225]  411075  →  Plant: B352
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B352] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 159/225]  411075  →  Plant: B353
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B353] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 160/225]  411075  →  Plant: B354
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B354] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 161/225]  411075  →  Plant: B356
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B356] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 162/225]  411075  →  Plant: B357
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B357] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 163/225]  411075  →  Plant: B358
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B358] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 164/225]  411075  →  Plant: B360
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B360] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 165/225]  411075  →  Plant: B361
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B361] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 166/225]  411075  →  Plant: B362
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B362] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 167/225]  411075  →  Plant: B363
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B363] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 168/225]  411075  →  Plant: B364
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B364] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 169/225]  411075  →  Plant: B365
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B365] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 170/225]  411075  →  Plant: B366
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B366] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 171/225]  411075  →  Plant: B367
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B367] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 172/225]  411075  →  Plant: B368
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B368] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 173/225]  411075  →  Plant: B369
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B369] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 174/225]  411075  →  Plant: B373
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B373] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 175/225]  411075  →  Plant: B394
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411075
+2026-06-30 14:01:50 | ERROR    |   ERROR [B394] 411075: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 176/225]  411076  →  Plant: B200
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B200] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 177/225]  411076  →  Plant: B201
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B201] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 178/225]  411076  →  Plant: B202
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B202] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 179/225]  411076  →  Plant: B203
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B203] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 180/225]  411076  →  Plant: B204
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B204] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 181/225]  411076  →  Plant: B205
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B205] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 182/225]  411076  →  Plant: B351
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B351] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 183/225]  411076  →  Plant: B352
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B352] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 184/225]  411076  →  Plant: B353
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B353] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 185/225]  411076  →  Plant: B354
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B354] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 186/225]  411076  →  Plant: B356
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B356] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 187/225]  411076  →  Plant: B357
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B357] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:50 | INFO     | [ 188/225]  411076  →  Plant: B358
+2026-06-30 14:01:50 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:50 | ERROR    |   ERROR [B358] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 189/225]  411076  →  Plant: B360
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B360] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 190/225]  411076  →  Plant: B361
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B361] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 191/225]  411076  →  Plant: B362
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B362] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 192/225]  411076  →  Plant: B363
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B363] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 193/225]  411076  →  Plant: B364
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B364] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 194/225]  411076  →  Plant: B365
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B365] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 195/225]  411076  →  Plant: B366
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B366] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 196/225]  411076  →  Plant: B367
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B367] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 197/225]  411076  →  Plant: B368
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B368] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 198/225]  411076  →  Plant: B369
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B369] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 199/225]  411076  →  Plant: B373
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B373] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 200/225]  411076  →  Plant: B394
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411076
+2026-06-30 14:01:51 | ERROR    |   ERROR [B394] 411076: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 201/225]  411077  →  Plant: B200
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B200] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 202/225]  411077  →  Plant: B201
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B201] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 203/225]  411077  →  Plant: B202
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B202] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 204/225]  411077  →  Plant: B203
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B203] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 205/225]  411077  →  Plant: B204
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B204] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 206/225]  411077  →  Plant: B205
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B205] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 207/225]  411077  →  Plant: B351
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B351] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 208/225]  411077  →  Plant: B352
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B352] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 209/225]  411077  →  Plant: B353
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B353] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 210/225]  411077  →  Plant: B354
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B354] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 211/225]  411077  →  Plant: B356
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B356] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 212/225]  411077  →  Plant: B357
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B357] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 213/225]  411077  →  Plant: B358
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B358] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 214/225]  411077  →  Plant: B360
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B360] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 215/225]  411077  →  Plant: B361
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B361] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 216/225]  411077  →  Plant: B362
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B362] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 217/225]  411077  →  Plant: B363
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B363] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 218/225]  411077  →  Plant: B364
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B364] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 219/225]  411077  →  Plant: B365
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B365] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 220/225]  411077  →  Plant: B366
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B366] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 221/225]  411077  →  Plant: B367
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B367] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 222/225]  411077  →  Plant: B368
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B368] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 223/225]  411077  →  Plant: B369
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B369] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 224/225]  411077  →  Plant: B373
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B373] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | [ 225/225]  411077  →  Plant: B394
+2026-06-30 14:01:51 | DEBUG    |   Isi Material: 411077
+2026-06-30 14:01:51 | ERROR    |   ERROR [B394] 411077: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-06-30 14:01:51 | INFO     | 
+2026-06-30 14:01:51 | INFO     | ============================================================
+2026-06-30 14:01:51 | INFO     |   SELESAI -- OK: 23 | Dry: 0 | Skip: 2 | Error: 200 | Total: 225
+2026-06-30 14:01:51 | INFO     | ============================================================
+2026-06-30 14:01:52 | SUCCESS  | Laporan: output_rpa\hasil_extend_20260630_135721.xlsx
+2026-06-30 14:01:52 | INFO     | Log: output_rpa\rpa_mmsc_20260630_135721.log

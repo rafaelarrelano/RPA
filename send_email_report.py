@@ -624,7 +624,7 @@ def send_stock_diff_report(
         posting_date = items[0].posting_date
 
         # Subject sesuai template standar
-        subject = f"Req. Adj. EOD Plant {display_name} Tgl {posting_date}"
+        subject = f"Req.Adj.EOD Plant {display_name} Tgl {posting_date}"
 
         # Body email per plant dengan tabel adjustment
         body_html = _build_body_html_per_plant(

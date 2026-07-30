@@ -189,6 +189,7 @@ def build_u2c_from_matrix(matrix_per_plant: dict, filepath: str = None) -> int:
     lines      = []
     fstkgd_cnt = 0
     fstkvn_cnt = 0
+    wh03_cnt   = 0
 
     for plant, matrix in sorted(matrix_per_plant.items()):
         for (material, sloc, param), data in matrix.items():
@@ -207,6 +208,10 @@ def build_u2c_from_matrix(matrix_per_plant: dict, filepath: str = None) -> int:
             line = f"{param}|{plant}|{sloc}|{tgl_sap}|{material}||{qty_str}"
             lines.append(line)
 
+            # Hitung ringkas untuk log (pastikan WH03 tetap tertulis)
+            if sloc == "WH03":
+                wh03_cnt += 1
+
             if param == "FSTKVN":
                 fstkvn_cnt += 1
             else:
@@ -218,7 +223,7 @@ def build_u2c_from_matrix(matrix_per_plant: dict, filepath: str = None) -> int:
     total = len(lines)
     log.info(
         f"[U2C] File di-overwrite: {os.path.basename(filepath)} | "
-        f"{total} baris (FSTKGD={fstkgd_cnt}, FSTKVN={fstkvn_cnt})"
+        f"{total} baris (FSTKGD={fstkgd_cnt}, FSTKVN={fstkvn_cnt}, WH03={wh03_cnt})"
     )
     return total
 

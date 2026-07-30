@@ -318,6 +318,12 @@ class Launcher:
         for w in self._container.winfo_children():
             w.destroy()
 
+        # For rpa_gui, temporarily set scaling to 1.0 to avoid zoomed appearance
+        original_scaling = None
+        if module_file == "rpa_gui":
+            original_scaling = self.root.tk.call('tk', 'scaling')
+            self.root.tk.call('tk', 'scaling', 1.0)
+
         # ── Back bar at the top ───────────────────────────────
         back_bar_bg = theme.get_color("bg_active") if theme.is_dark else "#1A1A1A"
         back_bar_fg = theme.get_color("text_white") if theme.is_dark else "#FFFFFF"
@@ -335,7 +341,13 @@ class Launcher:
             padx=18,
         )
         back_btn.pack(side="left", pady=8)
-        back_btn.bind("<Button-1>", lambda e: self._build_menu())
+
+        def on_menu_click():
+            if original_scaling is not None:
+                self.root.tk.call('tk', 'scaling', original_scaling)
+            self._build_menu()
+
+        back_btn.bind("<Button-1>", lambda e: on_menu_click())
         back_btn.bind("<Enter>",
                       lambda e: back_btn.configure(fg="#AAAAAA"))
         back_btn.bind("<Leave>",
@@ -365,25 +377,42 @@ class Launcher:
             cls = getattr(mod, class_name)
 
             # Instantiate — pass back_callback and theme_manager
+            def back_with_restore():
+                if original_scaling is not None:
+                    self.root.tk.call('tk', 'scaling', original_scaling)
+                self._build_menu()
+
             try:
                 instance = cls(
                     module_container,
-                    back_callback=self._build_menu,
+                    back_callback=back_with_restore,
                     theme_manager=theme
                 )
             except TypeError:
                 # Module class doesn't accept theme_manager — try without it
-                instance = cls(module_container, back_callback=self._build_menu)
+                instance = cls(module_container, back_callback=back_with_restore)
 
             self._active_module_frame = instance
 
         except ImportError as e:
+            # Restore scaling if module failed to load
+            if original_scaling is not None:
+                self.root.tk.call('tk', 'scaling', original_scaling)
             self._show_module_error(
                 module_container,
                 f"Module file '{module_file}.py' not found.\n\n{e}"
             )
         except Exception as e:
+            # Restore scaling if module failed to load
+            if original_scaling is not None:
+                self.root.tk.call('tk', 'scaling', original_scaling)
             self._show_module_error(module_container, str(e))
+
+    def _restore_scaling_and_menu(self, original_scaling):
+        """Restore the original scaling and return to menu."""
+        if original_scaling is not None:
+            self.root.tk.call('tk', 'scaling', original_scaling)
+        self._build_menu()
 
     def _show_module_error(self, parent, message: str):
         """Show a friendly error if a module fails to load."""

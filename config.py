@@ -9,18 +9,18 @@ class Config:
     SAP_CLIENT       = "120"
     SAP_USER         = "ITAPPS6.HC "
     SAP_PASSWORD     = os.environ.get("SAP_PASSWORD", "harco2026")
-    SAP_TCODE_EXPORT = "ZPGD_SAPSTK"   # default fallback
+    SAP_TCODE_EXPORT = "ZPGD_SAPSTK2"   # default fallback
 
     # ── Mapping Portal → T-code SAP ──────────────────────────
-    # PGDMTX → /NZPGD_SAPSTK  +  /NZPGD_U2C
-    # CMIS   → /NZCNS_SAPSTK  +  /NZCNS_U2C
+    # PGDMTX → /NZPGD_SAPSTK2 + /NZPGD_U2C
+    # CMIS   → /NZCNS_SAPSTK2 + /NZCNS_U2C
     PORTAL_TCODE_MAP = {
-        "PGDMTX": {"sapstk": "ZPGD_SAPSTK", "u2c": "ZPGD_U2C"},
-        "CMIS":   {"sapstk": "ZCNS_SAPSTK", "u2c": "ZCNS_U2C"},
+        "PGDMTX": {"sapstk": "ZPGD_SAPSTK2", "u2c": "ZPGD_U2C"},
+        "CMIS":   {"sapstk": "ZCNS_SAPSTK2", "u2c": "ZCNS_U2C"},
     }
 
     # T-code aktif — di-set otomatis GUI saat user pilih portal
-    ACTIVE_TCODE_SAPSTK = "ZPGD_SAPSTK"
+    ACTIVE_TCODE_SAPSTK = "ZPGD_SAPSTK2"
     ACTIVE_TCODE_U2C    = "ZPGD_U2C"
 
     # Folder otomatis hasil export ZPGD_SAPSTK

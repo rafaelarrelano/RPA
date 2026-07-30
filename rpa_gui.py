@@ -327,11 +327,37 @@ def _make_card(parent, padx=12, pady=10):
 # ─────────────────────────────────────────────
 
 class RpaGui:
-    def __init__(self, root):
-        self.root   = root
-        self.root.title("RPA Stock Reconciliation")
-        self.root.geometry("1120x800")
-        self.root.minsize(900, 660)
+    def __init__(self, parent, back_callback=None, theme_manager=None):
+        """
+        Initialize RpaGui.
+
+        Args:
+            parent: tk.Tk (standalone) or tk.Frame (launched from launcher.py)
+            back_callback: callable to return to launcher menu (optional)
+            theme_manager: ThemeManager instance (optional)
+        """
+        # Determine if we're running standalone or from launcher
+        self.is_launcher_mode = isinstance(parent, tk.Frame)
+
+        if self.is_launcher_mode:
+            # Launcher mode: parent is a Frame
+            self.parent = parent
+            self.root = parent.winfo_toplevel()  # Get the root window
+            self.back_callback = back_callback
+            self.theme_manager = theme_manager
+        else:
+            # Standalone mode: parent is a Tk root
+            self.root = parent
+            self.parent = parent
+            self.back_callback = None
+            self.theme_manager = None
+
+        # Only set window properties if in standalone mode
+        if not self.is_launcher_mode:
+            self.root.title("RPA Stock Reconciliation")
+            self.root.geometry("1120x800")
+            self.root.minsize(900, 660)
+
         self.root.configure(bg=C("bg"))
         self._running = False
         self._tooltip = None
@@ -443,12 +469,18 @@ class RpaGui:
 
     def _build(self):
         from config import Config
-        self._build_topbar()
-        tk.Frame(self.root, bg=C("sep"), height=1).pack(fill="x")
-        # Bottom bar MUST be packed before body so it is never pushed off-screen
-        tk.Frame(self.root, bg=C("sep"), height=1).pack(fill="x", side="bottom")
-        self._build_bottom()
-        self._build_body(Config)
+
+        # In launcher mode, build inside parent frame; in standalone, use root
+        build_target = self.parent if self.is_launcher_mode else self.root
+
+        if not self.is_launcher_mode:
+            self._build_topbar()
+            tk.Frame(self.root, bg=C("sep"), height=1).pack(fill="x")
+            # Bottom bar MUST be packed before body so it is never pushed off-screen
+            tk.Frame(self.root, bg=C("sep"), height=1).pack(fill="x", side="bottom")
+            self._build_bottom()
+
+        self._build_body_internal(build_target, Config)
 
     def _build_topbar(self):
         top = tk.Frame(self.root, bg=C("hdr_bg"), height=56)
@@ -507,8 +539,9 @@ class RpaGui:
                               font=(FONT, FS["sm"], "bold"))
         self._stat.pack(side="left", padx=(0, 12))
 
-    def _build_body(self, Config):
-        body = tk.Frame(self.root, bg=C("bg"))
+    def _build_body_internal(self, parent, Config):
+        """Internal method that builds the body. Uses parent parameter for flexibility."""
+        body = tk.Frame(parent, bg=C("bg"))
         body.pack(fill="both", expand=True, padx=0, pady=0)
 
         # PanedWindow — panel kiri bisa digeser kanan-kiri dengan sash
@@ -572,7 +605,7 @@ class RpaGui:
         except Exception:
             pass
         tmap = Config.PORTAL_TCODE_MAP.get(label, {})
-        Config.ACTIVE_TCODE_SAPSTK = tmap.get("sapstk", "ZPGD_SAPSTK")
+        Config.ACTIVE_TCODE_SAPSTK = tmap.get("sapstk", "ZPGD_SAPSTK2")
         Config.ACTIVE_TCODE_U2C    = tmap.get("u2c",    "ZPGD_U2C")
         self._portal_url_lbl.config(text=f"  {url}")
         if hasattr(self, "_tcode_info_lbl"):
@@ -1452,7 +1485,7 @@ class RpaGui:
     # ─────────────────────────────────────────
 
     def _build_bottom(self):
-        bar = tk.Frame(self.root, bg=C("surface"), height=64)
+        bar = tk.Frame(self.root, bg=C("surface"), height=80)
         bar.pack(fill="x", side="bottom")
         bar.pack_propagate(False)
 

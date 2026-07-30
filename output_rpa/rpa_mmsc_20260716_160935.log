@@ -1,0 +1,110 @@
+2026-07-16 16:09:35 | INFO     | ============================================================
+2026-07-16 16:09:35 | INFO     |   SAP RPA — Auto Extend Material MMSC
+2026-07-16 16:09:35 | INFO     |   Storage Loc : WH02 & WT01
+2026-07-16 16:09:35 | INFO     |   Input       : _selected_temp.xlsx
+2026-07-16 16:09:35 | INFO     |   Dry Run     : False
+2026-07-16 16:09:35 | INFO     | ============================================================
+2026-07-16 16:09:35 | INFO     | 
+2026-07-16 16:09:35 | INFO     |   PERSIAPAN:
+2026-07-16 16:09:35 | INFO     |   1. SAP sudah login
+2026-07-16 16:09:35 | INFO     |   2. Klik jendela SAP supaya aktif
+2026-07-16 16:09:35 | INFO     |   3. JANGAN sentuh mouse/keyboard saat robot berjalan!
+2026-07-16 16:09:35 | INFO     |   4. DARURAT: gerak mouse ke pojok KIRI ATAS = STOP
+2026-07-16 16:09:35 | INFO     | 
+2026-07-16 16:09:35 | INFO     | Total material: 25 baris
+2026-07-16 16:09:35 | INFO     |   Mulai dalam 5 detik...
+2026-07-16 16:09:36 | INFO     |   Mulai dalam 4 detik...
+2026-07-16 16:09:37 | INFO     |   Mulai dalam 3 detik...
+2026-07-16 16:09:38 | INFO     |   Mulai dalam 2 detik...
+2026-07-16 16:09:39 | INFO     |   Mulai dalam 1 detik...
+2026-07-16 16:09:40 | INFO     |   ROBOT MULAI!
+2026-07-16 16:09:40 | INFO     | 
+2026-07-16 16:09:40 | INFO     |   SAP ditemukan: 'SAP Easy Access'
+2026-07-16 16:09:41 | INFO     |   Fokus SAP berhasil ✓
+2026-07-16 16:09:41 | INFO     |   SAP → kiri layar (960x1080)
+2026-07-16 16:09:46 | INFO     |   MMSC terbuka
+2026-07-16 16:09:46 | INFO     | [   1/25]  411067  →  Plant: B200
+2026-07-16 16:09:46 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:09:48 | DEBUG    |   Isi Plant: B200
+2026-07-16 16:09:50 | WARNING  |   [SKIP] [B200] 411067 -- Error SAP (locked/not exist), lanjut plant berikutnya
+2026-07-16 16:09:51 | INFO     | [   2/25]  411067  →  Plant: B201
+2026-07-16 16:09:51 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:09:53 | DEBUG    |   Isi Plant: B201
+2026-07-16 16:09:56 | WARNING  |   [SKIP] [B201] 411067 -- Error SAP (locked/not exist), lanjut plant berikutnya
+2026-07-16 16:09:56 | INFO     | [   3/25]  411067  →  Plant: B202
+2026-07-16 16:09:56 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:09:58 | DEBUG    |   Isi Plant: B202
+2026-07-16 16:10:01 | WARNING  |   [SKIP] [B202] 411067 -- Error SAP (locked/not exist), lanjut plant berikutnya
+2026-07-16 16:10:01 | INFO     | [   4/25]  411067  →  Plant: B203
+2026-07-16 16:10:01 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:03 | DEBUG    |   Isi Plant: B203
+2026-07-16 16:10:06 | WARNING  |   [SKIP] [B203] 411067 -- Error SAP (locked/not exist), lanjut plant berikutnya
+2026-07-16 16:10:07 | INFO     | [   5/25]  411067  →  Plant: B204
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B204] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [   6/25]  411067  →  Plant: B205
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B205] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [   7/25]  411067  →  Plant: B351
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B351] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [   8/25]  411067  →  Plant: B352
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B352] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [   9/25]  411067  →  Plant: B353
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B353] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  10/25]  411067  →  Plant: B354
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B354] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  11/25]  411067  →  Plant: B356
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B356] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  12/25]  411067  →  Plant: B357
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B357] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  13/25]  411067  →  Plant: B358
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B358] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  14/25]  411067  →  Plant: B360
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B360] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  15/25]  411067  →  Plant: B361
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B361] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  16/25]  411067  →  Plant: B362
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B362] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  17/25]  411067  →  Plant: B363
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B363] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  18/25]  411067  →  Plant: B364
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B364] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  19/25]  411067  →  Plant: B365
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B365] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  20/25]  411067  →  Plant: B366
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B366] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  21/25]  411067  →  Plant: B367
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B367] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  22/25]  411067  →  Plant: B368
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B368] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  23/25]  411067  →  Plant: B369
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B369] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  24/25]  411067  →  Plant: B373
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B373] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | [  25/25]  411067  →  Plant: B394
+2026-07-16 16:10:07 | DEBUG    |   Isi Material: 411067
+2026-07-16 16:10:07 | ERROR    |   ERROR [B394] 411067: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-07-16 16:10:07 | INFO     | 
+2026-07-16 16:10:07 | INFO     | ============================================================
+2026-07-16 16:10:07 | INFO     |   SELESAI -- OK: 0 | Dry: 0 | Skip: 4 | Error: 21 | Total: 25
+2026-07-16 16:10:07 | INFO     | ============================================================
+2026-07-16 16:10:08 | SUCCESS  | Laporan: output_rpa\hasil_extend_20260716_160935.xlsx
+2026-07-16 16:10:08 | INFO     | Log: output_rpa\rpa_mmsc_20260716_160935.log

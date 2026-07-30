@@ -1,26 +1,3 @@
-"""
-maintain_material.py
-Maintain Material Module — RPA PT Mayora Indah Tbk
-
-Launched from launcher.py — receives back_callback to return to menu.
-
-Flow:
-  1. User browses material codes Excel file (Kode Barang column)
-  2. User browses List_Plant.xlsx (Plant + Prch.Grp)
-  3. User picks plants from checklist
-  4. Click Run → SAP MM01 automation starts
-     Outer loop : each selected plant
-     Inner loop : each material code
-       Step 1 — MM01 Initial Screen  (pyautogui — type & navigate)
-       Step 2 — Select Views popup   (pyautogui — just Enter)
-       Step 3 — Org Levels popup     (pyautogui — fill fields)
-       Step 4 — Purchasing tab       (pyautogui — tab to Prch.Grp)
-       Step 5 — Accounting 1 tab     (pyautogui — tab to Moving Price)
-
-No SAP COM / SAP GUI scripting used.
-Robot types exactly as a human would — SAP sees only keyboard input.
-"""
-
 import os
 import time
 import tkinter as tk
@@ -28,6 +5,7 @@ from tkinter import ttk, messagebox, scrolledtext, filedialog
 import threading
 import queue
 import pyautogui
+import pyperclip
 try:
     import keyboard   # pip install keyboard
     _KEYBOARD_OK = True
@@ -587,6 +565,42 @@ def _type(value: str, interval: float = 0.07):
     time.sleep(0.08)
 
 
+def _paste_verified(value: str, max_try: int = 4) -> bool:
+    """
+    Copy value to clipboard, verify it actually got there, then Ctrl+V.
+    Prevents race condition where Ctrl+V fires before OS finishes
+    updating the clipboard — which would paste the previous value instead.
+    Falls back gracefully if clipboard never syncs.
+    """
+    value = str(value)
+    for _ in range(max_try):
+        pyperclip.copy(value)
+        time.sleep(0.12)
+        if pyperclip.paste() == value:
+            pyautogui.hotkey("ctrl", "v")
+            time.sleep(0.15)
+            return True
+        time.sleep(0.1)
+    # Fallback — paste anyway even if verify failed
+    pyautogui.hotkey("ctrl", "v")
+    time.sleep(0.15)
+    return False
+
+
+def _read_field() -> str:
+    """
+    Read the current SAP field value via clipboard.
+    Select all → Ctrl+C → read clipboard.
+    Works for input fields in SAP forms.
+    """
+    pyperclip.copy("")              # clear first so stale value can't confuse
+    pyautogui.hotkey("ctrl", "a")
+    time.sleep(0.08)
+    pyautogui.hotkey("ctrl", "c")
+    time.sleep(0.18)
+    return pyperclip.paste().strip()
+
+
 def _delete_clear():
     """
     Clear a SAP field by selecting all text with Ctrl+Shift+Right
@@ -673,19 +687,19 @@ def _mm01_one(material: str, plant_info: dict,
             # 1. Delete 7s on Material field
             _delete_clear()
 
-            # 2. Type material code
-            _type(material);         _wait(T_FIELD)
+            # 2. Paste material code (verified clipboard)
+            _paste_verified(material); _wait(T_FIELD)
 
             # 3. Press Down → Industry Sector
             pyautogui.press("down"); _wait(0.18)
 
-            # 4. Type F
+            # 4. Type F (short value, typewrite is fine)
             _type(INDUSTRY);         _wait(T_FIELD)
 
             # 5. Press Down → Material Type
             pyautogui.press("down"); _wait(0.18)
 
-            # 6. Type FERT
+            # 6. Type FERT (short value, typewrite is fine)
             _type(MATERIAL_TYPE);    _wait(T_FIELD)
 
             # 7. Press Down → Change Number
@@ -694,19 +708,19 @@ def _mm01_one(material: str, plant_info: dict,
             # 8. Press Down → Copy from Material
             pyautogui.press("down"); _wait(0.18)
 
-            # 9. Delete 7s then type same material code
+            # 9. Clear then paste same material code (verified clipboard)
             _delete_clear()
-            _type(material);         _wait(T_FIELD)
+            _paste_verified(material); _wait(T_FIELD)
 
         elif material == prev_material:
             # Same material code, next plant — Copy from is already correct.
             # Just fill the Material field and go.
-            _type(material);         _wait(T_FIELD)
+            _paste_verified(material); _wait(T_FIELD)
 
         else:
             # New material code — fill Material field, then navigate to
             # Copy from and delete old code first before filling new one.
-            _type(material);         _wait(T_FIELD)
+            _paste_verified(material); _wait(T_FIELD)
 
             # Navigate down to Copy from field
             pyautogui.press("down"); _wait(0.18)   # Industry Sector
@@ -714,9 +728,9 @@ def _mm01_one(material: str, plant_info: dict,
             pyautogui.press("down"); _wait(0.18)   # Change Number
             pyautogui.press("down"); _wait(0.18)   # Copy from Material
 
-            # Delete old code first then fill new one
+            # Delete old code first then paste new one
             _delete_clear()
-            _type(material);         _wait(T_FIELD)
+            _paste_verified(material); _wait(T_FIELD)
 
         # Enter → SAP shows Select Views popup
         if not org_levels_open:
@@ -735,47 +749,49 @@ def _mm01_one(material: str, plant_info: dict,
         _wait(T_POPUP)               # extra wait to make sure popup is fully rendered
 
         if prev_type == ptype:
-            # Same plant type as previous (GT→GT or MT→MT) — this applies
-            # whether coming from a normal plant or from an "already maintained"
-            # skip, since the Org Levels popup retains DC, Copy From, and
-            # Copy DC from the last fill. Only the Plant field needs updating.
-            _delete_clear();         _wait(T_FIELD)
-            _type(plant_code);       _wait(T_FIELD)
+            # Same plant type — only Plant field needs updating.
+            _delete_clear();               _wait(T_FIELD)
+            _paste_verified(plant_code);   _wait(T_FIELD)
+
+        elif ptype == "GT":
+            # GT — SAP default B100/41 already set, just fill Plant.
+            _delete_clear();               _wait(T_FIELD)
+            _paste_verified(plant_code);   _wait(T_FIELD)
 
         else:
-            # Type changed (GT→MT or MT→GT) OR first plant OR coming from skip.
-            # Fill all fields fresh.
+            # Switching to MT (ptype == "MT") —
+            # Must fill Plant, DC=21, Copy From=B242, Copy DC=21.
 
-            # 1. Fill in the plant we chose
-            _delete_clear();         _wait(T_FIELD)
-            _type(plant_code);       _wait(T_FIELD)
+            # 1. Plant field
+            _delete_clear();               _wait(T_FIELD)
+            _paste_verified(plant_code);   _wait(T_FIELD)
 
-            # 2. Press Down x4
+            # 2. Press Down x4 → DC field
             pyautogui.press("down"); _wait(0.18)
             pyautogui.press("down"); _wait(0.18)
             pyautogui.press("down"); _wait(0.18)
             pyautogui.press("down"); _wait(0.18)
 
-            # 3. Fill in our plant DC (41 GT / 21 MT)
-            _delete_clear();         _wait(T_FIELD)
-            _type(dc);               _wait(T_FIELD)
+            # 3. DC = 21
+            _delete_clear();               _wait(T_FIELD)
+            _paste_verified(dc);           _wait(T_FIELD)
 
-            # 4. Press Tab
+            # 4. Press Tab → Copy Plant field
             _tab(1)
 
-            # 5. Fill in the plant we are copying from (B100 GT / B242 MT)
-            _delete_clear();         _wait(T_FIELD)
-            _type(copy_plant);       _wait(T_FIELD)
+            # 5. Copy Plant = B242
+            _delete_clear();               _wait(T_FIELD)
+            _paste_verified(copy_plant);   _wait(T_FIELD)
 
-            # 6. Press Down x4
+            # 6. Press Down x4 → Copy DC field
             pyautogui.press("down"); _wait(0.18)
             pyautogui.press("down"); _wait(0.18)
             pyautogui.press("down"); _wait(0.18)
             pyautogui.press("down"); _wait(0.18)
 
-            # 7. Fill in the copy DC (41 GT / 21 MT)
-            _delete_clear();         _wait(T_FIELD)
-            _type(copy_dc);          _wait(T_FIELD)
+            # 7. Copy DC = 21
+            _delete_clear();               _wait(T_FIELD)
+            _paste_verified(copy_dc);      _wait(T_FIELD)
 
         # Enter → popup closes → arrive on page 1
         # BUT if material already maintained, SAP shows an error popup.
@@ -923,18 +939,26 @@ def _mm01_one(material: str, plant_info: dict,
         _enter(); _wait(T_ENTER)
         _enter(); _wait(T_ENTER)
 
-        # 3. Press Tab x3 → Purchasing Group field, then fill it
+        # 3. Press Tab x3 → Purchasing Group field
         _tab(3)
-        _type(prch_grp);             _wait(T_FIELD)
+        # Read current value — if already correct, skip typing
+        current_prch = _read_field()
+        if current_prch != str(prch_grp):
+            _paste_verified(prch_grp);   _wait(T_FIELD)
+        # If already correct, leave it and move on
 
         # 4. Press Enter x3 (navigate to Accounting 1 tab) — adjustable gap
         _enter(); _wait(T_ENTER)
         _enter(); _wait(T_ENTER)
         _enter(); _wait(T_ENTER)
 
-        # 5. Press Tab x8 → Moving Price field, then type 1
+        # 5. Press Tab x8 → Moving Price field
         _tab(8)
-        _type(MOVING_PRICE);         _wait(T_FIELD)
+        # Read current value — if already 1, no need to type it again
+        current_price = _read_field()
+        if current_price != MOVING_PRICE:
+            _paste_verified(MOVING_PRICE); _wait(T_FIELD)
+        # If already 1, just continue to Enter
 
         # 6. Press Enter x3 → save — adjustable gap
         _enter(); _wait(T_ENTER)

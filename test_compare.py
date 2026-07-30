@@ -639,7 +639,7 @@ def compare(plant: str, matrix: dict, stok_sap: dict,
         if sloc in SKIP_SLOC:
             continue
         qty_matrix = data["qty"]
-        qty_sap    = stok_sap.get((material, sloc, param), 0.0)
+        qty_sap    = stok_sap.get((plant, material, sloc, param), 0.0)
         diff       = round(qty_matrix - qty_sap, 6)
         if abs(diff) <= TOLERANCE:
             continue
@@ -667,7 +667,9 @@ def compare(plant: str, matrix: dict, stok_sap: dict,
     # ── Loop 2: material ada di SAP tapi TIDAK ADA di Matrix ─
     # Kondisi: portal tidak menampilkan material yang stoknya 0.
     # Jika SAP masih punya stok untuk material tsb → selisih negatif → mvt 917.
-    for (material, sloc, param), qty_sap in stok_sap.items():
+    for (sap_plant, material, sloc, param), qty_sap in stok_sap.items():
+        if sap_plant != plant:
+            continue
         # Don't include SAP-only FSTKVN in compare/email flow.
         if param == "FSTKVN":
             continue
@@ -1226,20 +1228,18 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
 
             try:
                 from rpa_phase1_2 import run_zpgd_sapstk, parse_sapstk_file
-                for plant in plants_with_diff:
-                    if _is_stopped():
-                        _log(send_log, "Robot dihentikan saat download SAP.", "WARN")
-                        break
-                    try:
-                        _log(send_log, f"Download SAPSTK plant {plant}...")
-                        filepath = run_zpgd_sapstk(plant, send_log)
-                        sap_data[plant] = parse_sapstk_file(filepath)
-                        _log(send_log,
-                             f"Plant {plant}: {len(sap_data[plant])} material+sloc", "OK")
-                    except Exception as e:
-                        _log(send_log, f"Plant {plant} gagal download: {e}", "ERROR")
+                if _is_stopped():
+                    raise Exception("Robot dihentikan saat download SAP.")
+                _log(send_log, f"Download SAPSTK {len(plants_with_diff)} plant sekaligus...")
+                filepath = run_zpgd_sapstk(plants_with_diff, send_log)
+                sap_data = parse_sapstk_file(filepath)
+                _log(send_log,
+                     f"Multi-plant SAPSTK file: {os.path.basename(filepath)} | "
+                     f"{len(sap_data)} material+sloc total", "OK")
             except ImportError:
                 _log(send_log, "rpa_phase1_2 tidak tersedia — pakai file SAPSTK lokal", "WARN")
+            except Exception as e:
+                _log(send_log, f"Download SAP multi-plant gagal: {e}", "ERROR")
 
             _log(send_log, "Download SAP selesai — proses portal dimulai...", "OK")
             _log(send_log, "=" * 40, "INFO")
@@ -1249,8 +1249,8 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
                 plant      = row["plant"]
                 detail_url = row["url"]
 
-                if plant in sap_data:
-                    stok_sap = sap_data[plant]
+                if sap_data:
+                    stok_sap = sap_data
                 else:
                     try:
                         stok_sap = get_sap_from_file(plant, send_log)

@@ -1,0 +1,572 @@
+2026-06-18 16:20:21 | INFO     | ============================================================
+2026-06-18 16:20:21 | INFO     |   SAP RPA — Auto Extend Material MMSC
+2026-06-18 16:20:21 | INFO     |   Storage Loc : WH02 & WT01
+2026-06-18 16:20:21 | INFO     |   Input       : _selected_temp.xlsx
+2026-06-18 16:20:21 | INFO     |   Dry Run     : False
+2026-06-18 16:20:21 | INFO     | ============================================================
+2026-06-18 16:20:21 | INFO     | 
+2026-06-18 16:20:21 | INFO     |   PERSIAPAN:
+2026-06-18 16:20:21 | INFO     |   1. SAP sudah login
+2026-06-18 16:20:21 | INFO     |   2. Klik jendela SAP supaya aktif
+2026-06-18 16:20:21 | INFO     |   3. JANGAN sentuh mouse/keyboard saat robot berjalan!
+2026-06-18 16:20:21 | INFO     |   4. DARURAT: gerak mouse ke pojok KIRI ATAS = STOP
+2026-06-18 16:20:21 | INFO     | 
+2026-06-18 16:20:21 | INFO     | Total material: 50 baris
+2026-06-18 16:20:21 | INFO     |   Mulai dalam 5 detik...
+2026-06-18 16:20:22 | INFO     |   Mulai dalam 4 detik...
+2026-06-18 16:20:23 | INFO     |   Mulai dalam 3 detik...
+2026-06-18 16:20:24 | INFO     |   Mulai dalam 2 detik...
+2026-06-18 16:20:25 | INFO     |   Mulai dalam 1 detik...
+2026-06-18 16:20:26 | INFO     |   ROBOT MULAI!
+2026-06-18 16:20:26 | INFO     | 
+2026-06-18 16:20:26 | INFO     |   SAP ditemukan: 'SAP Easy Access  -  User menu for MATTHEW RENE .'
+2026-06-18 16:20:27 | INFO     |   Fokus SAP berhasil ✓
+2026-06-18 16:20:28 | INFO     |   SAP → kiri layar (960x1080)
+2026-06-18 16:20:32 | INFO     |   MMSC terbuka
+2026-06-18 16:20:32 | INFO     | [   1/50]  411064  →  Plant: B200
+2026-06-18 16:20:32 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:20:34 | DEBUG    |   Isi Plant: B200
+2026-06-18 16:20:38 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:20:38 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:20:39 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:20:39 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:20:39 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:20:40 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:20:41 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:20:41 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:20:41 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:20:43 | SUCCESS  |   ✓ [B200] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:20:43 | INFO     | [   2/50]  411064  →  Plant: B201
+2026-06-18 16:20:43 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:20:44 | DEBUG    |   Isi Plant: B201
+2026-06-18 16:20:48 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:20:48 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:20:49 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:20:49 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:20:49 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:20:50 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:20:51 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:20:51 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:20:51 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:20:53 | SUCCESS  |   ✓ [B201] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:20:53 | INFO     | [   3/50]  411064  →  Plant: B202
+2026-06-18 16:20:53 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:20:54 | DEBUG    |   Isi Plant: B202
+2026-06-18 16:20:58 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:20:59 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:20:59 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:20:59 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:20:59 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:21:00 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:21:01 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:21:01 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:21:01 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:21:03 | SUCCESS  |   ✓ [B202] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:21:03 | INFO     | [   4/50]  411064  →  Plant: B203
+2026-06-18 16:21:03 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:21:05 | DEBUG    |   Isi Plant: B203
+2026-06-18 16:21:08 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:21:09 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:21:09 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:21:09 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:21:09 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:21:10 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:21:11 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:21:11 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:21:11 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:21:13 | SUCCESS  |   ✓ [B203] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:21:13 | INFO     | [   5/50]  411064  →  Plant: B204
+2026-06-18 16:21:13 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:21:15 | DEBUG    |   Isi Plant: B204
+2026-06-18 16:21:18 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:21:19 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:21:19 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:21:19 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:21:19 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:21:20 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:21:21 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:21:21 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:21:21 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:21:23 | SUCCESS  |   ✓ [B204] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:21:23 | INFO     | [   6/50]  411064  →  Plant: B205
+2026-06-18 16:21:23 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:21:25 | DEBUG    |   Isi Plant: B205
+2026-06-18 16:21:28 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:21:29 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:21:29 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:21:29 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:21:30 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:21:30 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:21:31 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:21:31 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:21:31 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:21:33 | SUCCESS  |   ✓ [B205] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:21:33 | INFO     | [   7/50]  411064  →  Plant: B351
+2026-06-18 16:21:33 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:21:35 | DEBUG    |   Isi Plant: B351
+2026-06-18 16:21:38 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:21:39 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:21:39 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:21:39 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:21:40 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:21:41 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:21:41 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:21:41 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:21:41 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:21:43 | SUCCESS  |   ✓ [B351] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:21:43 | INFO     | [   8/50]  411064  →  Plant: B352
+2026-06-18 16:21:43 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:21:45 | DEBUG    |   Isi Plant: B352
+2026-06-18 16:21:48 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:21:49 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:21:49 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:21:49 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:21:50 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:21:51 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:21:51 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:21:51 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:21:51 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:21:53 | SUCCESS  |   ✓ [B352] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:21:53 | INFO     | [   9/50]  411064  →  Plant: B353
+2026-06-18 16:21:53 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:21:55 | DEBUG    |   Isi Plant: B353
+2026-06-18 16:21:58 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:21:59 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:21:59 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:21:59 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:22:00 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:22:01 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:22:01 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:22:01 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:22:01 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:22:03 | SUCCESS  |   ✓ [B353] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:22:03 | INFO     | [  10/50]  411064  →  Plant: B354
+2026-06-18 16:22:03 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:22:05 | DEBUG    |   Isi Plant: B354
+2026-06-18 16:22:08 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:22:09 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:22:09 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:22:09 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:22:10 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:22:11 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:22:11 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:22:11 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:22:11 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:22:13 | SUCCESS  |   ✓ [B354] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:22:13 | INFO     | [  11/50]  411064  →  Plant: B356
+2026-06-18 16:22:13 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:22:15 | DEBUG    |   Isi Plant: B356
+2026-06-18 16:22:19 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:22:19 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:22:19 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:22:19 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:22:20 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:22:21 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:22:21 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:22:21 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:22:21 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:22:23 | SUCCESS  |   ✓ [B356] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:22:23 | INFO     | [  12/50]  411064  →  Plant: B357
+2026-06-18 16:22:23 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:22:25 | DEBUG    |   Isi Plant: B357
+2026-06-18 16:22:29 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:22:29 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:22:29 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:22:29 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:22:30 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:22:31 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:22:31 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:22:31 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:22:31 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:22:33 | SUCCESS  |   ✓ [B357] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:22:33 | INFO     | [  13/50]  411064  →  Plant: B358
+2026-06-18 16:22:33 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:22:35 | DEBUG    |   Isi Plant: B358
+2026-06-18 16:22:39 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:22:39 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:22:40 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:22:40 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:22:40 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:22:41 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:22:41 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:22:41 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:22:41 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:22:43 | SUCCESS  |   ✓ [B358] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:22:43 | INFO     | [  14/50]  411064  →  Plant: B360
+2026-06-18 16:22:43 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:22:45 | DEBUG    |   Isi Plant: B360
+2026-06-18 16:22:49 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:22:49 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:22:50 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:22:50 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:22:50 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:22:51 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:22:52 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:22:52 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:22:52 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:22:54 | SUCCESS  |   ✓ [B360] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:22:54 | INFO     | [  15/50]  411064  →  Plant: B361
+2026-06-18 16:22:54 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:22:55 | DEBUG    |   Isi Plant: B361
+2026-06-18 16:22:58 | WARNING  |   [SKIP] [B361] 411064 -- Error SAP (locked/not exist), lanjut plant berikutnya
+2026-06-18 16:22:59 | INFO     | [  16/50]  411064  →  Plant: B362
+2026-06-18 16:22:59 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:23:01 | DEBUG    |   Isi Plant: B362
+2026-06-18 16:23:04 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:23:05 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:23:05 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:23:05 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:23:05 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:23:06 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:23:07 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:23:07 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:23:07 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:23:09 | SUCCESS  |   ✓ [B362] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:23:09 | INFO     | [  17/50]  411064  →  Plant: B363
+2026-06-18 16:23:09 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:23:11 | DEBUG    |   Isi Plant: B363
+2026-06-18 16:23:14 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:23:15 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:23:15 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:23:15 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:23:15 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:23:16 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:23:17 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:23:17 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:23:17 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:23:19 | SUCCESS  |   ✓ [B363] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:23:19 | INFO     | [  18/50]  411064  →  Plant: B364
+2026-06-18 16:23:19 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:23:21 | DEBUG    |   Isi Plant: B364
+2026-06-18 16:23:24 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:23:25 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:23:25 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:23:25 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:23:25 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:23:26 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:23:27 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:23:27 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:23:27 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:23:29 | SUCCESS  |   ✓ [B364] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:23:29 | INFO     | [  19/50]  411064  →  Plant: B365
+2026-06-18 16:23:29 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:23:31 | DEBUG    |   Isi Plant: B365
+2026-06-18 16:23:34 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:23:35 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:23:35 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:23:35 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:23:35 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:23:36 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:23:37 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:23:37 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:23:37 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:23:39 | SUCCESS  |   ✓ [B365] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:23:39 | INFO     | [  20/50]  411064  →  Plant: B366
+2026-06-18 16:23:39 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:23:41 | DEBUG    |   Isi Plant: B366
+2026-06-18 16:23:44 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:23:45 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:23:45 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:23:45 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:23:45 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:23:46 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:23:47 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:23:47 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:23:47 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:23:49 | SUCCESS  |   ✓ [B366] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:23:49 | INFO     | [  21/50]  411064  →  Plant: B367
+2026-06-18 16:23:49 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:23:51 | DEBUG    |   Isi Plant: B367
+2026-06-18 16:23:54 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:23:55 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:23:55 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:23:55 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:23:55 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:23:56 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:23:57 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:23:57 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:23:57 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:23:59 | SUCCESS  |   ✓ [B367] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:23:59 | INFO     | [  22/50]  411064  →  Plant: B368
+2026-06-18 16:23:59 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:24:01 | DEBUG    |   Isi Plant: B368
+2026-06-18 16:24:04 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:24:05 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:24:05 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:24:05 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:24:06 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:24:06 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:24:07 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:24:07 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:24:07 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:24:09 | SUCCESS  |   ✓ [B368] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:24:09 | INFO     | [  23/50]  411064  →  Plant: B369
+2026-06-18 16:24:09 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:24:11 | DEBUG    |   Isi Plant: B369
+2026-06-18 16:24:14 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:24:15 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:24:15 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:24:15 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:24:16 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:24:16 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:24:17 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:24:17 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:24:17 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:24:19 | SUCCESS  |   ✓ [B369] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:24:19 | INFO     | [  24/50]  411064  →  Plant: B373
+2026-06-18 16:24:19 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:24:21 | DEBUG    |   Isi Plant: B373
+2026-06-18 16:24:24 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:24:25 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:24:25 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:24:25 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:24:26 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:24:26 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:24:27 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:24:27 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:24:27 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:24:29 | SUCCESS  |   ✓ [B373] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:24:29 | INFO     | [  25/50]  411064  →  Plant: B394
+2026-06-18 16:24:29 | DEBUG    |   Isi Material: 411064
+2026-06-18 16:24:31 | DEBUG    |   Isi Plant: B394
+2026-06-18 16:24:34 | DEBUG    |   [DEBUG] Mundur ke-1: 'WH01'
+2026-06-18 16:24:35 | DEBUG    |   [DEBUG] Mundur ke-2: ''
+2026-06-18 16:24:35 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01']
+2026-06-18 16:24:35 | INFO     |   Isi SLoc yang belum ada: WH02, WT01
+2026-06-18 16:24:36 | DEBUG    |   SLoc baru: WH02
+2026-06-18 16:24:37 | DEBUG    |   SLoc baru: WT01
+2026-06-18 16:24:37 | DEBUG    |   uiautomation belum terpasang -- pip install uiautomation untuk hasil lebih akurat
+2026-06-18 16:24:37 | DEBUG    |   [DEBUG] Jumlah elemen terbaca: 7
+2026-06-18 16:24:37 | DEBUG    |   [DEBUG] Status text: CUSTOM  CONTAINER | CONTROL  CONTAINER | CUSTOM  CONTAINER | CONTROL  CONTAINER | SAP'S ADVANCED TREELIST | CUSTOM  CONTAINER | CONTROL  CONTAINER
+2026-06-18 16:24:39 | SUCCESS  |   ✓ [B394] 411064 — WH02, WT01 DITAMBAH
+2026-06-18 16:24:39 | INFO     | [  26/50]  411065  →  Plant: B200
+2026-06-18 16:24:39 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:24:41 | DEBUG    |   Isi Plant: B200
+2026-06-18 16:24:44 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:24:45 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:24:46 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:24:46 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:24:47 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:24:47 | WARNING  |   [SKIP] [B200] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:24:48 | INFO     | [  27/50]  411065  →  Plant: B201
+2026-06-18 16:24:48 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:24:50 | DEBUG    |   Isi Plant: B201
+2026-06-18 16:24:53 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:24:54 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:24:55 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:24:55 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:24:56 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:24:56 | WARNING  |   [SKIP] [B201] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:24:57 | INFO     | [  28/50]  411065  →  Plant: B202
+2026-06-18 16:24:57 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:24:59 | DEBUG    |   Isi Plant: B202
+2026-06-18 16:25:03 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:25:03 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:25:04 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:25:05 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:25:05 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:25:05 | WARNING  |   [SKIP] [B202] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:25:07 | INFO     | [  29/50]  411065  →  Plant: B203
+2026-06-18 16:25:07 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:25:08 | DEBUG    |   Isi Plant: B203
+2026-06-18 16:25:12 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:25:12 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:25:13 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:25:14 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:25:14 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:25:14 | WARNING  |   [SKIP] [B203] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:25:16 | INFO     | [  30/50]  411065  →  Plant: B204
+2026-06-18 16:25:16 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:25:18 | DEBUG    |   Isi Plant: B204
+2026-06-18 16:25:21 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:25:22 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:25:22 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:25:23 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:25:23 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:25:23 | WARNING  |   [SKIP] [B204] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:25:25 | INFO     | [  31/50]  411065  →  Plant: B205
+2026-06-18 16:25:25 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:25:27 | DEBUG    |   Isi Plant: B205
+2026-06-18 16:25:30 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:25:31 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:25:31 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:25:32 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:25:32 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:25:32 | WARNING  |   [SKIP] [B205] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:25:34 | INFO     | [  32/50]  411065  →  Plant: B351
+2026-06-18 16:25:34 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:25:36 | DEBUG    |   Isi Plant: B351
+2026-06-18 16:25:39 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:25:40 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:25:40 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:25:41 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:25:42 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:25:42 | WARNING  |   [SKIP] [B351] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:25:43 | INFO     | [  33/50]  411065  →  Plant: B352
+2026-06-18 16:25:43 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:25:45 | DEBUG    |   Isi Plant: B352
+2026-06-18 16:25:48 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:25:49 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:25:50 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:25:50 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:25:51 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:25:51 | WARNING  |   [SKIP] [B352] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:25:52 | INFO     | [  34/50]  411065  →  Plant: B353
+2026-06-18 16:25:52 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:25:54 | DEBUG    |   Isi Plant: B353
+2026-06-18 16:25:57 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:25:58 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:25:59 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:25:59 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:26:00 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:26:00 | WARNING  |   [SKIP] [B353] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:26:01 | INFO     | [  35/50]  411065  →  Plant: B354
+2026-06-18 16:26:01 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:26:03 | DEBUG    |   Isi Plant: B354
+2026-06-18 16:26:06 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:26:07 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:26:08 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:26:08 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:26:09 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:26:09 | WARNING  |   [SKIP] [B354] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:26:10 | INFO     | [  36/50]  411065  →  Plant: B356
+2026-06-18 16:26:10 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:26:12 | DEBUG    |   Isi Plant: B356
+2026-06-18 16:26:16 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:26:16 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:26:17 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:26:17 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:26:18 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:26:18 | WARNING  |   [SKIP] [B356] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:26:20 | INFO     | [  37/50]  411065  →  Plant: B357
+2026-06-18 16:26:20 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:26:21 | DEBUG    |   Isi Plant: B357
+2026-06-18 16:26:25 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:26:25 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:26:26 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:26:27 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:26:27 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:26:27 | WARNING  |   [SKIP] [B357] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:26:29 | INFO     | [  38/50]  411065  →  Plant: B358
+2026-06-18 16:26:29 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:26:30 | DEBUG    |   Isi Plant: B358
+2026-06-18 16:26:34 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:26:34 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:26:35 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:26:36 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:26:36 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:26:36 | WARNING  |   [SKIP] [B358] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:26:38 | INFO     | [  39/50]  411065  →  Plant: B360
+2026-06-18 16:26:38 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:26:40 | DEBUG    |   Isi Plant: B360
+2026-06-18 16:26:43 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:26:44 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:26:44 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:26:45 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:26:45 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:26:45 | WARNING  |   [SKIP] [B360] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:26:47 | INFO     | [  40/50]  411065  →  Plant: B361
+2026-06-18 16:26:47 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:26:49 | DEBUG    |   Isi Plant: B361
+2026-06-18 16:26:52 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:26:53 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:26:53 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:26:54 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:26:54 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:26:54 | WARNING  |   [SKIP] [B361] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:26:56 | INFO     | [  41/50]  411065  →  Plant: B362
+2026-06-18 16:26:56 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:26:58 | DEBUG    |   Isi Plant: B362
+2026-06-18 16:27:01 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:27:02 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:27:02 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:27:03 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:27:03 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:27:03 | WARNING  |   [SKIP] [B362] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:27:05 | INFO     | [  42/50]  411065  →  Plant: B363
+2026-06-18 16:27:05 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:27:07 | DEBUG    |   Isi Plant: B363
+2026-06-18 16:27:10 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:27:11 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:27:12 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:27:12 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:27:13 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:27:13 | WARNING  |   [SKIP] [B363] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:27:14 | INFO     | [  43/50]  411065  →  Plant: B364
+2026-06-18 16:27:14 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:27:16 | DEBUG    |   Isi Plant: B364
+2026-06-18 16:27:19 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:27:20 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:27:21 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:27:21 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:27:22 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:27:22 | WARNING  |   [SKIP] [B364] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:27:23 | INFO     | [  44/50]  411065  →  Plant: B365
+2026-06-18 16:27:23 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:27:25 | DEBUG    |   Isi Plant: B365
+2026-06-18 16:27:29 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:27:29 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:27:30 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:27:30 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:27:31 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:27:31 | WARNING  |   [SKIP] [B365] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:27:32 | INFO     | [  45/50]  411065  →  Plant: B366
+2026-06-18 16:27:32 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:27:34 | DEBUG    |   Isi Plant: B366
+2026-06-18 16:27:38 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:27:38 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:27:39 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:27:40 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:27:40 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:27:40 | WARNING  |   [SKIP] [B366] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:27:42 | INFO     | [  46/50]  411065  →  Plant: B367
+2026-06-18 16:27:42 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:27:43 | DEBUG    |   Isi Plant: B367
+2026-06-18 16:27:47 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:27:47 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:27:48 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:27:49 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:27:49 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:27:49 | WARNING  |   [SKIP] [B367] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:27:51 | INFO     | [  47/50]  411065  →  Plant: B368
+2026-06-18 16:27:51 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:27:52 | DEBUG    |   Isi Plant: B368
+2026-06-18 16:27:56 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:27:57 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:27:57 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:27:58 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:27:58 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:27:58 | WARNING  |   [SKIP] [B368] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:28:00 | INFO     | [  48/50]  411065  →  Plant: B369
+2026-06-18 16:28:00 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:28:02 | DEBUG    |   Isi Plant: B369
+2026-06-18 16:28:05 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:28:06 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:28:06 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:28:07 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:28:07 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:28:07 | WARNING  |   [SKIP] [B369] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:28:09 | INFO     | [  49/50]  411065  →  Plant: B373
+2026-06-18 16:28:09 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:28:11 | DEBUG    |   Isi Plant: B373
+2026-06-18 16:28:14 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:28:15 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:28:15 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:28:16 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:28:16 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:28:16 | WARNING  |   [SKIP] [B373] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:28:18 | INFO     | [  50/50]  411065  →  Plant: B394
+2026-06-18 16:28:18 | DEBUG    |   Isi Material: 411065
+2026-06-18 16:28:20 | DEBUG    |   Isi Plant: B394
+2026-06-18 16:28:23 | DEBUG    |   [DEBUG] Mundur ke-1: 'WT01'
+2026-06-18 16:28:24 | DEBUG    |   [DEBUG] Mundur ke-2: 'WH02'
+2026-06-18 16:28:25 | DEBUG    |   [DEBUG] Mundur ke-3: 'WH01'
+2026-06-18 16:28:25 | DEBUG    |   [DEBUG] Mundur ke-4: ''
+2026-06-18 16:28:26 | DEBUG    |   [DEBUG] SLoc yang terbaca: ['WH01', 'WH02', 'WT01']
+2026-06-18 16:28:26 | WARNING  |   [SKIP] [B394] 411065 -- WH02 & WT01 sudah ada, skip (tanpa save), lanjut ke berikutnya
+2026-06-18 16:28:27 | INFO     | 
+2026-06-18 16:28:27 | INFO     | ============================================================
+2026-06-18 16:28:27 | INFO     |   SELESAI -- OK: 24 | Dry: 0 | Skip: 26 | Error: 0 | Total: 50
+2026-06-18 16:28:27 | INFO     | ============================================================
+2026-06-18 16:28:27 | SUCCESS  | Laporan: output_rpa\hasil_extend_20260618_162020.xlsx
+2026-06-18 16:28:27 | INFO     | Log: output_rpa\rpa_mmsc_20260618_162020.log
