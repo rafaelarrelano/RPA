@@ -193,13 +193,16 @@ def run_zpgd_sapstk(plant: str | list[str], send_log=None) -> str:
         # Field pertama: isi dengan 2
         type_field("2")
 
-        # Tab 3 kali lalu Enter ke tombol multiple selection
+        # Tab 3 kali lalu Enter ke tombol multiple selection.
+        # SAP kadang lambat membuka popup multiple selection, jadi beri waktu
+        # agar tombol F4/F12 berikutnya benar-benar tertangkap.
         tab_to(3)
         pyautogui.press("enter")
+        _interruptible_sleep(1.5)
 
         # Hapus data lama di multiple selection
         pyautogui.hotkey("shift", "f4")
-        _interruptible_sleep(0.4)
+        _interruptible_sleep(1.5)
 
         # Paste plant list ke multiple selection, satu plant per baris
         if isinstance(plant, str):
@@ -230,7 +233,7 @@ def run_zpgd_sapstk(plant: str | list[str], send_log=None) -> str:
         _log(f"Plant list split ({len(plant_list)}): {plant_list}")
         _log(f"Plant list untuk multiple selection ({len(plant_list)}):\n{plant_rows}")
         pyautogui.hotkey("shift", "f12")
-        _interruptible_sleep(0.4)
+        _interruptible_sleep(1.5)
 
         # Execute multiple selection
         _log(f"Execute F8 multiple selection plant {plant}...")
