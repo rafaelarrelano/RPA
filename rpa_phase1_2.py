@@ -238,11 +238,12 @@ def run_zpgd_sapstk(plant: str | list[str], send_log=None) -> str:
         # Execute multiple selection
         _log(f"Execute F8 multiple selection plant {plant}...")
         pyautogui.press("f8")
-        _interruptible_sleep(0.8)
+        _interruptible_sleep(1.5)
 
         # Execute program sekali lagi
         _log(f"Execute F8 program plant {plant}...")
         pyautogui.press("f8")
+        _interruptible_sleep(1.5)
 
         # Tunggu file SAPSTK muncul di folder download (polling, max 300 detik)
         _log(f"Menunggu file SAPSTK plant {plant} di {Config.SAP_DOWNLOAD_DIR}...")
@@ -287,7 +288,7 @@ def run_zpgd_sapstk(plant: str | list[str], send_log=None) -> str:
                                 _log(f"Ditemukan file SAP di folder download: {candidate_path}")
                                 return candidate_path
             else:
-                _log("Clipboard tidak berisi nama file SAP atau gagal ambil clipboard", "WARN")
+                pass
         except Exception as _e:
             _log(f"Ekstraksi nama file dari SAP clipboard gagal: {_e}", "WARN")
 

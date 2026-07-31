@@ -33,7 +33,7 @@ def test_run_zpgd_sapstk_uses_new_multiple_selection_flow(monkeypatch, tmp_path)
     assert calls.count(("press", "f8")) >= 2
     assert ("clipboard", "4502\r\n4504") in calls
 
-    assert 0.8 in sleep_calls
+    assert sleep_calls.count(1.5) >= 4
     assert 0.4 in sleep_calls
 
 
