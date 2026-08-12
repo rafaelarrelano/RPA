@@ -1,6 +1,6 @@
 """
 send_email_report.py
-Buat laporan Excel selisih stok per plant dan buat draft email di Mozilla Thunderbird.
+Buat draft email di Mozilla Thunderbird berisi laporan selisih stok per plant.
 Alih-alih mengirim via SMTP, email disimpan sebagai file .eml yang bisa dibuka di Thunderbird.
 
 Perubahan:
@@ -8,29 +8,34 @@ Perubahan:
 - Body email per plant: format standar sesuai template (Posting Date, Material,
   Selisih2, UOM, Gudang, Plant, Adj, Plant Name)
 - Buat SATU EMAIL DRAFT PER PLANT (bukan satu email untuk semua plant)
+- TIDAK ada file Excel laporan dan TIDAK ada attachment — seluruh isi laporan
+  ada di badan (body) email dalam bentuk tabel HTML
 - Load Plant Name dari Excel plant_mapping (kolom B=Plant Code, C=Plant Name)
+- Load UoM per material dari Excel Material_UoM (kolom A=Material, B=UoM) —
+  file ini berisi daftar PENGECUALIAN material yang UoM-nya bukan CAR.
+  Material yang tidak ditemukan di mapping tetap ditulis "CAR" (default)
 - Draft email disimpan sebagai file .eml di folder report
 - Bisa dibuka/diimpor ke Thunderbird untuk review sebelum mengirim
 """
 
 import os
-import base64
-import mimetypes
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
 
 from config import Config
 from logger import setup_logger
 from email_config_ui import load_credentials
 
 log = setup_logger()
+
+# UoM default untuk material yang TIDAK ada di file mapping.
+# File Material_UoM.xlsx hanya berisi daftar pengecualian — material yang
+# UoM-nya BUKAN CAR. Material yang tidak ditemukan di mapping berarti
+# memang UoM-nya CAR (default), jadi tetap ditulis "CAR".
+DEFAULT_UOM = "CAR"
 
 
 # ─────────────────────────────────────────────
@@ -67,150 +72,58 @@ def load_plant_name_mapping(filepath: str = None) -> dict:
 
 
 # ─────────────────────────────────────────────
-# BUAT FILE EXCEL LAPORAN
+# LOAD MATERIAL → UOM MAPPING DARI EXCEL
 # ─────────────────────────────────────────────
 
-def build_excel_report(items_per_plant: dict, filepath: str,
-                       plant_name_map: dict = None):
+def load_material_uom_mapping(filepath: str = None) -> dict:
     """
-    Buat file Excel laporan selisih stok.
-    plant_name_map: { plant_code: plant_name } untuk judul sheet & summary
+    Baca mapping Material → UoM dari Excel.
+    Struktur Excel (sheet pertama / aktif):
+      Kolom A = Material, Kolom B = UoM
+      Header di baris 1, data mulai baris 2
+
+    Material bisa berupa angka (contoh: 310049) atau teks — selalu
+    dinormalisasi jadi string tanpa spasi supaya cocok dengan
+    item.material (yang juga string).
+
+    Return: { "310049": "PKT", "411028": "ZAK", ... }
     """
-    if plant_name_map is None:
-        plant_name_map = {}
+    if filepath is None:
+        filepath = Config.MATERIAL_UOM_FILE
 
-    wb        = openpyxl.Workbook()
-    wb.remove(wb.active)
-    tanggal   = datetime.now().strftime("%d/%m/%Y")
-    hdr_fill  = PatternFill("solid", fgColor="1F5C99")
-    hdr_font  = Font(bold=True, color="FFFFFF", name="Calibri", size=10)
-    ttl_font  = Font(bold=True, color="1F5C99", name="Calibri", size=12)
-    even_fill = PatternFill("solid", fgColor="EBF3FB")
-    warn_fill = PatternFill("solid", fgColor="FFF2CC")
-    thin      = Side(style="thin", color="CCCCCC")
-    border    = Border(left=thin, right=thin, top=thin, bottom=thin)
-    center    = Alignment(horizontal="center", vertical="center")
+    mapping = {}
+    try:
+        wb = openpyxl.load_workbook(filepath, data_only=True)
+        ws = wb.active  # pakai sheet pertama/aktif
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            if not row or row[0] is None or row[1] is None:
+                continue
+            raw_material = row[0]
+            # Normalisasi: 310049.0 / "310049" / 310049 → "310049"
+            try:
+                if isinstance(raw_material, float) and raw_material.is_integer():
+                    material = str(int(raw_material))
+                elif isinstance(raw_material, int):
+                    material = str(raw_material)
+                else:
+                    material = str(raw_material).strip()
+                    if material.endswith(".0"):
+                        material = material[:-2]
+            except Exception:
+                material = str(raw_material).strip()
 
-    # Header kolom sesuai template standar (cocok dengan gambar referensi)
-    HEADERS = ["No", "Posting Date", "Material", "Selisih2",
-               "UOM", "Gudang", "Plant", "Adj", "Plant Name"]
-    COL_W   = [5, 14, 14, 13, 8, 10, 8, 8, 20]
+            uom = str(row[1]).strip()
+            if material and uom:
+                mapping[material] = uom
 
-    summary_rows = []
+        log.info(f"[MAPPING] {len(mapping)} material UoM berhasil dibaca")
+    except Exception as e:
+        log.warning(
+            f"[MAPPING] Gagal baca material UoM mapping: {e} — "
+            f"semua material akan pakai default '{DEFAULT_UOM}'"
+        )
 
-    for plant, items in sorted(items_per_plant.items()):
-        plant_name = plant_name_map.get(plant, "")
-        ws = wb.create_sheet(title=f"Plant {plant}")
-        ws.merge_cells("A1:I1")
-        display_name = f"{plant} {plant_name}".strip()
-        ws["A1"] = f"Req.Adj.EOD Plant {display_name} — {tanggal}"
-        ws["A1"].font      = ttl_font
-        ws["A1"].alignment = center
-        ws.row_dimensions[1].height = 22
-        ws.row_dimensions[3].height = 18
-
-        for col_idx, (h, w) in enumerate(zip(HEADERS, COL_W), start=1):
-            cell            = ws.cell(row=3, column=col_idx, value=h)
-            cell.fill       = hdr_fill
-            cell.font       = hdr_font
-            cell.alignment  = center
-            cell.border     = border
-            ws.column_dimensions[get_column_letter(col_idx)].width = w
-
-        total_917 = total_918 = 0
-
-        # Urutkan: Gudang (sloc) dulu, lalu material
-        sorted_items = sorted(items, key=lambda x: (x.mvt_type, x.sloc, x.material))
-
-        for i, item in enumerate(sorted_items, start=1):
-            row  = 3 + i
-            fill = even_fill if i % 2 == 0 else PatternFill()
-
-            vals = [
-                i,
-                item.posting_date,          # Posting Date (dd.mm.yyyy)
-                item.material,              # Material
-                abs(item.diff),             # Selisih2 = nilai absolut selisih
-                "CAR",                      # UOM default
-                item.sloc,                  # Gudang = SLoc
-                item.plant,                 # Plant
-                item.mvt_type,              # Adj = movement type (917/918)
-                plant_name,                 # Plant Name
-            ]
-
-            for col_idx, val in enumerate(vals, start=1):
-                cell           = ws.cell(row=row, column=col_idx, value=val)
-                cell.border    = border
-                cell.alignment = center
-                if fill.fill_type:
-                    cell.fill = fill
-                if col_idx == 4 and abs(item.diff) >= 1:
-                    cell.fill = warn_fill
-                if col_idx == 4:
-                    cell.number_format = "#,##0.000"
-
-            total_917 += item.mvt_type == "917"
-            total_918 += item.mvt_type == "918"
-
-        fr = 3 + len(sorted_items) + 2
-        for label, val in [
-            ("Total item",            len(sorted_items)),
-            ("Mvt 917 (kurangi SAP)", total_917),
-            ("Mvt 918 (tambah SAP)",  total_918),
-        ]:
-            ws.cell(row=fr, column=1, value=label).font = Font(bold=True)
-            ws.cell(row=fr, column=2, value=val)
-            fr += 1
-
-        summary_rows.append({
-            "plant":      plant,
-            "plant_name": plant_name,
-            "total":      len(sorted_items),
-            "mvt_917":    total_917,
-            "mvt_918":    total_918,
-        })
-
-    # ── Sheet Summary ────────────────────────────────────────
-    ws_s = wb.create_sheet(title="Summary", index=0)
-    ws_s.merge_cells("A1:G1")
-    ws_s["A1"]           = f"Summary Req.Adj.EOD — {tanggal}"
-    ws_s["A1"].font      = ttl_font
-    ws_s["A1"].alignment = center
-    ws_s.row_dimensions[1].height = 24
-
-    sum_hdrs = ["No", "Plant", "Plant Name", "Total Selisih",
-                "Mvt 917 (Kurangi SAP)", "Mvt 918 (Tambah SAP)", "Catatan"]
-    sum_w    = [5, 8, 20, 14, 22, 22, 35]
-
-    for col_idx, (h, w) in enumerate(zip(sum_hdrs, sum_w), start=1):
-        cell            = ws_s.cell(row=3, column=col_idx, value=h)
-        cell.fill       = hdr_fill
-        cell.font       = hdr_font
-        cell.alignment  = center
-        cell.border     = border
-        ws_s.column_dimensions[get_column_letter(col_idx)].width = w
-
-    total_all = 0
-    for i, r in enumerate(summary_rows, start=1):
-        row  = 3 + i
-        fill = even_fill if i % 2 == 0 else PatternFill()
-        vals = [i, r["plant"], r["plant_name"], r["total"],
-                r["mvt_917"], r["mvt_918"],
-                "Perlu review & approval sebelum posting manual"]
-        for col_idx, val in enumerate(vals, start=1):
-            cell           = ws_s.cell(row=row, column=col_idx, value=val)
-            cell.border    = border
-            cell.alignment = center
-            if fill.fill_type:
-                cell.fill = fill
-        total_all += r["total"]
-
-    gt = 3 + len(summary_rows) + 1
-    ws_s.cell(row=gt, column=1, value="TOTAL").font = Font(bold=True, color="1F5C99")
-    ws_s.cell(row=gt, column=4, value=total_all).font = Font(bold=True, color="1F5C99")
-
-    wb.save(filepath)
-    log.info(f"[REPORT] Excel disimpan: {os.path.basename(filepath)}")
+    return mapping
 
 
 # ─────────────────────────────────────────────
@@ -218,12 +131,18 @@ def build_excel_report(items_per_plant: dict, filepath: str,
 # ─────────────────────────────────────────────
 
 def _build_body_html_per_plant(plant: str, plant_name: str,
-                                items: list, posting_date: str) -> str:
+                                items: list, posting_date: str,
+                                uom_map: dict = None) -> str:
     """
     Buat body HTML email untuk satu plant.
     Format tabel: Material | Selisih2 | UOM | Gudang | Plant | Adj | Plant Name
     Sesuai template standar dari gambar referensi.
+    uom_map: { material: uom } daftar pengecualian material non-CAR —
+             material yang tidak ditemukan di mapping tetap "CAR".
     """
+    if uom_map is None:
+        uom_map = {}
+
     sorted_items = sorted(items, key=lambda x: (x.mvt_type, x.sloc, x.material))
     sender_name = get_sender_display_name(
     load_credentials()["email_from"]
@@ -255,11 +174,12 @@ def _build_body_html_per_plant(plant: str, plant_name: str,
         td  = td_base + f"background:{bg};"
         # Format selisih 3 desimal pakai koma (standar Indonesia)
         selisih_fmt = f"{abs(item.diff):,.3f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        uom = uom_map.get(str(item.material).strip(), DEFAULT_UOM)
         data_rows += (
             f"<tr>"
             f"<td style='{td}'>{item.material}</td>"
             f"<td style='{td}'>{selisih_fmt}</td>"
-            f"<td style='{td}'>CAR</td>"
+            f"<td style='{td}'>{uom}</td>"
             f"<td style='{td}'>{item.sloc}</td>"
             f"<td style='{td}'>{item.plant}</td>"
             f"<td style='{td}'>{item.mvt_type}</td>"
@@ -492,11 +412,12 @@ def _find_thunderbird_drafts_mbox(profile_dir: str, email_from: str = "") -> str
 # ─────────────────────────────────────────────
 
 def _create_thunderbird_draft(cred: dict, subject: str, body_html: str,
-                              to: str, cc: str, attachment_path: str = None,
+                              to: str, cc: str,
                               draft_folder: str = None) -> str:
     """
     Simpan draft email sebagai file .eml di folder report.
     User membuka sendiri file .eml di Thunderbird.
+    Tidak ada attachment — seluruh isi laporan ada di body HTML.
 
     Return: path file .eml yang dibuat.
     """
@@ -515,26 +436,6 @@ def _create_thunderbird_draft(cred: dict, subject: str, body_html: str,
     )
     msg["X-Mailer"] = "RPA Stock Recon"
     msg.attach(MIMEText(body_html, "html", "utf-8"))
-
-    # ── Attachment ────────────────────────────────────────────
-    if attachment_path and os.path.exists(attachment_path):
-        try:
-            with open(attachment_path, "rb") as f:
-                file_data = f.read()
-            filename  = os.path.basename(attachment_path)
-            mime_type, _ = mimetypes.guess_type(attachment_path)
-            if mime_type is None:
-                mime_type = "application/octet-stream"
-            maintype, subtype = mime_type.split("/", 1)
-            part = MIMEBase(maintype, subtype)
-            part.set_payload(file_data)
-            encoders.encode_base64(part)
-            part.add_header("Content-Disposition",
-                            f'attachment; filename="{filename}"')
-            msg.attach(part)
-            log.info(f"[DRAFT] Attachment: {filename}")
-        except Exception as e:
-            log.warning(f"[DRAFT] Gagal attach: {e}")
 
     # ── Simpan sebagai .eml di folder report ─────────────────
     if draft_folder is None:
@@ -564,10 +465,11 @@ def send_stock_diff_report(
     items_per_plant: dict,
     override_to: str = None,
     override_cc: str = None,
-) -> str:
+) -> int:
     """
-    Buat laporan Excel (semua plant dalam satu file) dan buat
-    SATU DRAFT EMAIL PER PLANT di Mozilla Thunderbird (.eml files).
+    Buat SATU DRAFT EMAIL PER PLANT di Mozilla Thunderbird (.eml files).
+    Tidak ada file Excel yang dibuat dan tidak ada attachment di email —
+    isi laporan sepenuhnya ada di badan (body) email dalam bentuk tabel HTML.
 
     Hanya item FSTKGD yang masuk draft email.
     FSTKVN tetap diproses untuk compare & U2C, tapi tidak masuk laporan email.
@@ -579,7 +481,8 @@ def send_stock_diff_report(
     File bisa dibuka langsung dengan Thunderbird atau aplikasi email lainnya.
 
     override_to / override_cc: override nilai dari kredensial tersimpan
-    Return: path file Excel yang dibuat (atau "" jika tidak ada selisih FSTKGD)
+    Return: jumlah draft email yang berhasil dibuat (0 jika tidak ada selisih
+            FSTKGD atau semua draft gagal dibuat)
     """
     # Filter: hanya FSTKGD yang masuk email
     items_email = {
@@ -590,24 +493,20 @@ def send_stock_diff_report(
 
     if not items_email:
         log.info("[REPORT] Tidak ada selisih FSTKGD — draft email tidak dibuat")
-        return ""
+        return 0
 
-    cred      = load_credentials()
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    cred = load_credentials()
 
     if override_to:
         cred["email_to"] = override_to
     if override_cc is not None:
         cred["email_cc"] = override_cc
 
-    # Load mapping plant name dari Excel
+    # Load mapping plant name & material UoM dari Excel
     plant_name_map = load_plant_name_mapping()
+    uom_map        = load_material_uom_mapping()
 
     os.makedirs(Config.FOLDER_REPORT, exist_ok=True)
-    excel_path = os.path.join(Config.FOLDER_REPORT, f"SelisihStok_{timestamp}.xlsx")
-
-    log.info("[REPORT] Membuat file Excel laporan...")
-    build_excel_report(items_email, excel_path, plant_name_map)
 
     # ── Buat satu draft email per plant ──────────────────────
     draft_count = 0
@@ -632,6 +531,7 @@ def send_stock_diff_report(
             plant_name   = plant_name,
             items        = items,
             posting_date = posting_date,
+            uom_map      = uom_map,
         )
 
         log.info(f"[DRAFT] Buat draft plant {display_name} → {cred['email_to']}")
@@ -639,12 +539,11 @@ def send_stock_diff_report(
 
         try:
             draft_path = _create_thunderbird_draft(
-                cred            = cred,
-                subject         = subject,
-                body_html       = body_html,
-                to              = cred["email_to"],
-                cc              = cred.get("email_cc", ""),
-                attachment_path = excel_path,
+                cred      = cred,
+                subject   = subject,
+                body_html = body_html,
+                to        = cred["email_to"],
+                cc        = cred.get("email_cc", ""),
             )
             draft_count += 1
             drafts_created.append(draft_path)
@@ -670,4 +569,4 @@ def send_stock_diff_report(
         log.info(f"[REPORT] Draft email tersimpan di: {Config.FOLDER_REPORT}")
         log.info(f"[REPORT] Buka folder dan double-click file .eml untuk membuka di Thunderbird")
         
-    return excel_path
+    return draft_count

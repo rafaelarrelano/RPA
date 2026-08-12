@@ -694,8 +694,8 @@ def main():
         # Fase 4 — Kirim laporan Excel ke accounting
         log.info("[FASE4] Buat laporan dan kirim email ke accounting...")
         from send_email_report import send_stock_diff_report
-        excel_path = send_stock_diff_report(items_per_plant)
-        log.info(f"[FASE4] Email terkirim | File: {excel_path}")
+        draft_count = send_stock_diff_report(items_per_plant)
+        log.info(f"[FASE4] {draft_count} draft email dibuat di Thunderbird")
 
     except Exception as e:
         log.critical(f"[FATAL] Robot berhenti: {e}")

@@ -48,6 +48,13 @@ class Config:
     # ── Mapping plant → cost center ──────────────────────────
     PLANT_MAPPING_FILE = r"C:\Users\user\source\repos\RPA\config\plant_mapping.xlsx"
 
+    # ── Mapping material → UoM ───────────────────────────────
+    # Excel 2 kolom: Material | UoM (header di baris 1, data mulai baris 2)
+    # Dipakai untuk mengisi kolom "UOM" di laporan Excel & body email,
+    # menggantikan nilai hardcode "CAR". Material yang tidak ada di file
+    # ini akan tetap fallback ke "CAR".
+    MATERIAL_UOM_FILE = r"C:\Users\user\source\repos\RPA\config\Material_UoM.xlsx"
+
     # ── File limit adjustment decimal ────────────────────────
     LIMIT_ADJ_FILE = r"C:\Users\user\source\repos\RPA\config\List Limit Adj. Material SAP.xlsx"
 

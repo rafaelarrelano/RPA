@@ -354,7 +354,7 @@ class RpaGui:
 
         # Only set window properties if in standalone mode
         if not self.is_launcher_mode:
-            self.root.title("RPA Stock Reconciliation")
+            self.root.title("RPA Compare Stock EOD v.2.1")
             self.root.geometry("1120x800")
             self.root.minsize(900, 660)
 
@@ -500,7 +500,7 @@ class RpaGui:
         tf = tk.Frame(lf, bg=C("hdr_bg"))
         tf.pack(side="left")
         tk.Label(
-            tf, text="RPA Stock Reconciliation",
+            tf, text="RPA Stock Compare EOD 🐒",
             font=(FONT, FS["head"], "bold"),
             fg=C("text"), bg=C("hdr_bg")
         ).pack(anchor="w")

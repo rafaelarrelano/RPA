@@ -1301,12 +1301,12 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
              f"Buat laporan & kirim email | "
              f"{len(items_per_plant)} plant | {total_item} item")
         try:
-            excel_path = send_stock_diff_report(
+            draft_count = send_stock_diff_report(
                 items_per_plant,
                 override_to=email_to,
                 override_cc=email_cc,
             )
-            _log(send_log, f"Email terkirim | File: {os.path.basename(excel_path)}", "OK")
+            _log(send_log, f"{draft_count} draft email dibuat di Thunderbird", "OK")
         except Exception as e:
             _log(send_log, f"Gagal kirim email: {e}", "ERROR")
     else:
