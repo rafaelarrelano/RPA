@@ -36,6 +36,7 @@ log = setup_logger()
 # UoM-nya BUKAN CAR. Material yang tidak ditemukan di mapping berarti
 # memang UoM-nya CAR (default), jadi tetap ditulis "CAR".
 DEFAULT_UOM = "CAR"
+EMAIL_SKIP_SLOCS = {"WH03"}
 
 
 # ─────────────────────────────────────────────
@@ -135,56 +136,70 @@ def _build_body_html_per_plant(plant: str, plant_name: str,
                                 uom_map: dict = None) -> str:
     """
     Buat body HTML email untuk satu plant.
-    Format tabel: Material | Selisih2 | UOM | Gudang | Plant | Adj | Plant Name
-    Sesuai template standar dari gambar referensi.
-    uom_map: { material: uom } daftar pengecualian material non-CAR —
-             material yang tidak ditemukan di mapping tetap "CAR".
+    Format tabel mengikuti referensi:
+      Material | Selisih | UoM | Plant | Sloc | Mvt | Post Date
     """
     if uom_map is None:
         uom_map = {}
 
     sorted_items = sorted(items, key=lambda x: (x.mvt_type, x.sloc, x.material))
-    sender_name = get_sender_display_name(
-    load_credentials()["email_from"]
-    )
+    try:
+        sender_name = get_sender_display_name(load_credentials()["email_from"])
+    except Exception:
+        sender_name = "RPA Stock Recon"
+
     th_style = (
-        "padding:7px 12px;background:#1F5C99;color:white;"
+        "padding:8px 10px;background:#1F5C99;color:white;"
         "font-family:Calibri,Arial;font-size:12px;border:1px solid #CBD5E1;"
+        "font-weight:bold;"
     )
     td_base = (
-        "padding:6px 12px;font-family:Calibri,Arial;font-size:12px;"
+        "padding:6px 10px;font-family:Calibri,Arial;font-size:12px;"
         "border:1px solid #CBD5E1;text-align:center;"
     )
 
     header_row = (
-        f"<tr>"
-        f"<th style='{th_style}'>Material</th>"
-        f"<th style='{th_style}'>Selisih2</th>"
-        f"<th style='{th_style}'>UOM</th>"
-        f"<th style='{th_style}'>Gudang</th>"
-        f"<th style='{th_style}'>Plant</th>"
-        f"<th style='{th_style}'>Adj</th>"
-        f"<th style='{th_style}'>Plant Name</th>"
-        f"</tr>"
-    )
+        "<tr>"
+        "<th style='{}'>Material</th>"
+        "<th style='{}'>Selisih</th>"
+        "<th style='{}'>UoM</th>"
+        "<th style='{}'>Plant</th>"
+        "<th style='{}'>Sloc</th>"
+        "<th style='{}'>Mvt</th>"
+        "<th style='{}'>Post Date</th>"
+        "</tr>"
+    ).format(th_style, th_style, th_style, th_style, th_style, th_style, th_style)
 
     data_rows = ""
     for i, item in enumerate(sorted_items):
-        bg  = "#EBF3FB" if i % 2 == 0 else "#FFFFFF"
-        td  = td_base + f"background:{bg};"
-        # Format selisih 3 desimal pakai koma (standar Indonesia)
+        bg = "#EBF3FB" if i % 2 == 0 else "#FFFFFF"
+        td = td_base + f"background:{bg};"
         selisih_fmt = f"{abs(item.diff):,.3f}".replace(",", "X").replace(".", ",").replace("X", ".")
         uom = uom_map.get(str(item.material).strip(), DEFAULT_UOM)
+        raw_value = item.posting_date if item.posting_date else posting_date
+        try:
+            if len(raw_value) == 8 and raw_value.isdigit():
+                post_date_display = raw_value
+            else:
+                parts = raw_value.split('.')
+                if len(parts) == 3:
+                    dd, mm, yyyy = parts
+                    post_date_display = f"{yyyy}{mm}{dd}"
+                else:
+                    post_date_display = raw_value
+        except Exception:
+            post_date_display = raw_value
+
         data_rows += (
-            f"<tr>"
+            "<tr>"
             f"<td style='{td}'>{item.material}</td>"
             f"<td style='{td}'>{selisih_fmt}</td>"
             f"<td style='{td}'>{uom}</td>"
-            f"<td style='{td}'>{item.sloc}</td>"
             f"<td style='{td}'>{item.plant}</td>"
+            f"<td style='{td}'>{item.sloc}</td>"
             f"<td style='{td}'>{item.mvt_type}</td>"
-            f"<td style='{td}'>{plant_name}</td>"
-            f"</tr>"
+            f"<td style='{td}'>{post_date_display}</td>"
+            "</tr>"
         )
 
     total_917 = len([x for x in sorted_items if x.mvt_type == "917"])
@@ -484,9 +499,13 @@ def send_stock_diff_report(
     Return: jumlah draft email yang berhasil dibuat (0 jika tidak ada selisih
             FSTKGD atau semua draft gagal dibuat)
     """
-    # Filter: hanya FSTKGD yang masuk email
+    # Filter email: hanya FSTKGD selain SLoc yang khusus untuk U2C.
     items_email = {
-        plant: [i for i in items if i.param == "FSTKGD"]
+        plant: [
+            i for i in items
+            if i.param == "FSTKGD"
+            and str(i.sloc).strip().upper() not in EMAIL_SKIP_SLOCS
+        ]
         for plant, items in items_per_plant.items()
     }
     items_email = {p: v for p, v in items_email.items() if v}   # hapus plant kosong

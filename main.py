@@ -28,6 +28,29 @@ pyautogui.FAILSAFE = True
 pyautogui.PAUSE    = 0.6
 
 
+def _stop_requested() -> bool:
+    """Cek apakah user sudah menekan stop pada GUI."""
+    try:
+        from rpa_gui import stop_event
+        return stop_event.is_set()
+    except Exception:
+        return False
+
+
+def _guard_stop(msg: str = "Robot dihentikan oleh user"):
+    """Stop hard: raise exception sebelum aksi keyboard berikutnya."""
+    if _stop_requested():
+        try:
+            import os
+            import signal
+            if os.name == 'nt':
+                import win32api
+                win32api.PostQuitMessage(0)
+        except Exception:
+            pass
+        raise RuntimeError(msg)
+
+
 # ─────────────────────────────────────────────
 # MODEL DATA
 # ─────────────────────────────────────────────
@@ -236,6 +259,7 @@ def get_sap_hwnd(title_keyword: str = "SAP") -> Optional[int]:
 
 def focus_sap(title_keyword: str = "SAP"):
     """Fokuskan window SAP ke depan."""
+    _guard_stop()
     hwnd = get_sap_hwnd(title_keyword)
     if hwnd:
         win32gui.ShowWindow(hwnd, win32con.SW_MAXIMIZE)
@@ -247,16 +271,23 @@ def focus_sap(title_keyword: str = "SAP"):
 
 def sap_tcode(tcode: str):
     """Navigasi ke T-code di SAP via Ctrl+/ untuk fokus command bar."""
+    _guard_stop()
     focus_sap()
     time.sleep(0.3)
+    _guard_stop()
     pyautogui.keyDown("ctrl")
+    _guard_stop()
     pyautogui.press("/")
+    _guard_stop()
     pyautogui.keyUp("ctrl")
     time.sleep(0.4)
+    _guard_stop()
     pyautogui.hotkey("ctrl", "a")
     time.sleep(0.1)
+    _guard_stop()
     pyautogui.typewrite(f"/{tcode}", interval=0.08)
     time.sleep(0.3)
+    _guard_stop()
     pyautogui.press("enter")
     time.sleep(2.5)
 
@@ -268,14 +299,17 @@ def sap_tcode(tcode: str):
 def tab_to(n: int, delay: float = 0.15):
     """Tekan Tab sebanyak n kali dengan jeda."""
     for _ in range(n):
+        _guard_stop()
         pyautogui.press("tab")
         time.sleep(delay)
 
 
 def type_field(value: str, interval: float = 0.07):
     """Clear field lalu ketik nilai."""
+    _guard_stop()
     pyautogui.hotkey("ctrl", "a")
     time.sleep(0.1)
+    _guard_stop()
     pyautogui.typewrite(str(value), interval=interval)
 
 
@@ -314,23 +348,33 @@ def run_tcode_export(output_path: str):
         log.info(f"[FASE1] Navigasi ke T-code {Config.SAP_TCODE_EXPORT}")
         sap_tcode(Config.SAP_TCODE_EXPORT)
 
+        _guard_stop()
         pyautogui.press("f8")
         time.sleep(3)
 
+        _guard_stop()
         pyautogui.hotkey("alt", "l")
         time.sleep(0.5)
+        _guard_stop()
         pyautogui.press("down", presses=3)
+        _guard_stop()
         pyautogui.press("enter")
         time.sleep(0.5)
+        _guard_stop()
         pyautogui.press("down")
+        _guard_stop()
         pyautogui.press("enter")
         time.sleep(1)
 
+        _guard_stop()
         pyautogui.press("enter")
         time.sleep(0.5)
 
+        _guard_stop()
         pyautogui.hotkey("ctrl", "a")
+        _guard_stop()
         pyautogui.typewrite(output_path, interval=0.05)
+        _guard_stop()
         pyautogui.press("enter")
         time.sleep(2)
 
@@ -406,6 +450,7 @@ def input_migo_single(item: StockDiff, plant_cc: dict, is_first: bool = True):
     - is_first=True  : buka MIGO baru, isi header
     - is_first=False : tambah baris baru di dokumen yang sama
     """
+    _guard_stop()
     cc = plant_cc.get(item.plant, "")
     if not cc:
         raise ValueError(f"Cost center untuk plant {item.plant} tidak ditemukan!")
@@ -421,6 +466,7 @@ def input_migo_single(item: StockDiff, plant_cc: dict, is_first: bool = True):
         focus_sap("MIGO")
 
         # Pilih movement type (field pertama)
+        _guard_stop()
         pyautogui.hotkey("ctrl", "Home")
         time.sleep(0.3)
 
@@ -436,6 +482,7 @@ def input_migo_single(item: StockDiff, plant_cc: dict, is_first: bool = True):
 
         # Isi movement type di field header
         # Navigasi ke tab "General" — field Movement Type
+        _guard_stop()
         pyautogui.hotkey("ctrl", "Home")
         time.sleep(0.3)
 
@@ -443,27 +490,31 @@ def input_migo_single(item: StockDiff, plant_cc: dict, is_first: bool = True):
         # Movement type ada di bagian atas form
         tab_to(2)
         type_field(item.mvt_type)
+        _guard_stop()
         pyautogui.press("enter")
         time.sleep(1)
 
         # Isi Posting Date
         tab_to(1)
         type_field(item.posting_date)
+        _guard_stop()
         pyautogui.press("tab")
         time.sleep(0.3)
 
     else:
         # ── Tambah baris baru ─────────────────────────────────
         log.info(f"[MIGO] Tambah baris | Material={item.material} | Qty={qty_str}")
-        # Klik tombol "+" atau Insert Row
+        _guard_stop()
         pyautogui.hotkey("ctrl", "Insert")
         time.sleep(0.5)
 
     # ── Isi detail item ───────────────────────────────────────
     # Navigasi ke area item (baris tabel bawah)
     # Field: Material
+    _guard_stop()
     pyautogui.hotkey("ctrl", "F")  # cari field material di grid
     time.sleep(0.3)
+    _guard_stop()
     pyautogui.press("escape")
     time.sleep(0.2)
 
@@ -507,6 +558,7 @@ def input_migo_batch(items: list, plant_cc: dict) -> str:
     4. Post dokumen (Ctrl+S atau tombol Post)
     5. Baca nomor dokumen dari status bar
     """
+    _guard_stop()
     if not items:
         log.warning("[MIGO] Tidak ada item untuk di-input!")
         return ""
@@ -519,6 +571,7 @@ def input_migo_batch(items: list, plant_cc: dict) -> str:
     time.sleep(3)
 
     focus_sap("MIGO")
+    _guard_stop()
     pyautogui.hotkey("ctrl", "Home")
     time.sleep(0.5)
 
@@ -528,6 +581,7 @@ def input_migo_batch(items: list, plant_cc: dict) -> str:
     # Field Movement Type — ketik langsung
     type_field(first_item.mvt_type)
     time.sleep(0.3)
+    _guard_stop()
     pyautogui.press("enter")
     time.sleep(1.5)
 
@@ -542,6 +596,7 @@ def input_migo_batch(items: list, plant_cc: dict) -> str:
 
     # ── ITEM LINES ────────────────────────────────────────────
     for idx, item in enumerate(items):
+        _guard_stop()
         log.info(
             f"[MIGO] Item {idx+1}/{len(items)} | "
             f"{item.material} | SLoc={item.sloc} | "
@@ -558,14 +613,13 @@ def input_migo_batch(items: list, plant_cc: dict) -> str:
         if idx == 0:
             # Baris pertama sudah ada — langsung isi
             # Navigasi ke area tabel item (Ctrl+Home lalu Tab ke grid)
+            _guard_stop()
             pyautogui.hotkey("ctrl", "Home")
             time.sleep(0.3)
-            # Tab ke field Material di baris pertama tabel item
-            # Jumlah tab ini bisa berbeda tergantung layout SAP kamu
-            # Sesuaikan angka tab_to() jika perlu
             tab_to(8, delay=0.1)
         else:
             # Tambah baris baru
+            _guard_stop()
             pyautogui.hotkey("ctrl", "Insert")
             time.sleep(0.5)
 
@@ -598,10 +652,12 @@ def input_migo_batch(items: list, plant_cc: dict) -> str:
         tab_to(1)
         time.sleep(0.3)
 
+        _guard_stop()
         pyautogui.press("enter")
         time.sleep(0.5)
 
     # ── POST DOKUMEN ──────────────────────────────────────────
+    _guard_stop()
     log.info("[MIGO] Posting dokumen...")
     time.sleep(1)
 

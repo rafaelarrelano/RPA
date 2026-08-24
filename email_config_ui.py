@@ -1,39 +1,72 @@
 """
 email_config_ui.py
-UI untuk simpan & ubah kredensial email SMTP.
-Password disimpan terenkripsi di file lokal (tidak hardcode).
+UI untuk simpan & ubah kredensial email — "Email Configuration"
+(desain baru, tema terang, sesuai mockup)
 
-Perbaikan:
-- Email To dan CC pakai Text widget multi-baris (bisa tampung banyak email)
-- Password boleh dikosongkan (untuk Zimbra internal relay tanpa auth)
-- Tambah tombol Diagnosa: cek port 25/465/587 mana yang bisa konek
+CATATAN: Fungsi penyimpanan/pembacaan kredensial (save_credentials,
+load_credentials) dan pembuatan draft Thunderbird TIDAK diubah — hanya
+tampilannya yang diperbarui.
 """
 
 import os
 import json
+
+# CRITICAL: DPI awareness harus diaktifkan SEBELUM tkinter di-import,
+# supaya teks tidak blur/pecah di layar dengan scaling 125%/150%/200%.
+try:
+    from ctypes import windll
+    windll.shcore.SetProcessDpiAwareness(2)
+except Exception:
+    try:
+        from ctypes import windll
+        windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
 import tkinter as tk
-from tkinter import messagebox, scrolledtext
+from tkinter import messagebox
 from cryptography.fernet import Fernet
 
 # ─────────────────────────────────────────────
 # PATH FILE KREDENSIAL
+# Dashboard dan settings harus pakai path yang sama agar tidak ada file
+# kredensial yang terpisah antara folder project dan folder legacy C:\RPA_StockRecon.
 # ─────────────────────────────────────────────
-BASE_DIR  = r"C:\RPA_StockRecon"
+_PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+LEGACY_BASE_DIR = r"C:\RPA_StockRecon"
+BASE_DIR = _PROJECT_ROOT
+
 CRED_FILE = os.path.join(BASE_DIR, "config", "email_cred.enc")
 KEY_FILE  = os.path.join(BASE_DIR, "config", "email_key.key")
+SYNC_FILE = os.path.join(BASE_DIR, "config", "email_sync.json")
+LEGACY_CRED_FILE = os.path.join(LEGACY_BASE_DIR, "config", "email_cred.enc")
+LEGACY_KEY_FILE  = os.path.join(LEGACY_BASE_DIR, "config", "email_key.key")
+LEGACY_SYNC_FILE = os.path.join(LEGACY_BASE_DIR, "config", "email_sync.json")
 
-BG       = "#1A1F2E"
-BG_DARK  = "#0F172A"
-BG_PANEL = "#1E293B"
-TEXT_PRI = "#E2E8F0"
-TEXT_MUT = "#94A3B8"
-TEXT_HNT = "#475569"
-ACCENT   = "#60A5FA"
-BORDER   = "#334155"
+# ── Tema terang (sesuai desain baru) ─────────
+BG        = "#F5F6F8"
+CARD      = "#FFFFFF"
+BORDER    = "#EAECEF"
+INPUT_BG  = "#F7F8FA"
+INPUT_BD  = "#E3E5E9"
+TEXT      = "#16181D"
+TEXT_MUT  = "#6B7280"
+TEXT_HNT  = "#9AA1AC"
+ACCENT    = "#E5342E"
+ACCENT_BG = "#FDEAEA"
+BLUE      = "#2563EB"
+BLUE_HOV  = "#1D4ED8"
+GREEN     = "#10B981"
+GREEN_HOV = "#059669"
+AMBER     = "#F59E0B"
+AMBER_HOV = "#D97706"
+SUCCESS   = "#16A34A"
+DANGER    = "#DC2626"
+FONT      = "Segoe UI"
 
 
 # ─────────────────────────────────────────────
-# ENKRIPSI / DEKRIPSI
+# ENKRIPSI / DEKRIPSI (tidak berubah)
 # ─────────────────────────────────────────────
 
 def _get_or_create_key() -> bytes:
@@ -50,32 +83,69 @@ def _get_or_create_key() -> bytes:
 def save_credentials(smtp_host: str, smtp_port: int,
                      email_from: str, password: str,
                      email_to: str, email_cc: str):
-    os.makedirs(os.path.dirname(CRED_FILE), exist_ok=True)
-    key  = _get_or_create_key()
-    fern = Fernet(key)
-    data = json.dumps({
+    payload = {
         "smtp_host":  smtp_host,
         "smtp_port":  smtp_port,
         "email_from": email_from,
         "password":   password,
         "email_to":   email_to,
         "email_cc":   email_cc,
-    }).encode()
-    with open(CRED_FILE, "wb") as f:
-        f.write(fern.encrypt(data))
+    }
+
+    def _write(path: str, key_path: str):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        key = _get_or_create_key_for(key_path)
+        fern = Fernet(key)
+        data = json.dumps(payload).encode()
+        with open(path, "wb") as f:
+            f.write(fern.encrypt(data))
+
+    def _write_sync(path: str):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+
+    _write(CRED_FILE, KEY_FILE)
+    _write_sync(SYNC_FILE)
+    if os.path.isdir(os.path.dirname(LEGACY_CRED_FILE)) or os.path.exists(LEGACY_CRED_FILE):
+        _write(LEGACY_CRED_FILE, LEGACY_KEY_FILE)
+        _write_sync(LEGACY_SYNC_FILE)
+
+
+def _get_or_create_key_for(key_file: str) -> bytes:
+    os.makedirs(os.path.dirname(key_file), exist_ok=True)
+    if os.path.exists(key_file):
+        with open(key_file, "rb") as f:
+            return f.read()
+    key = Fernet.generate_key()
+    with open(key_file, "wb") as f:
+        f.write(key)
+    return key
+
+
+def _read_credentials_from(path: str, key_path: str) -> dict:
+    if not os.path.exists(path):
+        raise FileNotFoundError
+    key = _get_or_create_key_for(key_path)
+    fern = Fernet(key)
+    with open(path, "rb") as f:
+        token = f.read()
+    return json.loads(fern.decrypt(token).decode())
 
 
 def load_credentials() -> dict:
-    if not os.path.exists(CRED_FILE):
-        raise FileNotFoundError(
-            "Kredensial email belum dikonfigurasi.\n"
-            "Jalankan python email_config_ui.py untuk setup."
-        )
-    key  = _get_or_create_key()
-    fern = Fernet(key)
-    with open(CRED_FILE, "rb") as f:
-        token = f.read()
-    return json.loads(fern.decrypt(token).decode())
+    local_exists = os.path.exists(CRED_FILE)
+    legacy_exists = os.path.exists(LEGACY_CRED_FILE)
+
+    if local_exists:
+        return _read_credentials_from(CRED_FILE, KEY_FILE)
+    if legacy_exists:
+        return _read_credentials_from(LEGACY_CRED_FILE, LEGACY_KEY_FILE)
+
+    raise FileNotFoundError(
+        "Kredensial email belum dikonfigurasi.\n"
+        "Jalankan python email_config_ui.py untuk setup."
+    )
 
 
 # ─────────────────────────────────────────────
@@ -85,176 +155,191 @@ def load_credentials() -> dict:
 class EmailConfigUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("Konfigurasi Email — Thunderbird Draft (RPA Stock Recon)")
-        self.root.geometry("600x620")
-        self.root.resizable(False, True)
+        self.root.title("Email Configuration")
+        self.root.geometry("680x760")
+        self.root.minsize(560, 620)
+        self.root.resizable(True, True)
         self.root.configure(bg=BG)
         self._build_ui()
         self._load_existing()
 
+    def _section(self, parent, icon, text):
+        f = tk.Frame(parent, bg=BG)
+        f.pack(fill="x", pady=(16, 6))
+        tk.Label(f, text=icon, font=(FONT, 11), fg=ACCENT, bg=BG).pack(side="left", padx=(0, 6))
+        tk.Label(f, text=text, font=(FONT, 11, "bold"), fg=TEXT, bg=BG).pack(side="left")
+        return f
+
+    def _card(self, parent):
+        outer = tk.Frame(parent, bg=BORDER)
+        outer.pack(fill="x")
+        inner = tk.Frame(outer, bg=CARD, padx=18, pady=14)
+        inner.pack(fill="x", padx=1, pady=1)
+        return inner
+
+    def _wrapping_hint(self, parent, text):
+        """
+        Label kecil (mis. "(pisah koma atau Enter)") yang otomatis
+        menyesuaikan lebar (wrap) mengikuti lebar card saat window
+        di-resize, supaya tidak pernah terpotong oleh tepi jendela.
+        """
+        lbl = tk.Label(parent, text=text, fg=ACCENT, bg=CARD, font=(FONT, 8),
+                       justify="right", anchor="e")
+        lbl.pack(fill="x", anchor="e")
+
+        def _update_wrap(event, _lbl=lbl):
+            # padx kiri-kanan card = 18+18, sisakan sedikit margin
+            _lbl.config(wraplength=max(120, event.width - 4))
+
+        parent.bind("<Configure>", _update_wrap, add="+")
+        return lbl
+
     def _build_ui(self):
-        # Header
-        hdr = tk.Frame(self.root, bg="#111827", pady=14)
+        # ── Header ────────────────────────────────────────
+        hdr = tk.Frame(self.root, bg=CARD, pady=16)
         hdr.pack(fill="x")
-        tk.Label(
-            hdr, text="⚙  Konfigurasi Email — Thunderbird Draft",
-            font=("Consolas", 13, "bold"), fg=ACCENT, bg="#111827"
-        ).pack(padx=20, anchor="w")
-        tk.Label(
-            hdr,
-            text="Email disimpan sebagai draft di folder report — buka di Thunderbird sebelum mengirim",
-            font=("Consolas", 8), fg=TEXT_HNT, bg="#111827"
-        ).pack(padx=20, anchor="w")
+        tk.Frame(self.root, bg=BORDER, height=1).pack(fill="x")
 
-        # Form
-        form = tk.Frame(self.root, bg=BG, padx=24, pady=14)
-        form.pack(fill="both", expand=True)
-        form.columnconfigure(1, weight=1)
+        title_row = tk.Frame(hdr, bg=CARD)
+        title_row.pack(fill="x", padx=24)
+        tk.Label(title_row, text="✉", font=(FONT, 16), fg="#FFFFFF", bg=ACCENT,
+                 width=2, height=1).pack(side="left", padx=(0, 12))
+        tcol = tk.Frame(title_row, bg=CARD)
+        tcol.pack(side="left")
+        tk.Label(tcol, text="Email Configuration", font=(FONT, 14, "bold"),
+                 fg=TEXT, bg=CARD).pack(anchor="w")
+        tk.Label(tcol, text="Konfigurasi Email — Thunderbird Draft (RPA Stock Recon)",
+                 font=(FONT, 9), fg=TEXT_HNT, bg=CARD).pack(anchor="w")
 
-        def lbl(row, text):
-            tk.Label(
-                form, text=text, fg=TEXT_MUT, bg=BG,
-                font=("Consolas", 10), anchor="w"
-            ).grid(row=row, column=0, sticky="nw", pady=(10, 0), padx=(0, 12))
+        # ── Scrollable body ────────────────────────────────
+        body_outer = tk.Frame(self.root, bg=BG)
+        body_outer.pack(fill="both", expand=True)
 
-        def entry(row, var, show="", width=38):
-            e = tk.Entry(
-                form, textvariable=var, show=show, width=width,
-                bg=BG_DARK, fg=TEXT_PRI, insertbackground=ACCENT,
-                font=("Consolas", 10), relief="flat", bd=5
-            )
-            e.grid(row=row, column=1, sticky="ew", pady=(10, 0))
-            return e
+        body_canvas = tk.Canvas(body_outer, bg=BG, highlightthickness=0)
+        body_vsb = tk.Scrollbar(body_outer, orient="vertical", command=body_canvas.yview)
+        body_canvas.configure(yscrollcommand=body_vsb.set)
+        body_vsb.pack(side="right", fill="y")
+        body_canvas.pack(side="left", fill="both", expand=True)
 
-        # ── SMTP Host ─────────────────────────────────────────
-        lbl(0, "SMTP Host")
+        body = tk.Frame(body_canvas, bg=BG, padx=24)
+        body_win = body_canvas.create_window((0, 0), window=body, anchor="nw")
+
+        def _on_body_configure(event):
+            body_canvas.configure(scrollregion=body_canvas.bbox("all"))
+
+        def _on_canvas_configure(event):
+            body_canvas.itemconfig(body_win, width=event.width)
+
+        body.bind("<Configure>", _on_body_configure)
+        body_canvas.bind("<Configure>", _on_canvas_configure)
+
+        def _on_mousewheel(event):
+            body_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        body_canvas.bind("<Enter>", lambda e: body_canvas.bind_all("<MouseWheel>", _on_mousewheel))
+        body_canvas.bind("<Leave>", lambda e: body_canvas.unbind_all("<MouseWheel>"))
+
+        # SMTP section
+        self._section(body, "🗄", "SMTP")
+        smtp_card = self._card(body)
+
         self.vars = {}
-        self.vars["smtp_host"] = tk.StringVar()
-        entry(0, self.vars["smtp_host"])
 
-        # ── SMTP Port ─────────────────────────────────────────
-        lbl(1, "SMTP Port")
-        self.vars["smtp_port"] = tk.StringVar()
-        entry(1, self.vars["smtp_port"], width=10)
+        def field_row(parent, label, key, show="", row_pad=(0, 10)):
+            f = tk.Frame(parent, bg=CARD)
+            f.pack(fill="x", pady=row_pad)
+            tk.Label(f, text=label, fg=TEXT_MUT, bg=CARD, font=(FONT, 9)).pack(anchor="w")
+            var = tk.StringVar()
+            self.vars[key] = var
+            wrap = tk.Frame(f, bg=INPUT_BD)
+            wrap.pack(fill="x", pady=(4, 0))
+            inner = tk.Frame(wrap, bg=INPUT_BG)
+            inner.pack(fill="x", padx=1, pady=1)
+            e = tk.Entry(inner, textvariable=var, show=show, bg=INPUT_BG, fg=TEXT,
+                         insertbackground=ACCENT, font=(FONT, 10), relief="flat", bd=0)
+            e.pack(fill="x", ipady=7, padx=10)
+            return e, wrap
 
-        # ── Email Pengirim ────────────────────────────────────
-        lbl(2, "Email Pengirim")
-        self.vars["email_from"] = tk.StringVar()
-        entry(2, self.vars["email_from"])
+        field_row(smtp_card, "SMTP Host", "smtp_host", row_pad=(0, 10))
+        field_row(smtp_card, "SMTP Port", "smtp_port", row_pad=(0, 10))
+        field_row(smtp_card, "Email Pengirim", "email_from", row_pad=(0, 10))
 
-        # ── Password ──────────────────────────────────────────
-        lbl(3, "Password")
+        # Password (with show/hide)
+        pf = tk.Frame(smtp_card, bg=CARD)
+        pf.pack(fill="x")
+        tk.Label(pf, text="Password", fg=TEXT_MUT, bg=CARD, font=(FONT, 9)).pack(anchor="w")
         self.vars["password"] = tk.StringVar()
-        pw_frame = tk.Frame(form, bg=BG)
-        pw_frame.grid(row=3, column=1, sticky="ew", pady=(10, 0))
-        pw_frame.columnconfigure(0, weight=1)
-
-        self._pw_entry = tk.Entry(
-            pw_frame, textvariable=self.vars["password"],
-            show="*", bg=BG_DARK, fg=TEXT_PRI,
-            insertbackground=ACCENT,
-            font=("Consolas", 10), relief="flat", bd=5
-        )
-        self._pw_entry.grid(row=0, column=0, sticky="ew")
+        pw_wrap = tk.Frame(pf, bg=INPUT_BD)
+        pw_wrap.pack(fill="x", pady=(4, 0))
+        pw_inner = tk.Frame(pw_wrap, bg=INPUT_BG)
+        pw_inner.pack(fill="x", padx=1, pady=1)
+        self._pw_entry = tk.Entry(pw_inner, textvariable=self.vars["password"], show="*",
+                                   bg=INPUT_BG, fg=TEXT, insertbackground=ACCENT,
+                                   font=(FONT, 10), relief="flat", bd=0)
+        self._pw_entry.pack(side="left", fill="x", expand=True, ipady=7, padx=(10, 0))
         self._pw_shown = False
+        tk.Button(pw_inner, text="👁", font=(FONT, 9), bg=INPUT_BG, fg=TEXT_MUT,
+                  relief="flat", bd=0, cursor="hand2", command=self._toggle_pw,
+                  padx=8).pack(side="right")
 
-        tk.Button(
-            pw_frame, text="👁", font=("Consolas", 9),
-            bg=BG_PANEL, fg=TEXT_MUT, relief="flat",
-            cursor="hand2", command=self._toggle_pw, padx=6
-        ).grid(row=0, column=1, padx=(4, 0))
+        tk.Label(smtp_card, text="> Opsional — disimpan untuk referensi (tidak lagi digunakan untuk SMTP)",
+                 fg=TEXT_HNT, bg=CARD, font=(FONT, 8)).pack(anchor="w", pady=(6, 0))
 
-        tk.Label(
-            form,
-            text="* Opsional — disimpan untuk referensi (tidak lagi digunakan untuk SMTP)",
-            fg=TEXT_HNT, bg=BG, font=("Consolas", 8)
-        ).grid(row=4, column=0, columnspan=2, sticky="w", pady=(2, 4))
+        # Email To
+        self._section(body, "✉", "Email To")
+        to_card = self._card(body)
+        self._wrapping_hint(to_card, "(pisah koma atau Enter)")
+        self._email_to_txt = tk.Text(to_card, height=3, wrap="word", bg=INPUT_BG, fg=TEXT,
+                                      insertbackground=ACCENT, font=(FONT, 10), relief="flat",
+                                      bd=0, highlightthickness=1, highlightbackground=INPUT_BD,
+                                      highlightcolor=ACCENT)
+        self._email_to_txt.pack(fill="x", pady=(4, 0), ipady=4)
 
-        # ── Email To (multi-baris) ────────────────────────────
-        lbl(5, "Email To")
-        tk.Label(
-            form, text="(pisah koma atau Enter)",
-            fg=TEXT_HNT, bg=BG, font=("Consolas", 8)
-        ).grid(row=5, column=1, sticky="ne", pady=(10, 0))
+        # Email CC
+        self._section(body, "✉", "Email CC")
+        cc_card = self._card(body)
+        self._wrapping_hint(cc_card, "(pisah koma atau Enter, opsional)")
+        self._email_cc_txt = tk.Text(cc_card, height=3, wrap="word", bg=INPUT_BG, fg=TEXT,
+                                      insertbackground=ACCENT, font=(FONT, 10), relief="flat",
+                                      bd=0, highlightthickness=1, highlightbackground=INPUT_BD,
+                                      highlightcolor=ACCENT)
+        self._email_cc_txt.pack(fill="x", pady=(4, 0), ipady=4)
 
-        self._email_to_txt = tk.Text(
-            form, height=3, wrap="word",
-            bg=BG_DARK, fg=TEXT_PRI, insertbackground=ACCENT,
-            font=("Consolas", 10), relief="flat", bd=5,
-            selectbackground=ACCENT, selectforeground=BG_DARK
-        )
-        self._email_to_txt.grid(row=6, column=0, columnspan=2,
-                                 sticky="ew", pady=(2, 0))
+        tk.Frame(body, bg=BG, height=10).pack()
 
-        # ── Email CC (multi-baris) ────────────────────────────
-        lbl(7, "Email CC")
-        tk.Label(
-            form, text="(pisah koma atau Enter, opsional)",
-            fg=TEXT_HNT, bg=BG, font=("Consolas", 8)
-        ).grid(row=7, column=1, sticky="ne", pady=(10, 0))
+        # ── Buttons ───────────────────────────────────────
+        btn_frame = tk.Frame(self.root, bg=BG, pady=14, padx=24)
+        btn_frame.pack(fill="x", side="bottom")
 
-        self._email_cc_txt = tk.Text(
-            form, height=3, wrap="word",
-            bg=BG_DARK, fg=TEXT_PRI, insertbackground=ACCENT,
-            font=("Consolas", 10), relief="flat", bd=5,
-            selectbackground=ACCENT, selectforeground=BG_DARK
-        )
-        self._email_cc_txt.grid(row=8, column=0, columnspan=2,
-                                 sticky="ew", pady=(2, 0))
+        tk.Button(btn_frame, text="💾  Simpan", font=(FONT, 10, "bold"), fg="#FFFFFF",
+                  bg=BLUE, activebackground=BLUE_HOV, activeforeground="#FFFFFF",
+                  relief="flat", padx=16, pady=8, cursor="hand2",
+                  command=self._on_save).pack(side="left", padx=(0, 8))
 
-        # ── Buttons ───────────────────────────────────────────
-        btn_frame = tk.Frame(self.root, bg=BG, pady=10, padx=24)
-        btn_frame.pack(fill="x")
+        tk.Button(btn_frame, text="✉  Test Draft", font=(FONT, 10, "bold"), fg="#FFFFFF",
+                  bg=GREEN, activebackground=GREEN_HOV, activeforeground="#FFFFFF",
+                  relief="flat", padx=14, pady=8, cursor="hand2",
+                  command=self._on_test).pack(side="left", padx=(0, 8))
 
-        tk.Button(
-            btn_frame, text="💾  Simpan",
-            font=("Consolas", 11, "bold"), fg="#0F172A", bg="#3B82F6",
-            activebackground="#2563EB", relief="flat",
-            padx=18, pady=7, cursor="hand2",
-            command=self._on_save
-        ).pack(side="left", padx=(0, 8))
+        tk.Button(btn_frame, text="ⓘ  Info", font=(FONT, 10, "bold"), fg="#FFFFFF",
+                  bg=AMBER, activebackground=AMBER_HOV, activeforeground="#FFFFFF",
+                  relief="flat", padx=14, pady=8, cursor="hand2",
+                  command=self._on_diagnose).pack(side="left")
 
-        tk.Button(
-            btn_frame, text="✉  Test Draft",
-            font=("Consolas", 11), fg="#0F172A", bg="#10B981",
-            activebackground="#059669", relief="flat",
-            padx=14, pady=7, cursor="hand2",
-            command=self._on_test
-        ).pack(side="left", padx=(0, 8))
-
-        tk.Button(
-            btn_frame, text="ℹ  Info",
-            font=("Consolas", 11), fg="#0F172A", bg="#F59E0B",
-            activebackground="#D97706", relief="flat",
-            padx=14, pady=7, cursor="hand2",
-            command=self._on_diagnose
-        ).pack(side="left")
-
-        tk.Button(
-            btn_frame, text="✕  Tutup",
-            font=("Consolas", 10), fg=TEXT_MUT, bg=BG_PANEL,
-            activebackground=BORDER, relief="flat",
-            padx=12, pady=7, cursor="hand2",
-            command=self.root.destroy
-        ).pack(side="right")
+        tk.Button(btn_frame, text="✕  Tutup", font=(FONT, 10), fg=TEXT_MUT, bg=CARD,
+                  activebackground="#F3F4F6", relief="solid", bd=1,
+                  padx=12, pady=8, cursor="hand2",
+                  command=self.root.destroy).pack(side="right")
 
         # Status label
-        self.status_lbl = tk.Label(
-            self.root, text="", font=("Consolas", 9),
-            fg="#34D399", bg=BG, wraplength=560
-        )
-        self.status_lbl.pack(pady=(0, 8))
+        self.status_lbl = tk.Label(self.root, text="", font=(FONT, 9),
+                                    fg=SUCCESS, bg=BG, wraplength=580)
+        self.status_lbl.pack(pady=(0, 8), side="bottom")
 
     # ── HELPER: baca/tulis Text widget ───────────────────────
 
     def _get_emails(self, widget: tk.Text) -> str:
-        """
-        Baca isi Text widget, bersihkan newline & spasi,
-        kembalikan sebagai string pisah koma.
-        Contoh: 'a@b.com\\nc@d.com' → 'a@b.com, c@d.com'
-        """
         raw = widget.get("1.0", "end").strip()
-        # Split by koma atau newline, bersihkan tiap item
         parts = []
         for part in raw.replace("\n", ",").split(","):
             part = part.strip()
@@ -263,10 +348,6 @@ class EmailConfigUI:
         return ", ".join(parts)
 
     def _set_emails(self, widget: tk.Text, value: str):
-        """
-        Isi Text widget dari string pisah koma.
-        Tiap email ditaruh di baris sendiri agar mudah dibaca.
-        """
         widget.delete("1.0", "end")
         if not value:
             return
@@ -288,18 +369,11 @@ class EmailConfigUI:
             self.vars["password"].set(cred.get("password", ""))
             self._set_emails(self._email_to_txt, cred.get("email_to", ""))
             self._set_emails(self._email_cc_txt, cred.get("email_cc", ""))
-            self.status_lbl.config(
-                text="✔ Kredensial sudah tersimpan sebelumnya", fg="#34D399"
-            )
+            self.status_lbl.config(text="✔ Kredensial sudah tersimpan sebelumnya", fg=SUCCESS)
         except FileNotFoundError:
-            self.status_lbl.config(
-                text="⚠ Belum ada kredensial — isi form lalu klik Simpan",
-                fg="#FBBF24"
-            )
+            self.status_lbl.config(text="⚠ Belum ada kredensial — isi form lalu klik Simpan", fg=AMBER)
         except Exception:
-            self.status_lbl.config(
-                text="⚠ Gagal baca kredensial lama", fg="#F87171"
-            )
+            self.status_lbl.config(text="⚠ Gagal baca kredensial lama", fg=DANGER)
 
     def _on_save(self):
         try:
@@ -324,9 +398,7 @@ class EmailConfigUI:
                 email_to   = email_to,
                 email_cc   = email_cc,
             )
-            self.status_lbl.config(
-                text="✔ Kredensial berhasil disimpan!", fg="#34D399"
-            )
+            self.status_lbl.config(text="✔ Kredensial berhasil disimpan!", fg=SUCCESS)
             messagebox.showinfo("Berhasil", "Kredensial email berhasil disimpan.")
         except Exception as e:
             messagebox.showerror("Error", f"Gagal simpan:\n{e}")
@@ -358,9 +430,7 @@ class EmailConfigUI:
                 to        = email_to,
                 cc        = email_cc,
             )
-            self.status_lbl.config(
-                text=f"✔ Draft email test dibuat untuk {email_to}", fg="#34D399"
-            )
+            self.status_lbl.config(text=f"✔ Draft email test dibuat untuk {email_to}", fg=SUCCESS)
             messagebox.showinfo(
                 "Berhasil",
                 f"Draft email test berhasil dibuat!\n\n"
@@ -368,15 +438,15 @@ class EmailConfigUI:
                 f"Double-click file .eml untuk membuka di Thunderbird"
             )
         except Exception as e:
-            self.status_lbl.config(text=f"✗ Gagal: {e}", fg="#F87171")
+            self.status_lbl.config(text=f"✗ Gagal: {e}", fg=DANGER)
             messagebox.showerror("Gagal", f"Gagal buat draft email:\n\n{e}")
 
     def _on_diagnose(self):
         messagebox.showinfo(
             "Info",
-            "Sistem email telah diubah ke mode Thunderbird Draft.\n\n"
-            "Email tidak lagi dikirim via SMTP, tetapi disimpan sebagai file .eml "
-            "yang dapat dibuka di Mozilla Thunderbird.\n\n"
+            "Sistem email menggunakan mode Thunderbird Draft.\n\n"
+            "Email tidak dikirim langsung via SMTP, tetapi disimpan sebagai file .eml "
+            "yang dapat dibuka di Mozilla Thunderbird untuk direview sebelum dikirim.\n\n"
             "Kredensial email dan SMTP masih disimpan untuk referensi.\n"
             "Anda dapat mengubah atau menghapusnya jika sudah tidak diperlukan."
         )
@@ -388,5 +458,17 @@ class EmailConfigUI:
 
 if __name__ == "__main__":
     root = tk.Tk()
+
+    # Samakan skala Tk dengan DPI monitor sebenarnya. Tanpa ini, walau
+    # proses sudah "DPI aware", Tk tetap menghitung ukuran font/widget
+    # seolah layar 96 DPI — hasilnya teks bisa tetap terlihat kecil/blur
+    # di layar dengan Windows scaling 125%/150%/200%.
+    try:
+        from ctypes import windll
+        actual_dpi = windll.user32.GetDpiForWindow(root.winfo_id())
+        root.tk.call('tk', 'scaling', actual_dpi / 72)
+    except Exception:
+        pass
+
     app  = EmailConfigUI(root)
     root.mainloop()

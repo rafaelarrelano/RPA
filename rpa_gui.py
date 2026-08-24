@@ -18,51 +18,21 @@ log_queue   = queue.Queue()
 stop_event  = threading.Event()
 login_event = threading.Event()
 sap_event   = threading.Event()
+robot_proc  = None
 
 # ─────────────────────────────────────────────
-# THEME SYSTEM — Dark & Light
+# THEME SYSTEM — Light only (dark mode removed)
 # ─────────────────────────────────────────────
 
 THEMES = {
-    "dark": {
-        "bg":         "#0D1117",
-        "surface":    "#161B22",
-        "surface2":   "#21262D",
-        "surface3":   "#2D333B",
-        "border":     "#30363D",
-        "accent":     "#2F81F7",
-        "accent2":    "#1F6FEB",
-        "accent_txt": "#FFFFFF",
-        "success":    "#3FB950",
-        "warning":    "#D29922",
-        "danger":     "#F85149",
-        "text":       "#E6EDF3",
-        "text2":      "#8B949E",
-        "text3":      "#484F58",
-        "run_bg":     "#238636",
-        "run_hov":    "#2EA043",
-        "stop_bg":    "#6E3535",
-        "stop_hov":   "#DA3633",
-        "log_sel":    "#264F78",
-        "scrollbar":  "#30363D",
-        "pill_bg":    "#21262D",
-        "tag_bg":     "#1F6FEB",
-        "tag_txt":    "#FFFFFF",
-        "sep":        "#30363D",
-        "hdr_bg":     "#0D1117",
-        "hdr_txt":    "#2F81F7",
-        "input_bg":   "#0D1117",
-        "input_hl":   "#2F81F7",
-        "rb_sel":     "#21262D",
-    },
     "light": {
         "bg":         "#F6F8FA",
         "surface":    "#FFFFFF",
         "surface2":   "#F0F2F5",
         "surface3":   "#E4E7EB",
         "border":     "#D0D7DE",
-        "accent":     "#0969DA",
-        "accent2":    "#0550AE",
+        "accent":     "#E11D2D",
+        "accent2":    "#B71C1C",
         "accent_txt": "#FFFFFF",
         "success":    "#1A7F37",
         "warning":    "#9A6700",
@@ -70,10 +40,10 @@ THEMES = {
         "text":       "#1F2328",
         "text2":      "#57606A",
         "text3":      "#8C959F",
-        "run_bg":     "#1F883D",
-        "run_hov":    "#2DA44E",
-        "stop_bg":    "#A40E26",
-        "stop_hov":   "#CF222E",
+        "run_bg":     "#E53935",
+        "run_hov":    "#FF6B6B",
+        "stop_bg":    "#FFFFFF",
+        "stop_hov":   "#F2F2F2",
         "log_sel":    "#BDD6F5",
         "scrollbar":  "#D0D7DE",
         "pill_bg":    "#F0F2F5",
@@ -85,6 +55,8 @@ THEMES = {
         "input_bg":   "#FFFFFF",
         "input_hl":   "#0969DA",
         "rb_sel":     "#F0F2F5",
+        "accent_bg":  "#FDEAEA",
+        "sidebar_active_bg": "#FDEAEA",
     },
 }
 
@@ -120,43 +92,8 @@ _PREF_FILE = os.path.join(
 )
 
 
-def _load_theme_pref() -> str:
-    """Read saved theme name from file. Default: dark."""
-    try:
-        with open(_PREF_FILE, "r", encoding="utf-8") as f:
-            return _json.load(f).get("theme", "dark")
-    except Exception:
-        return "dark"
-
-
-def _save_theme_pref(name: str):
-    """Write current theme name to file."""
-    try:
-        os.makedirs(os.path.dirname(_PREF_FILE), exist_ok=True)
-        data = {}
-        try:
-            with open(_PREF_FILE, "r", encoding="utf-8") as f:
-                data = _json.load(f)
-        except Exception:
-            pass
-        data["theme"] = name
-        with open(_PREF_FILE, "w", encoding="utf-8") as f:
-            _json.dump(data, f, indent=2)
-    except Exception:
-        pass
-
-
-_theme_name    = _load_theme_pref()
-_current_theme = THEMES.get(_theme_name, THEMES["dark"])
-
-
-def toggle_theme(root, app):
-    """Switch between dark and light mode, save preference, rebuild widgets."""
-    global _current_theme, _theme_name
-    _theme_name    = "light" if _theme_name == "dark" else "dark"
-    _current_theme = THEMES[_theme_name]
-    _save_theme_pref(_theme_name)
-    app._rebuild_theme(root)
+_theme_name    = "light"
+_current_theme = THEMES["light"]
 
 
 # ─────────────────────────────────────────────
@@ -168,12 +105,48 @@ def send_log(msg: str, level: str = "INFO"):
     log_queue.put((level, f"{timestamp}  {msg}"))
 
 
+def force_stop_all():
+    """Stop aman: hentikan worker RPA tanpa menutup SAP/Chrome yang sedang aktif."""
+    global robot_proc
+    stop_event.set()
+
+    if robot_proc is not None and robot_proc.is_alive():
+        try:
+            robot_proc.terminate()
+        except Exception:
+            pass
+        try:
+            robot_proc.join(timeout=2)
+        except Exception:
+            pass
+
+    robot_proc = None
+
+
 # ─────────────────────────────────────────────
 # ROBOT LOGIC (unchanged)
 # ─────────────────────────────────────────────
 
 def wait_for_login(send_log):
     log_queue.put(("WAIT_LOGIN", ""))
+
+
+def _is_portal_logged_in_via_cdp():
+    """True jika Chrome saat ini sudah terbuka di portal dashboard yang sedang login."""
+    try:
+        import json
+        import urllib.request
+        data = urllib.request.urlopen("http://127.0.0.1:9222/json/list", timeout=3).read()
+        pages = json.loads(data.decode("utf-8", errors="ignore"))
+        for p in pages:
+            url = (p.get("url") or "").lower()
+            if "portal.mayora.co.id" in url:
+                if "login" in url or "account" in url:
+                    return False
+                return True
+        return False
+    except Exception:
+        return False
 
 
 def run_robot(plants, posting_date, email_to, email_cc, mode):
@@ -187,6 +160,10 @@ def run_robot(plants, posting_date, email_to, email_cc, mode):
                 break
             except Exception:
                 continue
+
+        already_logged_in = False
+        if cdp_ok:
+            already_logged_in = _is_portal_logged_in_via_cdp()
 
         if not cdp_ok:
             send_log("Membuka Chrome ke halaman login portal...", "INFO")
@@ -207,9 +184,6 @@ def run_robot(plants, posting_date, email_to, email_cc, mode):
 
             import time
 
-            # Chrome lama TIDAK ditutup — buka instance baru dengan profil
-            # terpisah (--user-data-dir=C:\ChromeRPA) supaya bisa jalan
-            # bersamaan tanpa konflik dengan Chrome yang sudah aktif.
             subprocess.Popen([
                 chrome,
                 "--remote-debugging-port=9222",
@@ -230,12 +204,19 @@ def run_robot(plants, posting_date, email_to, email_cc, mode):
 
             send_log("Chrome terbuka — silakan LOGIN di browser!", "WARN")
             send_log("Setelah login, klik OK di dialog konfirmasi.", "WARN")
+            already_logged_in = False
 
+        elif already_logged_in:
+            send_log("Chrome sudah login ke portal Mayora — lanjut ke halaman EOD.", "OK")
+        else:
+            send_log("Chrome aktif tapi belum login ke portal Mayora.", "WARN")
+            send_log("Silakan login terlebih dahulu di browser, lalu klik OK di dialog konfirmasi.", "WARN")
+
+        if not already_logged_in:
             log_queue.put(("WAIT_LOGIN", ""))
-
             login_event.wait()
             login_event.clear()
-            send_log("Login dikonfirmasi — melanjutkan RPA...", "OK")
+        send_log("Login dikonfirmasi — melanjutkan RPA...", "OK")
 
         from test_compare import run_full_pipeline
         send_log("━" * 50, "INFO")
@@ -298,14 +279,94 @@ class HBtn(tk.Button):
 
 
 # ─────────────────────────────────────────────
+# ROUNDED PILL — tkinter tidak punya border-radius bawaan (Frame/Button
+# selalu kotak). Cara mengakalinya: gambar bentuk pil dengan Canvas
+# (create_polygon sudut-sudutnya + smooth=True membuat garis melengkung),
+# lalu taruh teks di atasnya. Ini dipakai untuk elemen "pill" pada mockup
+# (badge versi, status "Ready", tombol "+ Tambah", dsb).
+# ─────────────────────────────────────────────
+
+def _rounded_rect_points(x1, y1, x2, y2, r):
+    """Titik sudut untuk persegi dengan sudut melengkung radius r."""
+    r = min(r, (x2 - x1) / 2, (y2 - y1) / 2)
+    return [
+        x1 + r, y1,
+        x2 - r, y1,
+        x2, y1,
+        x2, y1 + r,
+        x2, y2 - r,
+        x2, y2,
+        x2 - r, y2,
+        x1 + r, y2,
+        x1, y2,
+        x1, y2 - r,
+        x1, y1 + r,
+        x1, y1,
+    ]
+
+
+class RoundedPill(tk.Canvas):
+    """
+    Pil/badge dengan sudut benar-benar melengkung, dan bisa berubah warna
+    saat hover/klik jika `command` diisi (dipakai sebagai tombol).
+    parent_bg WAJIB diisi warna bg parent (Canvas tidak transparan).
+    """
+
+    def __init__(self, parent, text, bg, fg, parent_bg,
+                 font=(FONT, FS["sm"], "bold"), radius=12,
+                 padx=14, pady=6, command=None,
+                 hover_bg=None, outline="", outline_width=0):
+        # Ukur teks dulu supaya ukuran pil pas
+        tmp = tk.Label(parent, text=text, font=font)
+        tmp.update_idletasks()
+        tw, th = tmp.winfo_reqwidth(), tmp.winfo_reqheight()
+        tmp.destroy()
+
+        w, h = tw + padx * 2, th + pady * 2
+        super().__init__(parent, width=w, height=h,
+                         bg=parent_bg, highlightthickness=0, bd=0)
+
+        self._bg, self._hover_bg, self._fg = bg, (hover_bg or bg), fg
+        self._pill_width, self._pill_height, self._radius = w, h, radius
+        self._outline, self._outline_width = outline, outline_width
+
+        self._poly = self.create_polygon(
+            _rounded_rect_points(1, 1, w - 1, h - 1, radius),
+            smooth=True, fill=bg,
+            outline=outline or bg, width=outline_width,
+        )
+        self._txt = self.create_text(w / 2, h / 2, text=text, fill=fg, font=font)
+
+        if command:
+            self.configure(cursor="hand2")
+            for tag in (self._poly, self._txt):
+                self.tag_bind(tag, "<Button-1>", lambda e: command())
+                self.tag_bind(tag, "<Enter>", lambda e: self._set_bg(self._hover_bg))
+                self.tag_bind(tag, "<Leave>", lambda e: self._set_bg(self._bg))
+
+    def _set_bg(self, color):
+        self.itemconfig(self._poly, fill=color,
+                        outline=self._outline or color)
+
+    def set_text(self, text):
+        self.itemconfig(self._txt, text=text)
+
+
+# ─────────────────────────────────────────────
 # SECTION LABEL HELPER
 # ─────────────────────────────────────────────
 
-def _make_section_label(parent, text):
+def _make_section_label(parent, text, icon=None):
     f = tk.Frame(parent, bg=C("bg"))
     f.pack(fill="x", pady=(14, 4))
-    # Accent line
-    tk.Frame(f, bg=C("accent"), width=3, height=16).pack(side="left", padx=(0, 8))
+    # Bar aksen tipis + ikon kecil (tanpa kotak/badge) + teks — meniru
+    # gaya header section pada mockup: garis merah, ikon merah, teks merah.
+    tk.Frame(f, bg=C("accent"), width=3, height=16).pack(side="left", padx=(0, 6))
+    if icon:
+        tk.Label(
+            f, text=icon, fg=C("accent"), bg=C("bg"),
+            font=(FONT, FS["sm"]),
+        ).pack(side="left", padx=(0, 5))
     tk.Label(
         f, text=text.upper(),
         fg=C("accent"), bg=C("bg"),
@@ -483,7 +544,7 @@ class RpaGui:
         self._build_body_internal(build_target, Config)
 
     def _build_topbar(self):
-        top = tk.Frame(self.root, bg=C("hdr_bg"), height=56)
+        top = tk.Frame(self.root, bg=C("hdr_bg"), height=64)
         top.pack(fill="x")
         top.pack_propagate(False)
 
@@ -491,62 +552,115 @@ class RpaGui:
         lf = tk.Frame(top, bg=C("hdr_bg"))
         lf.pack(side="left", padx=20, pady=10)
 
-        tk.Label(
-            lf, text="◈",
-            font=(FONT, FS["xl"], "bold"),
-            fg=C("accent"), bg=C("hdr_bg")
-        ).pack(side="left", padx=(0, 8))
+        # Badge logo — kotak merah dengan ikon putih, meniru gaya mockup
+        logo_badge = tk.Label(
+            lf, text="🎬",
+            font=(FONT, FS["md"]),
+            fg="#FFFFFF", bg=C("accent"),
+            width=2, height=1,
+        )
+        logo_badge.pack(side="left", padx=(0, 10))
 
         tf = tk.Frame(lf, bg=C("hdr_bg"))
         tf.pack(side="left")
+        title_row = tk.Frame(tf, bg=C("hdr_bg"))
+        title_row.pack(anchor="w")
         tk.Label(
-            tf, text="RPA Stock Compare EOD 🐒",
+            title_row, text="RPA Stock Compare EOD",
             font=(FONT, FS["head"], "bold"),
             fg=C("text"), bg=C("hdr_bg")
-        ).pack(anchor="w")
+        ).pack(side="left")
+        # Version pill — benar-benar rounded pakai Canvas (lihat RoundedPill)
+        RoundedPill(
+            title_row, text="v2.1", bg=C("accent_bg"), fg=C("accent"),
+            parent_bg=C("hdr_bg"), font=(FONT, FS["xs"], "bold"),
+            radius=9, padx=8, pady=3,
+        ).pack(side="left", padx=(8, 0))
         tk.Label(
             tf, text="PT Mayora Indah Tbk — Automated Stock Reconciliation",
             font=(FONT, FS["xs"]),
             fg=C("text3"), bg=C("hdr_bg")
         ).pack(anchor="w")
 
-        # Right side: theme toggle + status pill
+        # Right side: status pill
         rf = tk.Frame(top, bg=C("hdr_bg"))
-        rf.pack(side="right", padx=16, pady=10)
+        rf.pack(side="right", padx=20, pady=10)
 
-        # Theme toggle button
-        self._theme_icon = "☀" if _theme_name == "dark" else "🌙"
-        self._theme_btn = HBtn(
-            rf, C("surface2"), C("surface3"),
-            text=self._theme_icon,
-            font=(FONT, FS["lg"]),
-            fg=C("text2"), relief="flat", bd=0,
-            padx=10, pady=4, cursor="hand2",
-            command=lambda: toggle_theme(self.root, self)
-        )
-        self._theme_btn.pack(side="right", padx=(8, 0))
-
-        # Status pill
-        pill = tk.Frame(rf, bg=C("pill_bg"),
-                        highlightbackground=C("border"), highlightthickness=1,
-                        padx=2, pady=2)
-        pill.pack(side="right")
-        self._dot = tk.Label(pill, text="●", fg=C("success"),
+        # Status pill — background beneran rounded (Canvas), isinya tetap
+        # widget Label biasa (di-embed via create_window) supaya _dot/_stat
+        # masih bisa di-.config() seperti biasa saat status berubah.
+        pill_content = tk.Frame(rf, bg=C("pill_bg"))
+        self._dot = tk.Label(pill_content, text="●", fg=C("success"),
                              bg=C("pill_bg"), font=(FONT, FS["sm"]))
-        self._dot.pack(side="left", padx=(10, 4))
-        self._stat = tk.Label(pill, text="Ready",
+        self._dot.pack(side="left", padx=(0, 4))
+        self._stat = tk.Label(pill_content, text="Ready",
                               fg=C("text2"), bg=C("pill_bg"),
                               font=(FONT, FS["sm"], "bold"))
-        self._stat.pack(side="left", padx=(0, 12))
+        self._stat.pack(side="left")
+        pill_content.update_idletasks()
+        pw = pill_content.winfo_reqwidth() + 24
+        ph = pill_content.winfo_reqheight() + 10
+        pill_canvas = tk.Canvas(rf, width=pw, height=ph,
+                                bg=C("hdr_bg"), highlightthickness=0, bd=0)
+        pill_canvas.pack(side="right")
+        pill_canvas.create_polygon(
+            _rounded_rect_points(1, 1, pw - 1, ph - 1, ph / 2),
+            smooth=True, fill=C("pill_bg"), outline=C("pill_bg"),
+        )
+        pill_canvas.create_window(pw / 2, ph / 2, window=pill_content)
 
     def _build_body_internal(self, parent, Config):
         """Internal method that builds the body. Uses parent parameter for flexibility."""
         body = tk.Frame(parent, bg=C("bg"))
         body.pack(fill="both", expand=True, padx=0, pady=0)
 
+        # Container for sidebar + main area
+        container = tk.Frame(body, bg=C("bg"))
+        container.pack(fill="both", expand=True)
+
+        # Sidebar (vertical) — fixed narrow column on the left
+        sidebar = tk.Frame(container, bg=C("surface"), width=84)
+        sidebar.pack(side="left", fill="y")
+        sidebar.pack_propagate(False)
+
+        def _sb_item(label, icon, cmd, active=False):
+            wrap = tk.Frame(sidebar, bg=C("surface"))
+            wrap.pack(fill="x", pady=(6, 6), padx=6)
+
+            # Item aktif (Dashboard): kotak merah muda + garis aksen kiri,
+            # meniru gaya highlight pada mockup.
+            if active:
+                row = tk.Frame(wrap, bg=C("sidebar_active_bg"))
+                row.pack(fill="x")
+                tk.Frame(row, bg=C("accent"), width=3).pack(side="left", fill="y")
+                btn_bg, btn_fg, btn_hov = C("sidebar_active_bg"), C("accent"), C("sidebar_active_bg")
+                parent_for_btn = row
+            else:
+                btn_bg, btn_fg, btn_hov = C("surface"), C("text2"), C("surface2")
+                parent_for_btn = wrap
+
+            b = tk.Button(
+                parent_for_btn, text=f"{icon}\n{label}",
+                bg=btn_bg, fg=btn_fg,
+                font=(FONT, FS["xs"], "bold" if active else "normal"),
+                relief="flat", bd=0,
+                cursor="hand2", justify="center",
+                activebackground=btn_hov, activeforeground=btn_fg,
+                command=cmd
+            )
+            b.pack(fill="x", expand=True, ipadx=4, ipady=6)
+
+        # Sidebar buttons
+        _sb_item("Dashboard", "🏠", lambda: (self._left_canvas.focus_set() if hasattr(self, "_left_canvas") else None), active=True)
+        _sb_item("Settings", "⚙", lambda: self._open_email_config())
+
+        # MAIN area (to the right of sidebar)
+        main_area = tk.Frame(container, bg=C("bg"))
+        main_area.pack(side="left", fill="both", expand=True)
+
         # PanedWindow — panel kiri bisa digeser kanan-kiri dengan sash
         self._paned = tk.PanedWindow(
-            body, orient="horizontal",
+            main_area, orient="horizontal",
             bg=C("sep"), sashwidth=6, sashrelief="flat",
             handlesize=0, opaqueresize=True,
         )
@@ -689,12 +803,27 @@ class RpaGui:
 
     def _build_left(self, p, Config):
 
-        def entry_row(parent, label, var, width=22, show=""):
+        def entry_row(parent, label, var, width=22, show="", icon=None):
             f = tk.Frame(parent, bg=C("surface"))
             f.pack(fill="x", pady=3)
             tk.Label(f, text=label, fg=C("text2"), bg=C("surface"),
                      font=(FONT, FS["base"]), width=14, anchor="w"
                      ).pack(side="left", padx=(0, 8))
+            if icon:
+                # Bungkus entry + ikon dalam satu kotak border, meniru
+                # input field dengan ikon di ujung kanan pada mockup.
+                wrap = tk.Frame(f, bg=C("border"), padx=1, pady=1)
+                wrap.pack(side="left")
+                inner = tk.Frame(wrap, bg=C("input_bg"))
+                inner.pack()
+                e = tk.Entry(inner, textvariable=var, show=show, width=width,
+                             bg=C("input_bg"), fg=C("text"),
+                             insertbackground=C("accent"),
+                             font=(FONT, FS["base"]), relief="flat", bd=0)
+                e.pack(side="left", ipady=6, padx=(8, 4))
+                tk.Label(inner, text=icon, fg=C("accent"), bg=C("input_bg"),
+                         font=(FONT, FS["base"])).pack(side="left", padx=(0, 8))
+                return e
             e = tk.Entry(f, textvariable=var, show=show, width=width,
                          bg=C("input_bg"), fg=C("text"),
                          insertbackground=C("accent"),
@@ -706,7 +835,7 @@ class RpaGui:
             return e
 
         # ── CONFIGURATION ──────────────────────────────────
-        _make_section_label(p, "Configuration")
+        _make_section_label(p, "Konfigurasi", icon="⚙")
         c1 = _make_card(p)
 
         self.date_var      = tk.StringVar(value=datetime.now().strftime("%d.%m.%Y"))
@@ -718,7 +847,7 @@ class RpaGui:
         self._plant_map_loaded_ok = _from_excel
         self._plant_vars = {p2: tk.BooleanVar(value=True) for p2 in _initial_plants}
 
-        entry_row(c1, "Posting Date", self.date_var, width=14)
+        entry_row(c1, "Posting Date", self.date_var, width=13, icon="📅")
 
         # Portal EOD — custom themed dropdown (no ttk gray problem)
         from test_compare import PORTAL_EOD_URLS
@@ -802,15 +931,15 @@ class RpaGui:
         )
         self._portal_url_lbl.pack(anchor="w", pady=(0, 2))
 
-        # T-code label  
+        # T-code label — kotak merah muda, meniru mockup
         _default_portal = list(self._portal_options.keys())[0]
-        tcode_f = tk.Frame(c1, bg=C("surface2"), padx=8, pady=4)
-        tcode_f.pack(fill="x", pady=(2, 4))
-        tk.Label(tcode_f, text="SAP:", fg=C("text3"), bg=C("surface2"),
-                 font=(FONT, FS["xs"])).pack(side="left")
+        tcode_f = tk.Frame(c1, bg=C("accent_bg"), padx=8, pady=5)
+        tcode_f.pack(fill="x", pady=(4, 4))
+        tk.Label(tcode_f, text="SAP:", fg=C("text2"), bg=C("accent_bg"),
+                 font=(FONT, FS["xs"], "bold")).pack(side="left")
         self._tcode_info_lbl = tk.Label(
             tcode_f, text=self._tcode_info_text(_default_portal),
-            fg=C("accent"), bg=C("surface2"),
+            fg=C("accent"), bg=C("accent_bg"),
             font=(FONT, FS["sm"], "bold"), anchor="w",
         )
         self._tcode_info_lbl.pack(side="left", padx=(4, 0))
@@ -819,9 +948,9 @@ class RpaGui:
         # Setiap email tampil satu baris penuh dengan tombol × di kanan
         # Box punya scrollbar jika email banyak, entry selalu terlihat di bawah box
         # NOTE: _email_to_list / _email_cc_list are owned by __init__, NOT reset here
-        for lbl_txt, list_attr, chip_attr in [
-            ("Email To", "_email_to_list", "_email_to_chips"),
-            ("Email CC", "_email_cc_list", "_email_cc_chips"),
+        for lbl_txt, lbl_icon, list_attr, chip_attr in [
+            ("Email To", "✉", "_email_to_list", "_email_to_chips"),
+            ("Email CC", "✉", "_email_cc_list", "_email_cc_chips"),
         ]:
             email_list = getattr(self, list_attr)
             email_var  = tk.StringVar()
@@ -829,6 +958,8 @@ class RpaGui:
             # Section label row
             lrow = tk.Frame(c1, bg=C("surface"))
             lrow.pack(fill="x", pady=(8, 2))
+            tk.Label(lrow, text=lbl_icon, fg=C("accent"), bg=C("surface"),
+                     font=(FONT, FS["base"])).pack(side="left", padx=(0, 5))
             tk.Label(lrow, text=lbl_txt, fg=C("text2"), bg=C("surface"),
                      font=(FONT, FS["base"], "bold"), anchor="w"
                      ).pack(side="left")
@@ -898,8 +1029,8 @@ class RpaGui:
                     w.destroy()
 
                 for em in list(el):
-                    row = tk.Frame(lf, bg=C("input_bg"))
-                    row.pack(fill="x", padx=4, pady=1)
+                    row = tk.Frame(lf, bg=C("surface2"))
+                    row.pack(fill="x", padx=4, pady=2)
 
                     # Bind mousewheel ke setiap row agar scroll tetap jalan
                     row.bind("<MouseWheel>", _mw_scroll)
@@ -908,11 +1039,11 @@ class RpaGui:
                     disp = em if len(em) <= 30 else em[:27] + "…"
                     lbl  = tk.Label(
                         row, text=disp,
-                        bg=C("input_bg"), fg=C("text"),
+                        bg=C("surface2"), fg=C("text"),
                         font=(FONT, FS["sm"]), anchor="w",
                         cursor="hand2"
                     )
-                    lbl.pack(side="left", fill="x", expand=True, ipady=3)
+                    lbl.pack(side="left", fill="x", expand=True, ipady=5, padx=(8, 0))
                     lbl.bind("<MouseWheel>", _mw_scroll)
                     lbl.bind("<Enter>", lambda e, full=em:
                              self._show_tooltip(e.widget, full))
@@ -925,20 +1056,15 @@ class RpaGui:
                         _refresh_list(_el, lf, lc, ca, ev, vsb)
                     del_btn = tk.Button(
                         row, text="×",
-                        bg=C("input_bg"), fg=C("text3"),
+                        bg=C("surface2"), fg=C("text3"),
                         font=(FONT, FS["md"], "bold"), relief="flat", bd=0,
-                        padx=6, pady=1, cursor="hand2",
+                        padx=8, pady=1, cursor="hand2",
                         activebackground=C("danger"),
                         activeforeground="#FFFFFF",
                         command=_del
                     )
                     del_btn.pack(side="right")
                     del_btn.bind("<MouseWheel>", _mw_scroll)
-
-                    # Garis pemisah tipis antar email
-                    sep = tk.Frame(lf, bg=C("border"), height=1)
-                    sep.pack(fill="x", padx=4)
-                    sep.bind("<MouseWheel>", _mw_scroll)
 
                 # Sesuaikan tinggi canvas: max 3 baris (~27px/baris) sebelum scroll
                 lf.update_idletasks()
@@ -1012,13 +1138,13 @@ class RpaGui:
                             lf=list_frame, lc=list_canvas, ca=chip_attr:
                             _commit(e, el, ev, lf, lc, ca) if ev.get().strip() else None)
 
-            add_btn = tk.Button(
+            add_btn = RoundedPill(
                 entry_inner, text="+ Tambah",
-                bg=C("accent2"), fg=C("accent_txt"),
-                font=(FONT, FS["sm"], "bold"), relief="flat", bd=0,
-                padx=10, pady=4, cursor="hand2",
-                activebackground=C("accent"),
-                activeforeground=C("accent_txt"),
+                bg=C("accent_bg"), fg=C("accent"),
+                parent_bg=C("input_bg"),
+                font=(FONT, FS["sm"], "bold"),
+                radius=10, padx=10, pady=5,
+                hover_bg=C("border"),
                 command=lambda el=email_list, ev=email_var,
                 lf=list_frame, lc=list_canvas, ca=chip_attr:
                 _commit(el=el, ev=ev, lf=lf, lc=lc, ca=ca)
@@ -1039,16 +1165,13 @@ class RpaGui:
                  fg=C("text3"), bg=C("surface"),
                  font=(FONT, FS["xs"])).pack(anchor="w", pady=(2, 6))
 
-        # Plants — header row (label + toggle arrow)
+        # Plants — header row (label + icon, tanpa panah di sini)
         prow2 = tk.Frame(c1, bg=C("surface"))
         prow2.pack(fill="x", pady=(4, 0))
+        tk.Label(prow2, text="🏭", fg=C("accent"), bg=C("surface"),
+                 font=(FONT, FS["base"])).pack(side="left", padx=(0, 5))
         tk.Label(prow2, text="Plants", fg=C("text2"), bg=C("surface"),
-                 font=(FONT, FS["base"]), width=14, anchor="w").pack(side="left")
-        self._plant_arrow_lbl = tk.Label(
-            prow2, text="▾", fg=C("accent"), bg=C("surface"),
-            font=(FONT, FS["sm"]), cursor="hand2"
-        )
-        self._plant_arrow_lbl.pack(side="left")
+                 font=(FONT, FS["base"]), anchor="w").pack(side="left")
 
         # Plants — selected display box (multi-line, wrappable, full width)
         self._plant_summary = tk.StringVar()
@@ -1057,7 +1180,7 @@ class RpaGui:
         plant_box_outer = tk.Frame(
             c1, bg=C("border"), padx=1, pady=1, cursor="hand2"
         )
-        plant_box_outer.pack(fill="x", pady=(2, 0))
+        plant_box_outer.pack(fill="x", pady=(4, 0))
         plant_box_inner = tk.Frame(plant_box_outer, bg=C("input_bg"), cursor="hand2")
         plant_box_inner.pack(fill="x")
 
@@ -1067,11 +1190,18 @@ class RpaGui:
             bg=C("input_bg"), fg=C("text"),
             font=(FONT, FS["base"]),
             anchor="w", justify="left",
-            wraplength=220,      # wrap agar semua plant terlihat
-            padx=8, pady=6,
+            wraplength=190,      # wrap agar semua plant terlihat
+            padx=10, pady=7,
             cursor="hand2",
         )
-        self._plant_selected_lbl.pack(fill="x", expand=True)
+        self._plant_selected_lbl.pack(side="left", fill="x", expand=True)
+
+        # Panah dropdown di ujung kanan box — meniru gaya <select> asli
+        self._plant_arrow_lbl = tk.Label(
+            plant_box_inner, text="▾", fg=C("accent"), bg=C("input_bg"),
+            font=(FONT, FS["sm"]), cursor="hand2"
+        )
+        self._plant_arrow_lbl.pack(side="right", padx=(0, 10))
 
         def _toggle_plant_box(event=None):
             self._toggle_plant_popup()
@@ -1153,13 +1283,19 @@ class RpaGui:
 
         tk.Frame(self._plant_popup, bg=C("border"), height=1).pack(fill="x")
 
-        # Scrollable grid area
+        # Scrollable grid area — scrollbar dibuat lebih lebar & jelas agar
+        # mudah digenggam/drag dengan mouse.
         grid_canvas = tk.Canvas(
             self._plant_popup, bg=C("surface2"),
             highlightthickness=0, height=160
         )
-        grid_vsb = tk.Scrollbar(self._plant_popup, orient="vertical",
-                                command=grid_canvas.yview, width=6)
+        grid_vsb = tk.Scrollbar(
+            self._plant_popup, orient="vertical",
+            command=grid_canvas.yview, width=12,
+            bg=C("accent"), troughcolor=C("surface3"),
+            activebackground=C("accent2"),
+            highlightthickness=0, bd=0, relief="flat",
+        )
         grid_canvas.configure(yscrollcommand=grid_vsb.set)
         grid_vsb.pack(side="right", fill="y")
         grid_canvas.pack(fill="both", expand=True, padx=0)
@@ -1178,24 +1314,21 @@ class RpaGui:
         self._plant_grid.bind("<Configure>", _on_grid_configure)
         grid_canvas.bind("<Configure>", _on_grid_canvas_configure)
 
-        # Mousewheel scroll on plant list
-        # bind_all saat Enter area grid agar scroll jalan di semua child (Checkbutton dll)
+        # Mousewheel scroll khusus popup plant — pakai bind LOKAL (bukan
+        # bind_all) dan return "break" supaya event TIDAK diteruskan ke
+        # scroll handler panel kiri. Ini menghilangkan "rebutan" scroll
+        # antara popup plant dan panel kiri yang bikin scrollbar terasa
+        # susah dikendalikan.
         def _grid_scroll(event):
             grid_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+            return "break"
 
-        def _grid_enter(event):
-            self.root.bind_all("<MouseWheel>", _grid_scroll)
-
-        def _grid_leave(event):
-            # Kembalikan ke handler scroll panel kiri jika kursor masih di dalam panel kiri
-            self.root.unbind_all("<MouseWheel>")
-
-        grid_canvas.bind("<MouseWheel>", _grid_scroll)
-        grid_canvas.bind("<Enter>", _grid_enter)
-        grid_canvas.bind("<Leave>", _grid_leave)
-        self._plant_grid.bind("<MouseWheel>", _grid_scroll)
-        self._plant_grid.bind("<Enter>", _grid_enter)
-        self._plant_grid.bind("<Leave>", _grid_leave)
+        # Bind ke seluruh area popup (header, search box, separator, grid)
+        # supaya scroll di mana pun dalam kotak popup selalu mengarah ke
+        # daftar plant, bukan ke panel kiri.
+        for _w in (self._plant_popup, ph, search_row, search_icon,
+                   search_entry, grid_canvas, self._plant_grid):
+            _w.bind("<MouseWheel>", _grid_scroll)
 
         def _rebuild_plant_grid(filter_text=""):
             """Rebuild checkboxes filtered by search text."""
@@ -1217,10 +1350,8 @@ class RpaGui:
                     command=self._update_plant_summary,
                 )
                 cb.grid(row=i // 3, column=i % 3, sticky="w", padx=6, pady=2)
-                # Tiap checkbox juga forward scroll & enter/leave ke grid
+                # Tiap checkbox juga forward scroll ke grid (lokal, bukan bind_all)
                 cb.bind("<MouseWheel>", _grid_scroll)
-                cb.bind("<Enter>", _grid_enter)
-                cb.bind("<Leave>", _grid_leave)
             # Update count label
             sel = sum(1 for v in self._plant_vars.values() if v.get())
             total = len(self._plant_vars)
@@ -1254,8 +1385,10 @@ class RpaGui:
         # Plant mapping file
         pf = tk.Frame(c1, bg=C("surface"))
         pf.pack(fill="x", pady=(0, 6))
+        tk.Label(pf, text="🗺", fg=C("accent"), bg=C("surface"),
+                 font=(FONT, FS["base"])).pack(side="left", padx=(0, 5))
         tk.Label(pf, text="Plant Map", fg=C("text2"), bg=C("surface"),
-                 font=(FONT, FS["base"]), width=14, anchor="w").pack(side="left")
+                 font=(FONT, FS["base"]), width=10, anchor="w").pack(side="left")
         tk.Entry(pf, textvariable=self.plant_map_var,
                  bg=C("input_bg"), fg=C("text"),
                  insertbackground=C("accent"),
@@ -1281,7 +1414,7 @@ class RpaGui:
         self._plant_map_status_lbl.pack(anchor="w", pady=(0, 6))
 
         # ── U2C FILE PATH ───────────────────────────────────
-        _make_section_label(p, "U2C File Path")
+        _make_section_label(p, "U2C File Path", icon="📄")
         c_u2c = _make_card(p)
 
         try:
@@ -1323,7 +1456,7 @@ class RpaGui:
         self._u2c_save_lbl.pack(side="left", padx=10)
 
         # ── RUN MODE ───────────────────────────────────────
-        _make_section_label(p, "Run Mode")
+        _make_section_label(p, "Run Mode", icon="▶")
         c2 = _make_card(p)
         self.mode_var = tk.StringVar(value="list_plants")
 
@@ -1331,7 +1464,7 @@ class RpaGui:
             ("list_plants", "Proses dari daftar Plants",
              "Hanya plant yang tercantum di atas", C("text")),
             ("auto_scan", "Auto-scan Not Completed",
-             "Scan semua Not Completed di ListEod", C("warning")),
+             "Scan semua Not Completed di ListEod", C("text2")),
         ]:
             rf = tk.Frame(c2, bg=C("surface"))
             rf.pack(fill="x", pady=(4, 0))
@@ -1347,7 +1480,7 @@ class RpaGui:
         tk.Frame(c2, bg=C("surface"), height=4).pack()
 
         # ── INFO ───────────────────────────────────────────
-        _make_section_label(p, "Info & Settings")
+        _make_section_label(p, "Info & Settings", icon="ℹ")
         c3 = _make_card(p)
 
         info_items = [
@@ -1366,11 +1499,9 @@ class RpaGui:
 
         tk.Frame(c3, bg=C("sep"), height=1).pack(fill="x", pady=8)
 
-        HBtn(c3, C("surface2"), C("surface3"),
-             text="⚙  Konfigurasi Email SMTP",
-             font=(FONT, FS["base"]), fg=C("text2"),
-             relief="flat", bd=0, pady=8, cursor="hand2",
-             command=self._open_email_config).pack(fill="x")
+        # Email configuration moved to Settings in sidebar
+        tk.Label(c3, text="Konfigurasi email berada di Settings (sidebar)",
+             fg=C("text2"), bg=C("surface"), font=(FONT, FS["sm"]) ).pack(fill="x", pady=6)
 
         tk.Frame(p, height=20, bg=C("bg")).pack()
 
@@ -1388,11 +1519,13 @@ class RpaGui:
         
         hdr = tk.Frame(top_header, bg=C("bg"))
         hdr.pack(fill="x", pady=(0, 6))
-        tk.Label(hdr, text="ACTIVITY LOG", fg=C("text3"), bg=C("bg"),
+        tk.Label(hdr, text="📈", fg=C("accent"), bg=C("bg"),
+                 font=(FONT, FS["sm"])).pack(side="left", padx=(0, 5))
+        tk.Label(hdr, text="ACTIVITY LOG", fg=C("text2"), bg=C("bg"),
                  font=(FONT, FS["xs"], "bold")).pack(side="left")
-        HBtn(hdr, C("bg"), C("surface2"),
-             text="Bersihkan", font=(FONT, FS["sm"]), fg=C("text3"),
-             relief="flat", bd=0, padx=10, pady=3, cursor="hand2",
+        HBtn(hdr, C("accent_bg"), C("accent_bg"),
+             text="🗑  Bersihkan Log", font=(FONT, FS["sm"], "bold"), fg=C("accent"),
+             relief="flat", bd=0, padx=12, pady=4, cursor="hand2",
              command=self._clear_log).pack(side="right")
 
         # Progress bar (always visible)
@@ -1409,18 +1542,11 @@ class RpaGui:
                                     style="RPA.Horizontal.TProgressbar")
         self.prog.pack(fill="x", pady=(0, 0))
 
-        # PanedWindow untuk 70-30 split dengan drag
-        paned = tk.PanedWindow(p, orient="vertical", bg=C("bg"), bd=0,
-                               sashwidth=4, sashrelief="flat")
-        paned.pack(fill="both", expand=True, padx=16)
-
-        # ===== ACTIVITY LOG (Pane 1 - hanya text widget) =====
-        top = tk.Frame(p, bg=C("bg"))
-
-        log_outer = tk.Frame(top, bg=C("border"), bd=0)
-        log_outer.pack(fill="both", expand=True)
+        # Activity log area (single pane)
+        log_outer = tk.Frame(p, bg=C("border"), bd=0)
+        log_outer.pack(fill="both", expand=True, padx=16)
         log_inner = tk.Frame(log_outer, bg=C("surface"))
-        log_inner.pack(fill="both", padx=1, pady=1)
+        log_inner.pack(fill="both", padx=1, pady=1, expand=True)
 
         self.log = scrolledtext.ScrolledText(
             log_inner, bg=C("surface"), fg=C("text2"),
@@ -1434,49 +1560,6 @@ class RpaGui:
         self.log.tag_config("OK",    foreground=C("success"))
         self.log.tag_config("WARN",  foreground=C("warning"))
         self.log.tag_config("ERROR", foreground=C("danger"))
-        self.log.tag_config("LIMIT_ALERT", foreground=C("warning"))
-
-        paned.add(top, height=280)
-
-        # ===== LIMIT ALERT (Pane 2) =====
-        bot = tk.Frame(p, bg=C("bg"))
-
-        lhdr = tk.Frame(bot, bg=C("bg"))
-        lhdr.pack(fill="x", pady=(0, 6))
-        self._alert_dot = tk.Label(lhdr, text="●", fg=C("text3"), bg=C("bg"),
-                                    font=(FONT, FS["sm"]))
-        self._alert_dot.pack(side="left", padx=(0, 6))
-        tk.Label(lhdr, text="LIMIT ALERT", fg=C("text3"), bg=C("bg"),
-                 font=(FONT, FS["xs"], "bold")).pack(side="left")
-        self._alert_count = tk.Label(lhdr, text="", fg=C("warning"), bg=C("bg"),
-                                      font=(FONT, FS["sm"], "bold"))
-        self._alert_count.pack(side="left", padx=(8, 0))
-        HBtn(lhdr, C("bg"), C("surface2"),
-             text="Bersihkan", font=(FONT, FS["sm"]), fg=C("text3"),
-             relief="flat", bd=0, padx=10, pady=3, cursor="hand2",
-             command=self._clear_alert_log).pack(side="right")
-
-        alert_outer = tk.Frame(bot, bg=C("border"))
-        alert_outer.pack(fill="both", expand=True)
-        alert_inner = tk.Frame(alert_outer, bg=C("surface"))
-        alert_inner.pack(fill="both", padx=1, pady=1)
-
-        self.alert_log = scrolledtext.ScrolledText(
-            alert_inner, bg=C("surface"), fg=C("text2"),
-            font=(FONT, FS["base"]), relief="flat", bd=0,
-            state="disabled", wrap="word",
-            padx=16, pady=10,
-        )
-        self.alert_log.pack(fill="both", expand=True)
-        self.alert_log.tag_config("HEAD",  foreground=C("warning"),
-                                   font=(FONT, FS["base"], "bold"))
-        self.alert_log.tag_config("ITEM",  foreground=C("text2"))
-        self.alert_log.tag_config("OVER",  foreground=C("danger"))
-        self.alert_log.tag_config("PLANT", foreground=C("accent"),
-                                   font=(FONT, FS["sm"], "bold"))
-        self.alert_log.tag_config("LIMIT_ALERT", foreground=C("warning"))
-
-        paned.add(bot, height=120)
 
         tk.Frame(p, bg=C("bg"), height=14).pack()
 
@@ -1495,10 +1578,20 @@ class RpaGui:
         inner = tk.Frame(bar, bg=C("surface"))
         inner.pack(fill="both", expand=True, padx=20)
 
-        self._lastrun = tk.Label(inner, text="Belum pernah dijalankan",
-                                 fg=C("text3"), bg=C("surface"),
-                                 font=(FONT, FS["sm"]))
-        self._lastrun.pack(side="left", anchor="center", pady=14)
+        # "Terakhir dijalankan" — ikon kalender + caption di atas, tanggal
+        # tebal di bawah, meniru gaya info di pojok kiri-bawah pada mockup.
+        lastrun_row = tk.Frame(inner, bg=C("surface"))
+        lastrun_row.pack(side="left", anchor="center", pady=10)
+        tk.Label(lastrun_row, text="🗓", fg=C("text3"), bg=C("surface"),
+                 font=(FONT, FS["md"])).pack(side="left", padx=(0, 8))
+        lastrun_col = tk.Frame(lastrun_row, bg=C("surface"))
+        lastrun_col.pack(side="left")
+        tk.Label(lastrun_col, text="Terakhir dijalankan", fg=C("text3"),
+                 bg=C("surface"), font=(FONT, FS["xs"])).pack(anchor="w")
+        self._lastrun = tk.Label(lastrun_col, text="Belum pernah dijalankan",
+                                 fg=C("text"), bg=C("surface"),
+                                 font=(FONT, FS["sm"], "bold"))
+        self._lastrun.pack(anchor="w")
 
         btn_area = tk.Frame(inner, bg=C("surface"))
         btn_area.pack(side="right", pady=10)
@@ -1578,7 +1671,7 @@ class RpaGui:
             self._stat.config(text="Ready", fg=C("text2"))
             self.prog.stop()
             self._lastrun.config(
-                text=f"Terakhir dijalankan: {datetime.now().strftime('%d %b %Y  %H:%M')}")
+                text=f"{datetime.now().strftime('%d %b %Y  %H:%M')}")
 
     def _clear_log(self):
         self.log.config(state="normal")
@@ -1586,41 +1679,15 @@ class RpaGui:
         self.log.config(state="disabled")
 
     def _clear_alert_log(self):
-        self.alert_log.config(state="normal")
-        self.alert_log.delete("1.0", "end")
-        self.alert_log.config(state="disabled")
-        self._alert_total = 0
-        self._alert_dot.config(fg=C("text3"))
-        self._alert_count.config(text="")
+        # Limit Alert removed from UI — keep method as no-op
+        return
 
     def _append_alert(self, plant: str, items_skip: list, limits: dict):
+        # Limit Alert handling removed — forward as WARN to activity log
         if not items_skip:
             return
-        self._alert_total += len(items_skip)
-        self._alert_dot.config(fg=C("danger"))
-        self._alert_count.config(text=f"{self._alert_total} item lewat limit")
-        self.alert_log.config(state="normal")
         ts = datetime.now().strftime("%H:%M:%S")
-        self.alert_log.insert("end",
-            f"[{ts}]  Plant {plant}  —  {len(items_skip)} item lewat batas\n", "HEAD")
-        for item in items_skip:
-            lim   = limits.get(item["material"], {})
-            lim_p = lim.get("limit_plus", "N/A")
-            lim_m = lim.get("limit_minus", "N/A")
-            diff  = item["diff"]
-            mat   = item["material"]
-            sloc  = item["sloc"]
-            if diff > 0:
-                batas = f"limit+ {lim_p}"
-                arah  = f"{diff:+.3f} > {lim_p}"
-            else:
-                batas = f"limit- {lim_m}"
-                arah  = f"{diff:+.3f} < {lim_m}"
-            self.alert_log.insert("end",
-                f"  ⚠  {mat}  SLoc={sloc}  diff={diff:+.6f}  [{batas}]  {arah}\n", "OVER")
-        self.alert_log.insert("end", "\n", "ITEM")
-        self.alert_log.see("end")
-        self.alert_log.config(state="disabled")
+        self._write_log(f"[{ts}] LIMIT ALERT for Plant {plant}: {len(items_skip)} items", "WARN")
 
     def _write_log(self, msg: str, level: str = "INFO"):
         self.log.config(state="normal")
@@ -1823,17 +1890,23 @@ class RpaGui:
             "INFO"
         )
 
-        threading.Thread(
+        global robot_proc
+        if robot_proc is not None and robot_proc.is_alive():
+            return
+        robot_proc = threading.Thread(
             target=run_robot,
             args=(plants, posting_date, email_to, email_cc, mode),
-            daemon=True
-        ).start()
+            daemon=True,
+        )
+        robot_proc.start()
 
     def _on_stop(self):
-        stop_event.set()
+        force_stop_all()
+        self._set_running(False)
         self._write_log("=" * 40, "WARN")
-        self._write_log("Stop diklik -- menghentikan robot...", "WARN")
-        self._write_log("Tunggu proses saat ini selesai.", "WARN")
+        self._write_log("Stop diklik -- worker RPA dihentikan.", "WARN")
+        self._write_log("SAP dan Chrome tetap terbuka, hanya proses otomatisasi yang diputus.", "WARN")
+        self._write_log("UI dikembalikan ke keadaan siap pakai, log tidak dihapus.", "WARN")
         self._write_log("=" * 40, "WARN")
         self.stop_btn.config(state="disabled")
 
@@ -1854,105 +1927,8 @@ class RpaGui:
                 elif level == "SAP_WAIT":
                     self.root.after(0, self._ask_sap_confirm)
                 elif level == "LIMIT_ALERT":
-                    # Buffer and filter LIMIT_ALERT blocks so only allowed SLocs are shown
-                    txt = msg or ""
-                    # Detect start of a block: header like 'Plant B380 - X ITEM LEWAT LIMIT ADJUSTMENT'
-                    # (messages include timestamp prefix, so don't rely on startswith)
-                    if "ITEM LEWAT LIMIT ADJUSTMENT" in txt and "Plant " in txt:
-                        # start new buffer
-                        self._current_limit_block = [txt]
-                        self._current_limit_block_has_allowed = False
-                        self._current_limit_block_allowed_count = 0
-                        # extract plant code robustly (msg may include timestamp)
-                        try:
-                            import re
-                            m = re.search(r"Plant\s+(\S+)", txt)
-                            self._current_limit_block_plant = m.group(1) if m else None
-                        except Exception:
-                            self._current_limit_block_plant = None
-                    elif self._current_limit_block is not None:
-                        # Append into current block
-                        self._current_limit_block.append(txt)
-                        # Check for item lines containing SLoc=
-                        if "SLoc=" in txt:
-                            # extract SLoc token
-                            try:
-                                after = txt.split("SLoc=", 1)[1]
-                                sl = after.split()[0].strip().strip('|').strip()
-                            except Exception:
-                                sl = ""
-                            if sl in self._allowed_slocs:
-                                self._current_limit_block_has_allowed = True
-                                self._current_limit_block_allowed_count += 1
-                        # Detect end of block (final summary line or long ===== separator)
-                        stripped = txt.strip()
-                        is_sep = (set(stripped) <= set("=") and len(stripped) >= 10)
-                        if "tidak diproses" in txt or is_sep:
-                            # flush if we saw allowed items
-                            if self._current_limit_block_has_allowed:
-                                # Insert buffered lines but only include allowed SLoc item lines
-                                self.alert_log.config(state="normal")
-                                for line in self._current_limit_block:
-                                    if "SLoc=" in line:
-                                        try:
-                                            after = line.split("SLoc=", 1)[1]
-                                            sl = after.split()[0].strip().strip('|').strip()
-                                        except Exception:
-                                            sl = ""
-                                        if sl in self._allowed_slocs:
-                                            self.alert_log.insert("end", line + "\n", "LIMIT_ALERT")
-                                    else:
-                                        # header / separators / final note — include
-                                        self.alert_log.insert("end", line + "\n", "LIMIT_ALERT")
-                                self.alert_log.insert("end", "\n", "ITEM")
-                                self.alert_log.see("end")
-                                self.alert_log.config(state="disabled")
-                                # Update totals & indicators
-                                plant = self._current_limit_block_plant
-                                k = self._current_limit_block_allowed_count
-                                self._alert_total_allowed += k
-                                if plant:
-                                    self._alert_per_plant[plant] = self._alert_per_plant.get(plant, 0) + k
-                                self._alert_dot.config(fg=C("danger"))
-                                self._alert_count.config(text=f"{self._alert_total_allowed} alert")
-                                # Update activity: replace plant 'lewat limit' line if present
-                                if plant:
-                                    try:
-                                        self._update_activity_plant_lewat(plant, self._alert_per_plant.get(plant, 0))
-                                    except Exception:
-                                        pass
-                                # Also update global Filter line if present
-                                try:
-                                    self._update_filter_counts(self._alert_total_allowed)
-                                except Exception:
-                                    pass
-                            # reset buffer
-                            self._current_limit_block = None
-                            self._current_limit_block_has_allowed = False
-                            self._current_limit_block_allowed_count = 0
-                            self._current_limit_block_plant = None
-                    else:
-                        # Standalone LIMIT_ALERT line (item details without header)
-                        if "SLoc=" in txt:
-                            try:
-                                after = txt.split("SLoc=", 1)[1]
-                                sl = after.split()[0].strip().strip('|').strip()
-                            except Exception:
-                                sl = ""
-                            if sl in self._allowed_slocs:
-                                self.alert_log.config(state="normal")
-                                self.alert_log.insert("end", txt + "\n", "LIMIT_ALERT")
-                                self.alert_log.see("end")
-                                self.alert_log.config(state="disabled")
-                                self._alert_dot.config(fg=C("danger"))
-                                self._alert_total_allowed += 1
-                                self._alert_count.config(text=f"{self._alert_total_allowed} alert")
-                        else:
-                            # non-item standalone — show it (safe fallback)
-                            self.alert_log.config(state="normal")
-                            self.alert_log.insert("end", txt + "\n", "LIMIT_ALERT")
-                            self.alert_log.see("end")
-                            self.alert_log.config(state="disabled")
+                    # LIMIT_ALERT messages are forwarded as WARN into activity log (Limit Alert panel removed)
+                    self._write_log(msg or "", "WARN")
                 else:
                     self._write_log(msg, level)
         except queue.Empty:

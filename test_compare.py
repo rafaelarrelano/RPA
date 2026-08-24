@@ -966,6 +966,92 @@ def _click_next_page(page) -> bool:
         return False
 
 
+def _collect_plant_urls_from_rows(rows, target_plants):
+    """Kumpulkan mapping plant -> href dari hasil scan tabel ListEod."""
+    target_set = {str(p).strip() for p in target_plants if str(p).strip()}
+    found = {}
+    for row in rows or []:
+        plant = str(row.get('plant', '')).strip()
+        if not plant or plant not in target_set:
+            continue
+        href = str(row.get('href') or row.get('url') or '').strip()
+        if href and plant not in found:
+            found[plant] = href
+    return found
+
+
+def _scan_list_eod_for_plants(page, plants, send_log=None):
+    """
+    Scan seluruh halaman ListEod sekali saja dan cache:
+      - plant_to_url: {plant: detail_url}
+      - plants_by_page: {page_num: [plants_found_on_that_page]}
+    """
+    target_plants = [str(p).strip() for p in plants if str(p).strip()]
+    if not target_plants:
+        return {}, {}
+
+    _goto_first_page(page)
+    page_num = 1
+    plant_to_url = {}
+    plants_by_page = {}
+
+    while True:
+        if _is_stopped():
+            _log(send_log, f"Scan halaman dihentikan oleh user di halaman {page_num}", "WARN")
+            break
+
+        try:
+            page.wait_for_selector("table.k-selectable tbody tr", timeout=5000)
+        except PWTimeout:
+            _log(send_log, f"Tabel tidak muncul di halaman {page_num}", "WARN")
+            break
+
+        rows = page.evaluate("""() => {
+            const tbl = document.querySelector('table.k-selectable');
+            if (!tbl) return [];
+            const result = [];
+            for (const row of tbl.querySelectorAll('tbody tr')) {
+                const cells = Array.from(row.querySelectorAll('td'));
+                if (cells.length < 2) continue;
+                const plant = cells[1] ? cells[1].innerText.trim() : '';
+                const link = cells[0].querySelector('a') || row.querySelector('a');
+                const href = link ? link.href : '';
+                if (plant || href) {
+                    result.push({ plant, href });
+                }
+            }
+            return result;
+        }""")
+
+        page_plants = []
+        for row in rows:
+            plant = str(row.get('plant', '')).strip()
+            if not plant:
+                continue
+            if plant not in target_plants:
+                continue
+            href = str(row.get('href') or row.get('url') or row.get('href') or '').strip()
+            if href and plant not in plant_to_url:
+                plant_to_url[plant] = href
+            if plant not in page_plants:
+                page_plants.append(plant)
+
+        if page_plants:
+            plants_by_page[page_num] = sorted(page_plants)
+            _log(send_log,
+                 f"Halaman {page_num}: {', '.join(page_plants)}",
+                 "INFO")
+
+        if not _click_next_page(page):
+            break
+        page_num += 1
+
+    _log(send_log,
+         f"Scan sekali selesai: {len(plant_to_url)}/{len(target_plants)} plant ditemukan",
+         "OK" if len(plant_to_url) else "INFO")
+    return plant_to_url, plants_by_page
+
+
 def _find_detail_url_for_plant(page, plant: str, send_log=None,
                                posting_date: str = None) -> str:
     """
@@ -1158,14 +1244,21 @@ def run_full_pipeline(plants: list = None, posting_date: str = None,
 
             # ── STEP 1: Kumpulkan semua plant yang ada selisih ───
             if plants:
-                plant_rows = []
                 _log(send_log,
                      f"Mencari {len(plants)} plant di ListEod "
-                     f"(scan semua halaman per plant)...", "INFO")
-                for plant in plants:
-                    url = _find_detail_url_for_plant(
-                        work_page, plant, send_log, posting_date
+                     f"(scan halaman sekali dan cache per plant)...", "INFO")
+                plant_to_url, plants_by_page = _scan_list_eod_for_plants(
+                    work_page, plants, send_log
+                )
+                if plants_by_page:
+                    page_summary = "; ".join(
+                        f"hal {page_num}: {', '.join(plants)}"
+                        for page_num, plants in sorted(plants_by_page.items())
                     )
+                    _log(send_log, f"Daftar plant per halaman: {page_summary}", "INFO")
+                plant_rows = []
+                for plant in plants:
+                    url = plant_to_url.get(plant)
                     if url:
                         plant_rows.append({"plant": plant, "url": url})
                     else:
